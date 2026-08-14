@@ -235,18 +235,18 @@ function generatePlaceholder(book) {
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="600" height="900">
-      <rect width="600" height="900" fill="#e4e4e7"/>
-      <rect x="26" y="26" width="548" height="848" fill="#f4f4f5"/>
-      <rect x="60" y="70" width="480" height="12" fill="#d4d4d8"/>
-      <text x="60" y="170" font-family="Inter, system-ui" font-size="44" fill="#09090b" font-weight="800">
+      <rect width="600" height="900" fill="#ffffff"/>
+      <rect x="9" y="9" width="582" height="882" fill="none" stroke="#000000" stroke-width="18"/>
+      <rect x="60" y="70" width="480" height="18" fill="#ff2e2e"/>
+      <text x="60" y="190" font-family="'Arial Black', Inter, system-ui" font-size="46" fill="#000000" font-weight="900" style="text-transform:uppercase" letter-spacing="-1">
         ${titleLines}
       </text>
-      <text x="60" y="620" font-family="Inter, system-ui" font-size="22" fill="#52525b" font-weight="700">
+      <text x="60" y="620" font-family="Menlo, monospace" font-size="22" fill="#000000">
         ${escapeXml(author)}
       </text>
-      <rect x="60" y="700" width="420" height="10" fill="#d4d4d8"/>
-      <rect x="60" y="728" width="360" height="10" fill="#d4d4d8"/>
-      <rect x="60" y="756" width="400" height="10" fill="#d4d4d8"/>
+      <rect x="60" y="700" width="420" height="10" fill="#000000"/>
+      <rect x="60" y="728" width="360" height="10" fill="#000000"/>
+      <rect x="60" y="756" width="400" height="10" fill="#000000"/>
     </svg>
   `.trim()
 
@@ -372,7 +372,6 @@ function render() {
         <div class="header-row">
           <div class="header-title">
             <h1>Bookshelf</h1>
-            <span class="header-count">${filtered.length} shown &bull; ${state.books.length} total</span>
           </div>
           <div class="header-controls">
             <div class="search-wrap">
@@ -399,6 +398,7 @@ function render() {
     </div>
 
     <div id="results">${renderResults(filtered)}</div>
+    ${renderStatusBar(filtered)}
     ${state.drawerOpen ? renderDrawer() : ''}
     ${state.modalOpen ? renderModal() : ''}
     ${state.importOpen ? renderImportModal() : ''}
@@ -422,13 +422,27 @@ function renderResults(filtered) {
   return state.view === 'covers' ? renderCoversView(filtered) : renderListView(filtered)
 }
 
+function renderStatusBar(filtered) {
+  const total = state.books.length
+  const shown = filtered.length
+  const opt = SORT_OPTIONS.find(o => o.key === state.sortBy) || SORT_OPTIONS[0]
+  return `
+    <div class="status-bar">
+      ${shown === total ? `${total} BOOKS` : `${shown}/${total} BOOKS`}
+      / SORTED BY ${esc(opt.label.toUpperCase())} ${state.sortDir === 'asc' ? '↑' : '↓'}
+      ${state.q ? ` / q: "${esc(state.q)}"` : ''}
+      ${state.tag ? ` / tag: ${esc(state.tag)}` : ''}
+    </div>
+  `
+}
+
 // Update only the results region so header controls (like the search input) keep focus
 function updateResults() {
   const filtered = getFilteredSorted()
   const results = document.querySelector('#results')
   if (results) results.innerHTML = renderResults(filtered)
-  const count = document.querySelector('.header-count')
-  if (count) count.innerHTML = `${filtered.length} shown &bull; ${state.books.length} total`
+  const bar = document.querySelector('.status-bar')
+  if (bar) bar.outerHTML = renderStatusBar(filtered)
   const clearBtn = document.querySelector('[data-action="clear-search"]')
   if (clearBtn) clearBtn.classList.toggle('hidden', !state.q)
 }

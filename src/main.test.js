@@ -48,7 +48,7 @@ describe('initial render', () => {
 
   it('shows all books in the cover wall', () => {
     expect(document.querySelectorAll('.cover-tile').length).toBe(3)
-    expect(document.querySelector('.header-count').textContent).toContain('3 shown')
+    expect(document.querySelector('.status-bar').textContent).toContain('3 BOOKS')
   })
 })
 
@@ -188,6 +188,15 @@ describe('keyboard access', () => {
   })
 })
 
+describe('status bar', () => {
+  it('renders the status bar with count and sort', async () => {
+    await loadApp()
+    const bar = document.querySelector('.status-bar').textContent
+    expect(bar).toContain('3 BOOKS')
+    expect(bar).toContain('TITLE')
+  })
+})
+
 describe('goodreads import', () => {
   beforeEach(() => loadApp())
 
@@ -254,6 +263,6 @@ describe('search', () => {
 
     expect(document.querySelectorAll('.cover-tile').length).toBe(1)
     expect(document.querySelector('.cover-title').textContent).toBe('Dune')
-    expect(document.querySelector('.header-count').textContent).toContain('1 shown')
+    expect(document.querySelector('.status-bar').textContent).toContain('1/3 BOOKS')
   })
 })
