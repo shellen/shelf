@@ -163,6 +163,15 @@ export function updateBookCover(id, coverUrl) {
   return result.changes > 0
 }
 
+// Helper: unique id from a title slug
+export function generateBookId(title) {
+  const slug = String(title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 40) || 'book'
+  let id = slug
+  let n = 2
+  while (getBook(id)) id = `${slug}-${n++}`
+  return id
+}
+
 // Helper: set a book's ISBN
 export function updateBookIsbn(id, isbn) {
   const stmt = db.prepare(`

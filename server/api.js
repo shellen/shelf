@@ -5,7 +5,7 @@
 
 import express from 'express'
 import cors from 'cors'
-import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags } from './db.js'
+import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId } from './db.js'
 
 const app = express()
 const PORT = 3001
@@ -41,23 +41,13 @@ app.get('/api/books/:id', (req, res) => {
 // POST /api/books - Create new book
 app.post('/api/books', (req, res) => {
   try {
-    const { title, author, shelf, tags, isbn, coverUrl } = req.body
+    const { title, author, tags, isbn, coverUrl } = req.body
 
     if (!title) {
       return res.status(400).json({ error: 'Title is required' })
     }
 
-    // Generate ID from shelf and title
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 40)
-    const id = `s${shelf || 1}-${slug}`
-
-    // Check for duplicate
-    const existing = getBook(id)
-    if (existing) {
-      return res.status(409).json({ error: 'Book with this ID already exists' })
-    }
-
-    const book = saveBook({ id, title, author, shelf: shelf || 1, tags: tags || [], isbn, coverUrl })
+    const book = saveBook({ id: generateBookId(title), title, author, tags: tags || [], isbn, coverUrl })
     res.status(201).json(book)
   } catch (e) {
     console.error('Error creating book:', e)

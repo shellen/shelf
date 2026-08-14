@@ -64,6 +64,20 @@ describe('schema migration', () => {
   })
 })
 
+describe('generateBookId', () => {
+  it('slugifies the title', async () => {
+    const { generateBookId } = await loadDb()
+    expect(generateBookId('The Design of Everyday Things!')).toBe('the-design-of-everyday-things')
+  })
+  it('suffixes on collision', async () => {
+    const { generateBookId, saveBook } = await loadDb()
+    saveBook({ id: 'dune', title: 'Dune', tags: [] })
+    expect(generateBookId('Dune')).toBe('dune-2')
+    saveBook({ id: 'dune-2', title: 'Dune', tags: [] })
+    expect(generateBookId('Dune')).toBe('dune-3')
+  })
+})
+
 describe('updateBookIsbn', () => {
   it('sets the isbn on a book that has none', async () => {
     const { saveBook, getBook, updateBookIsbn } = await loadDb()
