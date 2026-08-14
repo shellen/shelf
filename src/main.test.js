@@ -133,6 +133,45 @@ describe('static build fallback', () => {
   })
 })
 
+describe('empty results', () => {
+  beforeEach(() => loadApp())
+
+  it('shows an empty state when no books match the search', () => {
+    const input = document.querySelector('[data-action="search"]')
+    input.focus()
+
+    typeInSearch('zzzzz')
+
+    expect(document.querySelector('.empty-state')).not.toBeNull()
+    expect(document.querySelector('.empty-state').textContent).toContain('No books match')
+  })
+})
+
+describe('list view sorting', () => {
+  beforeEach(() => loadApp())
+
+  it('sorts by author when the author column header is clicked', () => {
+    document.querySelector('[data-view="list"]').click()
+    document.querySelector('[data-sort="author"]').click()
+
+    const firstTitle = document.querySelector('.list-row .list-title button').textContent
+    expect(firstTitle).toBe('The Design of Everyday Things')
+  })
+})
+
+describe('keyboard access', () => {
+  beforeEach(() => loadApp())
+
+  it('opens a book from the cover wall with the Enter key', () => {
+    const tile = document.querySelector('[data-id="s2-dune"]')
+    expect(tile.getAttribute('tabindex')).toBe('0')
+
+    tile.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+
+    expect(document.querySelector('.drawer-title').textContent).toBe('Dune')
+  })
+})
+
 describe('search', () => {
   beforeEach(() => loadApp())
 

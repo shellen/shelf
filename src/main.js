@@ -375,6 +375,14 @@ function render() {
 }
 
 function renderResults(filtered) {
+  if (!filtered.length && state.books.length) {
+    return `
+      <div class="empty-state">
+        <p>No books match your filters.</p>
+        <button class="btn" data-action="reset">Clear filters</button>
+      </div>
+    `
+  }
   return state.view === 'covers' ? renderCoversView(filtered) : renderListView(filtered)
 }
 
@@ -416,8 +424,8 @@ function renderCoversView(books) {
   return `
     <div class="wall">
       ${books.map(b => `
-        <div class="cover-tile" data-action="open-book" data-id="${esc(b.id)}">
-          <div class="cover-aspect">
+        <div class="cover-tile" data-action="open-book" data-id="${esc(b.id)}" tabindex="0" role="button" aria-label="${esc(b.title)}${b.author ? ` by ${esc(b.author)}` : ''}">
+          <div class="cover-aspect" style="background-image:url('${generatePlaceholder(b).replace(/'/g, "\\'")}')">
             <img class="cover-img" src="${esc(getCoverUrl(b))}" alt="Cover for ${esc(b.title)}" loading="lazy"
                  onerror="this.onerror=null; this.src='${generatePlaceholder(b).replace(/'/g, "\\'")}'"
             >
@@ -442,9 +450,9 @@ function renderListView(books) {
     <div class="list-wrap">
       <div class="list-table">
         <div class="list-header">
-          <div>Title</div>
-          <div>Author</div>
-          <div style="text-align:right">Shelf</div>
+          <div><button class="list-sort ${state.sortBy === 'title' ? 'active' : ''}" data-sort="title">Title</button></div>
+          <div><button class="list-sort ${state.sortBy === 'author' ? 'active' : ''}" data-sort="author">Author</button></div>
+          <div style="text-align:right"><button class="list-sort ${state.sortBy === 'shelf' ? 'active' : ''}" data-sort="shelf">Shelf</button></div>
           <div>Tags</div>
         </div>
         ${books.map(b => `
@@ -639,6 +647,22 @@ function renderModal() {
   `
 }
 
+function resetFilters() {
+  state.q = ''
+  state.tag = ''
+  state.sortBy = 'title'
+  render()
+}
+
+function openBook(id) {
+  const book = state.books.find(b => b.id === id)
+  if (book) {
+    state.selected = book
+    state.drawerOpen = true
+    render()
+  }
+}
+
 function attachEventListeners() {
   // Search input
   document.querySelector('[data-action="search"]')?.addEventListener('input', e => {
@@ -673,12 +697,7 @@ function attachEventListeners() {
   })
 
   // Reset
-  document.querySelector('[data-action="reset"]')?.addEventListener('click', () => {
-    state.q = ''
-    state.tag = ''
-    state.sortBy = 'title'
-    render()
-  })
+  document.querySelector('.header [data-action="reset"]')?.addEventListener('click', resetFilters)
 
   // Add book button
   document.querySelector('[data-action="add-book"]')?.addEventListener('click', () => {
@@ -687,16 +706,28 @@ function attachEventListeners() {
     render()
   })
 
-  // Open book - delegated so results can re-render without re-attaching listeners
+  // Results interactions - delegated so results can re-render without re-attaching listeners
   document.querySelector('#results')?.addEventListener('click', e => {
+    if (e.target.closest('[data-action="reset"]')) {
+      resetFilters()
+      return
+    }
+    const sortBtn = e.target.closest('[data-sort]')
+    if (sortBtn) {
+      state.sortBy = sortBtn.dataset.sort
+      render()
+      return
+    }
+    const el = e.target.closest('[data-action="open-book"]')
+    if (el) openBook(el.dataset.id)
+  })
+
+  document.querySelector('#results')?.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return
     const el = e.target.closest('[data-action="open-book"]')
     if (!el) return
-    const book = state.books.find(b => b.id === el.dataset.id)
-    if (book) {
-      state.selected = book
-      state.drawerOpen = true
-      render()
-    }
+    e.preventDefault()
+    openBook(el.dataset.id)
   })
 
   // Close drawer
