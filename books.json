@@ -1,0 +1,894 @@
+{
+  "books": [
+    {
+      "id": "s1-flow",
+      "shelf": 1,
+      "title": "Flow",
+      "author": "Mihaly Csikszentmihalyi",
+      "tags": [
+        "psychology",
+        "creativity"
+      ],
+      "isbn": "9780060162535"
+    },
+    {
+      "id": "s1-nicomachean",
+      "shelf": 1,
+      "title": "Nicomachean Ethics",
+      "author": "Aristotle",
+      "tags": [
+        "philosophy",
+        "ethics"
+      ],
+      "isbn": "1883058562"
+    },
+    {
+      "id": "s1-conquest-happiness",
+      "shelf": 1,
+      "title": "The Conquest of Happiness",
+      "author": "Bertrand Russell",
+      "tags": [
+        "philosophy",
+        "wellbeing"
+      ],
+      "isbn": "0415098645"
+    },
+    {
+      "id": "s1-sport-business",
+      "shelf": 1,
+      "title": "How to Win at the Sport of Business",
+      "author": "Mark Cuban",
+      "tags": [
+        "business",
+        "entrepreneurship"
+      ],
+      "isbn": "9781626810914"
+    },
+    {
+      "id": "s1-homo-deus",
+      "shelf": 1,
+      "title": "Homo Deus",
+      "author": "Yuval Noah Harari",
+      "tags": [
+        "history",
+        "futures"
+      ],
+      "isbn": "9788845298752"
+    },
+    {
+      "id": "s1-sapiens",
+      "shelf": 1,
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "tags": [
+        "history",
+        "society"
+      ],
+      "isbn": "191171726X"
+    },
+    {
+      "id": "s1-founders-at-work",
+      "shelf": 1,
+      "title": "Founders at Work",
+      "author": "Jessica Livingston",
+      "tags": [
+        "startups",
+        "entrepreneurship"
+      ],
+      "isbn": "9781430220367"
+    },
+    {
+      "id": "s1-say-everything",
+      "shelf": 1,
+      "title": "Say Everything",
+      "author": "Scott Rosenberg",
+      "tags": [
+        "writing",
+        "internet"
+      ],
+      "isbn": "9780307451361"
+    },
+    {
+      "id": "s1-design-for-community",
+      "shelf": 1,
+      "title": "Design for Community",
+      "author": "Derek Powazek",
+      "tags": [
+        "design",
+        "community"
+      ],
+      "isbn": "9780321490070"
+    },
+    {
+      "id": "s1-ruined-by-design",
+      "shelf": 1,
+      "title": "Ruined by Design",
+      "author": "Mike Monteiro",
+      "tags": [
+        "design",
+        "ethics"
+      ],
+      "isbn": "1090532083"
+    },
+    {
+      "id": "s1-who-gets-flowers",
+      "shelf": 1,
+      "title": "Who Gets the Flowers?",
+      "author": "Stephen Jay Gould",
+      "tags": [
+        "science",
+        "essays"
+      ],
+      "isbn": "9781476635194"
+    },
+    {
+      "id": "s1-on-writing-well",
+      "shelf": 1,
+      "title": "On Writing Well",
+      "author": "William Zinsser",
+      "tags": [
+        "writing",
+        "craft"
+      ],
+      "isbn": "0062715879"
+    },
+    {
+      "id": "s1-number-one-walking",
+      "shelf": 1,
+      "title": "Number One Walking",
+      "author": "Steve Lopez",
+      "tags": [
+        "travel",
+        "walking"
+      ],
+      "isbn": "9798218942304"
+    },
+    {
+      "id": "s1-walk-with-me-ny",
+      "shelf": 1,
+      "title": "Walk With Me: New York",
+      "author": "Susan Kaufman",
+      "tags": [
+        "travel",
+        "city"
+      ],
+      "isbn": "141975937X"
+    },
+    {
+      "id": "s1-paris-dk",
+      "shelf": 1,
+      "title": "Paris",
+      "author": "DK Eyewitness",
+      "tags": [
+        "travel",
+        "reference"
+      ],
+      "isbn": "024167509X"
+    },
+    {
+      "id": "s2-art-pixar",
+      "shelf": 2,
+      "title": "The Art of Pixar",
+      "author": "Amid Amidi",
+      "tags": [
+        "design",
+        "animation"
+      ],
+      "isbn": "0811866068"
+    },
+    {
+      "id": "s2-art-incredibles",
+      "shelf": 2,
+      "title": "The Art of The Incredibles",
+      "author": "Mark Cotta Vaz",
+      "tags": [
+        "design",
+        "animation"
+      ],
+      "isbn": "9780811844338"
+    },
+    {
+      "id": "s2-david-carson-trek",
+      "shelf": 2,
+      "title": "David Carson: Trek",
+      "author": "David Carson",
+      "tags": [
+        "design",
+        "typography"
+      ],
+      "isbn": "9781584230465"
+    },
+    {
+      "id": "s2-saul-bass",
+      "shelf": 2,
+      "title": "Saul Bass",
+      "author": "Jennifer Bass & Pat Kirkham",
+      "tags": [
+        "design",
+        "film"
+      ],
+      "isbn": "9781856697521"
+    },
+    {
+      "id": "s2-100-ideas-graphic-design",
+      "shelf": 2,
+      "title": "100 Ideas That Changed Graphic Design",
+      "author": "Steven Heller",
+      "tags": [
+        "design",
+        "history"
+      ],
+      "isbn": "9781786273895"
+    },
+    {
+      "id": "s2-smile-in-the-mind",
+      "shelf": 2,
+      "title": "A Smile in the Mind",
+      "author": "Beryl McAlhone & David Stuart",
+      "tags": [
+        "design",
+        "advertising"
+      ],
+      "isbn": "9780714869353"
+    },
+    {
+      "id": "s2-graphic-design-ny2",
+      "shelf": 2,
+      "title": "Graphic Design: New York 2",
+      "author": "Various",
+      "tags": [
+        "design",
+        "reference"
+      ],
+      "isbn": "9781568985978"
+    },
+    {
+      "id": "s2-basic-perspective",
+      "shelf": 2,
+      "title": "Basic Perspective Drawing",
+      "author": "John Montague",
+      "tags": [
+        "art",
+        "drawing"
+      ],
+      "isbn": "1118414128"
+    },
+    {
+      "id": "s2-ansel-parks",
+      "shelf": 2,
+      "title": "Ansel Adams in the National Parks",
+      "author": "Ansel Adams",
+      "tags": [
+        "photography",
+        "nature"
+      ],
+      "isbn": "0316078468"
+    },
+    {
+      "id": "s2-photography-upton",
+      "shelf": 2,
+      "title": "Photography",
+      "author": "Upton & Upton",
+      "tags": [
+        "photography",
+        "reference"
+      ],
+      "isbn": "0321011082"
+    },
+    {
+      "id": "s2-just-my-type",
+      "shelf": 2,
+      "title": "Just My Type",
+      "author": "Simon Garfield",
+      "tags": [
+        "typography",
+        "design"
+      ],
+      "isbn": "9781592406524"
+    },
+    {
+      "id": "s2-data-points",
+      "shelf": 2,
+      "title": "Data Points",
+      "author": "Nathan Yau",
+      "tags": [
+        "data-viz",
+        "design"
+      ],
+      "isbn": "1118654935"
+    },
+    {
+      "id": "s2-visual-explanations",
+      "shelf": 2,
+      "title": "Visual Explanations",
+      "author": "Edward Tufte",
+      "tags": [
+        "data-viz",
+        "thinking"
+      ],
+      "isbn": "9781930824157"
+    },
+    {
+      "id": "s2-101-photo-school",
+      "shelf": 2,
+      "title": "101 Things I Learned in Photography School",
+      "author": "Matthew Frederick",
+      "tags": [
+        "photography",
+        "learning"
+      ],
+      "isbn": "9781582976594"
+    },
+    {
+      "id": "s2-blue-note",
+      "shelf": 2,
+      "title": "Blue Note: The Album Cover Art",
+      "author": "Graham Marsh",
+      "tags": [
+        "design",
+        "music"
+      ],
+      "isbn": "9780811836883"
+    },
+    {
+      "id": "s3-postsecret",
+      "shelf": 3,
+      "title": "PostSecret",
+      "author": "Frank Warren",
+      "tags": [
+        "culture",
+        "art"
+      ],
+      "isbn": "9780739473207"
+    },
+    {
+      "id": "s3-dont-go-outside",
+      "shelf": 3,
+      "title": "Don't Go Outside",
+      "author": "Stewart Brand",
+      "tags": [
+        "culture",
+        "essays"
+      ],
+      "isbn": "9780786747030"
+    },
+    {
+      "id": "s3-we-feel-fine",
+      "shelf": 3,
+      "title": "We Feel Fine",
+      "author": "Sep Kamvar & Jonathan Harris",
+      "tags": [
+        "internet",
+        "culture"
+      ],
+      "isbn": "9781439116838"
+    },
+    {
+      "id": "s3-encyclopedia-misinformation",
+      "shelf": 3,
+      "title": "The Encyclopedia of Misinformation",
+      "author": "Rex Sorgatz",
+      "tags": [
+        "media",
+        "culture"
+      ],
+      "isbn": "9781419729119"
+    },
+    {
+      "id": "s3-first-dumb-joke-book",
+      "shelf": 3,
+      "title": "My First Dumb Joke Book",
+      "author": "Various",
+      "tags": [
+        "humor",
+        "nostalgia"
+      ],
+      "isbn": "9781519451941"
+    },
+    {
+      "id": "s3-magnus-walker",
+      "shelf": 3,
+      "title": "Magnus Walker: Urban Outlaw",
+      "author": "Magnus Walker",
+      "tags": [
+        "cars",
+        "photography"
+      ],
+      "isbn": "9781473542006"
+    },
+    {
+      "id": "s3-beastie-boys-book",
+      "shelf": 3,
+      "title": "Beastie Boys Book",
+      "author": "Michael Diamond & Adam Horovitz",
+      "tags": [
+        "music",
+        "memoir"
+      ],
+      "isbn": "9780812995558"
+    },
+    {
+      "id": "s3-surf-shack",
+      "shelf": 3,
+      "title": "Surf Shack",
+      "author": "Nina Freudenberger",
+      "tags": [
+        "surf",
+        "culture"
+      ],
+      "isbn": "9780451496058"
+    },
+    {
+      "id": "s3-obama-portrait",
+      "shelf": 3,
+      "title": "Obama: An Intimate Portrait",
+      "author": "Pete Souza",
+      "tags": [
+        "photography",
+        "politics"
+      ],
+      "isbn": "9781846149641"
+    },
+    {
+      "id": "s3-boneshaker",
+      "shelf": 3,
+      "title": "Boneshaker",
+      "author": "Evan Ratliff",
+      "tags": [
+        "surf",
+        "culture"
+      ]
+    },
+    {
+      "id": "s3-history-of-surfing",
+      "shelf": 3,
+      "title": "The History of Surfing",
+      "author": "Matt Warshaw",
+      "tags": [
+        "sports",
+        "history"
+      ],
+      "isbn": "0811856003"
+    },
+    {
+      "id": "s3-cut-flower-garden",
+      "shelf": 3,
+      "title": "Cut Flower Garden",
+      "author": "Erin Benzakein",
+      "tags": [
+        "gardening",
+        "reference"
+      ],
+      "isbn": "9781452150932"
+    },
+    {
+      "id": "s3-porsche-911-every-model",
+      "shelf": 3,
+      "title": "Porsche 911: Every Model Since 1964",
+      "author": "Peter Morgan",
+      "tags": [
+        "cars",
+        "reference"
+      ],
+      "isbn": "9780954999094"
+    },
+    {
+      "id": "s3-complete-book-porsche-911",
+      "shelf": 3,
+      "title": "The Complete Book of Porsche 911",
+      "author": "Randy Leffingwell",
+      "tags": [
+        "cars",
+        "reference"
+      ],
+      "isbn": "9780760365045"
+    },
+    {
+      "id": "s3-tour-de-france",
+      "shelf": 3,
+      "title": "The Official History of the Tour de France",
+      "author": "Serge Laget",
+      "tags": [
+        "cycling",
+        "history"
+      ],
+      "isbn": "9781787396685"
+    },
+    {
+      "id": "s3-light-right",
+      "shelf": 3,
+      "title": "Light, Right",
+      "author": "Various",
+      "tags": [
+        "photography",
+        "learning"
+      ],
+      "isbn": "9788179930441"
+    },
+    {
+      "id": "s3-in-camera",
+      "shelf": 3,
+      "title": "In Camera",
+      "author": "Gordon Laing",
+      "tags": [
+        "photography",
+        "reference"
+      ],
+      "isbn": "9781781577936"
+    },
+    {
+      "id": "s3-beginners-photo-course",
+      "shelf": 3,
+      "title": "The Complete Beginner's Photography Course",
+      "author": "Various",
+      "tags": [
+        "photography",
+        "learning"
+      ],
+      "isbn": "9781781578568"
+    },
+    {
+      "id": "s4-honored-dead",
+      "shelf": 4,
+      "title": "The Honored Dead",
+      "author": "Joseph Braude",
+      "tags": [
+        "history",
+        "politics"
+      ],
+      "isbn": "9780385527033"
+    },
+    {
+      "id": "s4-book-of-joy",
+      "shelf": 4,
+      "title": "The Book of Joy",
+      "author": "Dalai Lama & Desmond Tutu",
+      "tags": [
+        "wellbeing",
+        "spirituality"
+      ],
+      "isbn": "9780399185045"
+    },
+    {
+      "id": "s4-high-tech-startup",
+      "shelf": 4,
+      "title": "High Tech Startup",
+      "author": "John L. Nesheim",
+      "tags": [
+        "startups",
+        "business"
+      ],
+      "isbn": "0914405713"
+    },
+    {
+      "id": "s4-dragonfly-effect",
+      "shelf": 4,
+      "title": "The Dragonfly Effect",
+      "author": "Jennifer Aaker & Andy Smith",
+      "tags": [
+        "marketing",
+        "social"
+      ],
+      "isbn": "0470884622"
+    },
+    {
+      "id": "s4-hurdle",
+      "shelf": 4,
+      "title": "Hurdle: The Book on Business Planning",
+      "author": "Tim Berry",
+      "tags": [
+        "business",
+        "planning"
+      ],
+      "isbn": "9780971218505"
+    },
+    {
+      "id": "s4-switch",
+      "shelf": 4,
+      "title": "Switch",
+      "author": "Chip Heath & Dan Heath",
+      "tags": [
+        "behavior",
+        "management"
+      ],
+      "isbn": "0385528752"
+    },
+    {
+      "id": "s4-stay-alive-woods",
+      "shelf": 4,
+      "title": "How to Stay Alive in the Woods",
+      "author": "Bradford Angier",
+      "tags": [
+        "outdoors",
+        "survival"
+      ],
+      "isbn": "0844659649"
+    },
+    {
+      "id": "s4-dune",
+      "shelf": 4,
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "tags": [
+        "fiction",
+        "sci-fi"
+      ],
+      "isbn": "9780593438367"
+    },
+    {
+      "id": "s4-fifth-season",
+      "shelf": 4,
+      "title": "The Fifth Season",
+      "author": "N.K. Jemisin",
+      "tags": [
+        "fiction",
+        "sci-fi"
+      ],
+      "isbn": "9783426521786"
+    },
+    {
+      "id": "s4-making-mavericks",
+      "shelf": 4,
+      "title": "Making Mavericks",
+      "author": "Frosty Hesson",
+      "tags": [
+        "surf",
+        "training"
+      ],
+      "isbn": "9781620878750"
+    },
+    {
+      "id": "s4-they-call-me-coach",
+      "shelf": 4,
+      "title": "They Call Me Coach",
+      "author": "John Wooden",
+      "tags": [
+        "leadership",
+        "sports"
+      ],
+      "isbn": "0071424911"
+    },
+    {
+      "id": "s4-elements-of-style",
+      "shelf": 4,
+      "title": "The Elements of Style",
+      "author": "Strunk & White",
+      "tags": [
+        "writing",
+        "reference"
+      ],
+      "isbn": "9798797424512"
+    },
+    {
+      "id": "s4-html-css-duckett",
+      "shelf": 4,
+      "title": "HTML & CSS: Design and Build Websites",
+      "author": "Jon Duckett",
+      "tags": [
+        "web",
+        "learning"
+      ],
+      "isbn": "9781118008188"
+    },
+    {
+      "id": "s4-web-design-studios-2",
+      "shelf": 4,
+      "title": "Web Design: Studios 2",
+      "author": "Taschen",
+      "tags": [
+        "design",
+        "inspiration"
+      ],
+      "isbn": "9781616736736"
+    },
+    {
+      "id": "s4-user-story-mapping",
+      "shelf": 4,
+      "title": "User Story Mapping",
+      "author": "Jeff Patton",
+      "tags": [
+        "product",
+        "ux"
+      ],
+      "isbn": "9781491904879"
+    },
+    {
+      "id": "s5-breakfast-bucks",
+      "shelf": 5,
+      "title": "Breakfast at Buck's",
+      "author": "Jamis MacNiven",
+      "tags": [
+        "startups",
+        "silicon-valley"
+      ],
+      "isbn": "0974278300"
+    },
+    {
+      "id": "s5-outliers",
+      "shelf": 5,
+      "title": "Outliers",
+      "author": "Malcolm Gladwell",
+      "tags": [
+        "psychology",
+        "culture"
+      ],
+      "isbn": "0316036692"
+    },
+    {
+      "id": "s5-team-of-teams",
+      "shelf": 5,
+      "title": "Team of Teams",
+      "author": "Gen. Stanley McChrystal",
+      "tags": [
+        "leadership",
+        "management"
+      ],
+      "isbn": "9780241250846"
+    },
+    {
+      "id": "s5-giant-hairball",
+      "shelf": 5,
+      "title": "Orbiting the Giant Hairball",
+      "author": "Gordon MacKenzie",
+      "tags": [
+        "creativity",
+        "work"
+      ],
+      "isbn": "0965024903"
+    },
+    {
+      "id": "s5-mba-in-a-day",
+      "shelf": 5,
+      "title": "MBA in a Day",
+      "author": "Steven Stralser",
+      "tags": [
+        "business",
+        "learning"
+      ],
+      "isbn": "0471691240"
+    },
+    {
+      "id": "s5-raising-the-bar",
+      "shelf": 5,
+      "title": "Raising the Bar",
+      "author": "Gary Erickson",
+      "tags": [
+        "business",
+        "memoir"
+      ],
+      "isbn": "9780787986711"
+    },
+    {
+      "id": "s5-serve-to-be-great",
+      "shelf": 5,
+      "title": "Serve to Be Great",
+      "author": "Matt Tenney",
+      "tags": [
+        "leadership",
+        "mindset"
+      ],
+      "isbn": "9781118868447"
+    },
+    {
+      "id": "s5-start-with-why",
+      "shelf": 5,
+      "title": "Start with Why",
+      "author": "Simon Sinek",
+      "tags": [
+        "leadership",
+        "communication"
+      ],
+      "isbn": "9780241958230"
+    },
+    {
+      "id": "s5-gtd",
+      "shelf": 5,
+      "title": "Getting Things Done",
+      "author": "David Allen",
+      "tags": [
+        "productivity",
+        "work"
+      ],
+      "isbn": "0349423148"
+    },
+    {
+      "id": "s5-leadership-challenge",
+      "shelf": 5,
+      "title": "The Leadership Challenge",
+      "author": "Kouzes & Posner",
+      "tags": [
+        "leadership",
+        "management"
+      ],
+      "isbn": "9780787997106"
+    },
+    {
+      "id": "s5-no-red-lights",
+      "shelf": 5,
+      "title": "No Red Lights",
+      "author": "Alan J. Patricof",
+      "tags": [
+        "venture",
+        "memoir"
+      ],
+      "isbn": "9781637582947"
+    },
+    {
+      "id": "s5-groundswell",
+      "shelf": 5,
+      "title": "Groundswell",
+      "author": "Charlene Li & Josh Bernoff",
+      "tags": [
+        "marketing",
+        "internet"
+      ],
+      "isbn": "9789058715470"
+    },
+    {
+      "id": "s5-innovators-dilemma",
+      "shelf": 5,
+      "title": "The Innovator's Dilemma",
+      "author": "Clayton Christensen",
+      "tags": [
+        "business",
+        "strategy"
+      ],
+      "isbn": "9781665143561"
+    },
+    {
+      "id": "s5-buzzmarketing",
+      "shelf": 5,
+      "title": "Buzzmarketing",
+      "author": "Mark Hughes",
+      "tags": [
+        "marketing",
+        "business"
+      ],
+      "isbn": "1429522089"
+    },
+    {
+      "id": "s5-built-to-last",
+      "shelf": 5,
+      "title": "Built to Last",
+      "author": "Jim Collins",
+      "tags": [
+        "business",
+        "strategy"
+      ],
+      "isbn": "0887307396"
+    },
+    {
+      "id": "s5-happy-employee",
+      "shelf": 5,
+      "title": "The Happy Employee",
+      "author": "Julia McGovern",
+      "tags": [
+        "work",
+        "culture"
+      ],
+      "isbn": "1598695576"
+    },
+    {
+      "id": "s5-13-sf-stories",
+      "shelf": 5,
+      "title": "13 Great Stories of Science Fiction",
+      "author": "Groff Conklin",
+      "tags": [
+        "fiction",
+        "sci-fi"
+      ],
+      "isbn": "0340024828"
+    },
+    {
+      "id": "s5-100-ways-writing",
+      "shelf": 5,
+      "title": "100 Ways to Improve Your Writing",
+      "author": "Gary Provost",
+      "tags": [
+        "writing",
+        "craft"
+      ],
+      "isbn": "1440665141"
+    }
+  ]
+}

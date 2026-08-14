@@ -1,0 +1,26 @@
+{
+  "name": "bookshelf",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"node server/api.js\" \"vite\"",
+    "build": "npm run fetch-covers && vite build",
+    "build:quick": "vite build",
+    "preview": "vite preview",
+    "fetch-covers": "node scripts/fetch-covers.js",
+    "add-book": "node scripts/add-book.js",
+    "db:init": "node scripts/init-db.js",
+    "db:migrate": "node scripts/migrate-json.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "vite": "^7.2.4",
+    "vite-plugin-singlefile": "^2.3.0"
+  }
+}

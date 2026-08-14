@@ -1,0 +1,3346 @@
+{
+  "s1-flow": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418959803,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Flow",
+        "author": "Mihaly Csikszentmihalyi",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11041932-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Finding flow",
+        "author": "Mihaly Csikszentmihalyi",
+        "coverUrl": "https://covers.openlibrary.org/b/id/298856-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Flow and the Foundations of Positive Psychology",
+        "author": "Mihaly Csikszentmihalyi",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10708749-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Fluir (Flow)",
+        "author": "Mihaly Csikszentmihalyi",
+        "coverUrl": "https://covers.openlibrary.org/b/id/5269836-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Applications of Flow in Human Development and Education",
+        "author": "Mihaly Csikszentmihalyi",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9342534-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Flow",
+        "author": "Mihaly Csikszentmihalyi",
+        "coverUrl": "https://books.google.com/books/content?id=QVjPsd1UukEC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Creativity",
+        "author": "Mihaly Csikszentmihalyi",
+        "coverUrl": "https://books.google.com/books/content?id=aci_Ea4c6woC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Flow",
+        "author": "Mihaly Csikszent",
+        "coverUrl": "https://books.google.com/books/content?id=v2AVz3gf-F4C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Finding Flow",
+        "author": "Mihaly Csikszentmihalhi",
+        "coverUrl": "https://books.google.com/books/content?id=SPqvDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s1-nicomachean": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418961044,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Nicomachean Ethics",
+        "author": "Aristotle",
+        "coverUrl": "https://covers.openlibrary.org/b/id/12593945-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The fifth book of the Nicomachean ethics of Aristotle",
+        "author": "Aristotle",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6358104-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Nicomachean Ethics",
+        "author": "Aristotle",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14729709-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Nicomachean Ethics",
+        "author": "Aristotle",
+        "coverUrl": "https://books.google.com/books/content?id=Rq3xAgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Aristotle’s “Nicomachean Ethics”",
+        "author": "Otfried Höffe",
+        "coverUrl": "https://books.google.com/books/content?id=FvNuAMTIIBUC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Nicomachean Ethics",
+        "author": "Aristotle",
+        "coverUrl": "https://books.google.com/books/content?id=LCVeDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Nicomachean Ethics",
+        "author": "Aristotle",
+        "coverUrl": "https://books.google.com/books/content?id=RhtfB9Bauj0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Nicomachean Ethics",
+        "author": "David Ross",
+        "coverUrl": "https://books.google.com/books/content?id=noEPM9j980cC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s1-conquest-happiness": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418961939,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The conquest of happiness",
+        "author": "Bertrand Russell",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7310879-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The conquest of happiness",
+        "author": "Bertrand Russell",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10477866-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Conquest Of Happiness",
+        "author": "Bertrand Russell",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14935849-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Conquest of Happiness",
+        "author": "Bertrand Russell",
+        "coverUrl": "https://books.google.com/books/content?id=--lefVQ_MYYC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Conquest of Happiness",
+        "author": "Bertrand Russell",
+        "coverUrl": "https://books.google.com/books/content?id=ODIiumCiFOoC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Conquest of Happiness",
+        "author": "Tim Phillips",
+        "coverUrl": "https://books.google.com/books/content?id=csSt0AEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s1-sport-business": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418962992,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "How To Win At The Sport Of Business If I Can Do It You Can Do It",
+        "author": "Mark Cuban",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7709794-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "How to Win at the Sport of Business",
+        "author": "Mark Cuban",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14860509-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "How to Win at the Sport of Business",
+        "author": "Mark Cuban",
+        "coverUrl": "https://books.google.com/books/content?id=YOCHngEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "How to Win at the Sport of Business",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=3pUC0AEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of How to Win at the Sport of Business – [Review Keypoints and Take-aways]",
+        "author": "PenZen Summaries",
+        "coverUrl": "https://books.google.com/books/content?id=CBmeEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of How to Win at the Sport of Business by Mark Cuban",
+        "author": "QuickRead",
+        "coverUrl": "https://books.google.com/books/content?id=_xsTEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s1-homo-deus": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418964622,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Homo Deus",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14421556-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Sapiens/Homo Deus box set",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8846275-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Homo Deus A Brief History of Tomorrow",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://books.google.com/books/content?id=XgksEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "HOMO DEUS - Summarized for Busy People",
+        "author": "Goldmine Reads",
+        "coverUrl": "https://books.google.com/books/content?id=a5qFDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Notes on Yuval Noah Harari’s Homo Deus by Instaread",
+        "author": "Instaread",
+        "coverUrl": "https://books.google.com/books/content?id=nkBXDgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Homo Deus",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://books.google.com/books/content?id=0_uOEAAAQBAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of Homo Deus: A Brief History of Tomorrow by Yuval Noah Harari",
+        "author": "Peter Cuomo",
+        "coverUrl": "https://books.google.com/books/content?id=fHxXEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s1-sapiens": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418966102,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Sapiens",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8634250-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Sapiens/Homo Deus box set",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8846275-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Sapiens",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://covers.openlibrary.org/b/id/15111365-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Sapiens/Homo Deus Box Set w/Bonus Material",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://covers.openlibrary.org/b/id/13111738-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Sapiens [Tenth Anniversary Edition]",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://books.google.com/books/content?id=MosvEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Sapiens",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://books.google.com/books/content?id=zfuOEAAAQBAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Sapiens By Yuval Noah Harari",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://books.google.com/books/content?id=v5piEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of Sapiens",
+        "author": "Summareads Media",
+        "coverUrl": "https://books.google.com/books/content?id=JxhZzQEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Homo Deus",
+        "author": "Yuval Noah Harari",
+        "coverUrl": "https://books.google.com/books/content?id=H2t_CwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s1-founders-at-work": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418967123,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Founders at work",
+        "author": "Jessica Livingston",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8257114-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Founders at Work",
+        "author": "Jessica Livingston",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10876996-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Founders at Work",
+        "author": "Jessica Livingston",
+        "coverUrl": "https://books.google.com/books/content?id=oFTYD9IHX5YC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of Founders at Work by Jessica Livingston",
+        "author": "QuickRead",
+        "coverUrl": "https://books.google.com/books/content?id=qpTTDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "SUMMARY - Founders At Work: Stories Of Startups Early Days By Jessica Livingston",
+        "author": "Shortcut Edition",
+        "coverUrl": "https://books.google.com/books/content?id=Np8xEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s1-say-everything": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418968308,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Say everything",
+        "author": "Scott Rosenberg",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6416929-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Say everything",
+        "author": "Scott Rosenberg",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7234775-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Say Everything",
+        "author": "Scott Rosenberg",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6298190-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Say Everything",
+        "author": "Scott Rosenberg",
+        "coverUrl": "https://books.google.com/books/content?id=COymTGeR1UAC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Innovators",
+        "author": "Walter Isaacson",
+        "coverUrl": "https://books.google.com/books/content?id=trxEAwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Sound Streams",
+        "author": "Andrew J Bottomley",
+        "coverUrl": "https://books.google.com/books/content?id=gnPmDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Teens Gone Wired",
+        "author": "Lyndsay Green",
+        "coverUrl": "https://books.google.com/books/content?id=QelsAAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Business Week",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=w5opAQAAIAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s1-design-for-community": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418969380,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Design for community",
+        "author": "Derek M. Powazek",
+        "coverUrl": "https://covers.openlibrary.org/b/id/461759-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Design for Community",
+        "author": "Derek M. Powazek",
+        "coverUrl": "https://books.google.com/books/content?id=Jhvfh6thHS8C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Designing Social Interfaces",
+        "author": "Christian Crumlish",
+        "coverUrl": "https://books.google.com/books/content?id=dchcCgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "We've Got Blog",
+        "author": "Editors Of Perseus Publishing",
+        "coverUrl": "https://books.google.com/books/content?id=c5BEJ0nug7QC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Designing Websites For Every Audience",
+        "author": "Ilise Benun",
+        "coverUrl": "https://books.google.com/books/content?id=o_FSAAAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Advanced Research and Real-World Applications of Industry 5.0",
+        "author": "Bakkar, Mahmoud Numan",
+        "coverUrl": "https://books.google.com/books/content?id=S3eiEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s1-ruined-by-design": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418970471,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Ruined by Design",
+        "author": "Mike Monteiro",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11937903-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Ruined by Design",
+        "author": "Mike Monteiro",
+        "coverUrl": "https://books.google.com/books/content?id=haS0wwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Design Is a Job",
+        "author": "Mike Monteiro",
+        "coverUrl": "https://books.google.com/books/content?id=xZWbzwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "You're My Favorite Client",
+        "author": "Mike Monteiro",
+        "coverUrl": "https://books.google.com/books/content?id=hbfbzwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Designer Exit Scandals",
+        "author": "Benjamin Ramirez",
+        "coverUrl": "https://books.google.com/books/content?id=U2ZLEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Urban Dystopias",
+        "author": "Jane Burry",
+        "coverUrl": "https://books.google.com/books/content?id=-7SoEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s1-who-gets-flowers": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768418971981,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Stopping by Woods",
+        "author": "Owen D.V. Sholes",
+        "coverUrl": "https://books.google.com/books/content?id=jOxzDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Genesis of Nature and the Nature of Genesis",
+        "author": "Norman Parker",
+        "coverUrl": "https://books.google.com/books/content?id=BABkDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Blossoms",
+        "author": "Maxine F. Singer",
+        "coverUrl": "https://books.google.com/books/content?id=1U5WDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Working Woman",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=SUfVAAAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Survival of Charles Darwin",
+        "author": "Ronald William Clark",
+        "coverUrl": "https://books.google.com/books/content?id=ut_aAAAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s1-on-writing-well": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418973124,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "On Writing Well",
+        "author": "William Zinsser",
+        "coverUrl": "https://covers.openlibrary.org/b/id/20450-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "On Writing Well",
+        "author": "William Zinsser",
+        "coverUrl": "https://books.google.com/books/content?id=ElcmAQAAIAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "On Writing Well, 30th Anniversary Edition",
+        "author": "William Zinsser",
+        "coverUrl": "https://books.google.com/books/content?id=mp16BDRDaYQC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "On Writing Well, 30th Anniversary Edition",
+        "author": "William Zinsser",
+        "coverUrl": "https://books.google.com/books/content?id=tPkZ3WU1BM8C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "On Writing Well",
+        "author": "William Zinsser",
+        "coverUrl": "https://books.google.com/books/content?id=Kih6AAAAIAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "On Writing Well",
+        "author": "William Knowlton Zinsser",
+        "coverUrl": "https://books.google.com/books/content?id=T720AAAAIAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s1-number-one-walking": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768418974796,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "No Walk in the Park",
+        "author": "Harry Saltzgaver",
+        "coverUrl": "https://books.google.com/books/content?id=qQiZEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "New York Magazine",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=hugCAAAAMBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Tipping the Scales",
+        "author": "Center for Reproductive Law & Policy",
+        "coverUrl": "https://books.google.com/books/content?id=eRQoAQAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Adventure",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=IuWFeVEKnhoC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Central Park Five",
+        "author": "Sarah Burns",
+        "coverUrl": "https://books.google.com/books/content?id=H1yiJQR02z0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s1-walk-with-me-ny": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418976150,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Walk with Me New York",
+        "author": "Susan Kaufman",
+        "coverUrl": "https://covers.openlibrary.org/b/id/12433957-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Walk With Me: New York",
+        "author": "Susan Kaufman",
+        "coverUrl": "https://books.google.com/books/content?id=DmVEEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Walk With Me: Hamptons",
+        "author": "Susan Kaufman",
+        "coverUrl": "https://books.google.com/books/content?id=48bREAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Horror Films of the 1980s",
+        "author": "John Kenneth Muir",
+        "coverUrl": "https://books.google.com/books/content?id=VJ1vcmaOd7wC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Hollywood Reporter",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=LUkIAQAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "New York Magazine",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=LOQCAAAAMBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s1-paris-dk": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418977320,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "DK Eyewitness Paris",
+        "author": "DK Eyewitness",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14666182-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "DK Eyewitness Paris",
+        "author": "DK Eyewitness",
+        "coverUrl": "https://books.google.com/books/content?id=PSIhEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "DK Eyewitness Paris",
+        "author": "DK Eyewitness",
+        "coverUrl": "https://books.google.com/books/content?id=FZ5jDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "DK Eyewitness Top 10 Paris",
+        "author": "DK Eyewitness",
+        "coverUrl": "https://books.google.com/books/content?id=qjifDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "DK Eyewitness Travel Guide: Paris",
+        "author": "Alan Tillier",
+        "coverUrl": "https://books.google.com/books/content?id=SXdam0IVTF0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-art-pixar": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418978432,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The art of Pixar short films",
+        "author": "Amid Amidi",
+        "coverUrl": "https://covers.openlibrary.org/b/id/13093167-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Art of Pixar: 25th Anniversary",
+        "author": "Amid Amidi",
+        "coverUrl": "https://books.google.com/books/content?id=1EHNCgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Art of Pixar Short Films",
+        "author": "Amid Amidi",
+        "coverUrl": "https://books.google.com/books/content?id=c5WZDgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Art of Pixar Short Films",
+        "author": "Amid Amidi",
+        "coverUrl": "https://books.google.com/books/content?id=OCE3AQAAIAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Art of Soul",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=KmofyQEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Prepare to Board!",
+        "author": "Nancy Beiman",
+        "coverUrl": "https://books.google.com/books/content?id=cDvS4mxvTmcC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-art-incredibles": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418979396,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The Art of The Incredibles",
+        "author": "Mark Cotta Vaz",
+        "coverUrl": "https://covers.openlibrary.org/b/id/601206-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Art of The Incredibles",
+        "author": "Mark Cotta Vaz",
+        "coverUrl": "https://books.google.com/books/content?id=YyniCgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Art of Incredibles 2",
+        "author": "John Lasseter",
+        "coverUrl": "https://books.google.com/books/content?id=g2ZMDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Art of The Incredibles",
+        "author": "Mark Cotta Vaz",
+        "coverUrl": "https://books.google.com/books/content?id=RCxDAQAAIAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Prepare to Board!",
+        "author": "Nancy Beiman",
+        "coverUrl": "https://books.google.com/books/content?id=cDvS4mxvTmcC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Force: Character Design from Life Drawing",
+        "author": "Mike Mattesi",
+        "coverUrl": "https://books.google.com/books/content?id=-qHcAwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-david-carson-trek": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768418980525,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Trek",
+        "author": "David Carson",
+        "coverUrl": "https://books.google.com/books/content?id=kddQlvm2MRIC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Production for Graphic Designers",
+        "author": "Alan Pipes",
+        "coverUrl": "https://books.google.com/books/content?id=CdbH9hQSiHAC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Meggs' History of Graphic Design",
+        "author": "Philip B. Meggs",
+        "coverUrl": "https://books.google.com/books/content?id=KCsuDAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-saul-bass": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768418981510,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Saul Bass",
+        "author": "Jennifer Bass",
+        "coverUrl": "https://books.google.com/books/content?id=in2RuAAACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Saul Bass",
+        "author": "Pat Kirkham",
+        "coverUrl": "https://books.google.com/books/content?id=UosnjwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Saul Bass",
+        "author": "Jan-Christopher Horak",
+        "coverUrl": "https://books.google.com/books/content?id=WmnaBAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Art and Design in 1960s New York",
+        "author": "Amanda Gluibizzi",
+        "coverUrl": "https://books.google.com/books/content?id=qN0aEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "New Mythologies in Design and Culture",
+        "author": "Rebecca Houze",
+        "coverUrl": "https://books.google.com/books/content?id=YCy1CwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-100-ideas-graphic-design": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418982650,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "100 Ideas That Changed Graphic Design",
+        "author": "Steven Heller",
+        "coverUrl": "https://covers.openlibrary.org/b/id/13459094-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "100 Ideas that Changed Graphic Design",
+        "author": "Steven Heller",
+        "coverUrl": "https://books.google.com/books/content?id=vhaktwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Australian Editing Handbook",
+        "author": "Elizabeth Flann",
+        "coverUrl": "https://books.google.com/books/content?id=AhZVBAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Graphic Design Bible",
+        "author": "Theo Inglis",
+        "coverUrl": "https://books.google.com/books/content?id=kfS_EAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Designing Information",
+        "author": "Joel Katz",
+        "coverUrl": "https://books.google.com/books/content?id=V3WcT7Ap3t4C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-smile-in-the-mind": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768418983799,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "A Smile in the Mind - Revised and Expanded Edition",
+        "author": "Beryl McAlhone",
+        "coverUrl": "https://books.google.com/books/content?id=33PioAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "A Smile in the Mind",
+        "author": "Beryl McAlhone",
+        "coverUrl": "https://books.google.com/books/content?id=bndQAAAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Brand Flip",
+        "author": "Marty Neumeier",
+        "coverUrl": "https://books.google.com/books/content?id=4MA9CgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Brand Gap",
+        "author": "Marty Neumeier",
+        "coverUrl": "https://books.google.com/books/content?id=sibdmqdw-gUC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Cyberpl@y",
+        "author": "Brenda Danet",
+        "coverUrl": "https://books.google.com/books/content?id=50MHEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-graphic-design-ny2": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768418985498,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Design Studies",
+        "author": "Audrey Bennett",
+        "coverUrl": "https://books.google.com/books/content?id=z-QfzBGsWJUC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Graphic Design, New York",
+        "author": "Steven Heller",
+        "coverUrl": "https://books.google.com/books/content?id=odIxAQAAIAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Booklet Making",
+        "author": "Henry Turner Bailey",
+        "coverUrl": "https://books.google.com/books/content?id=t9VAAAAAIAAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Art Digest",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=YEXcsirUceEC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Power",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=b70fAQAAMAAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-basic-perspective": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418987002,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Basic perspective drawing",
+        "author": "John Montague",
+        "coverUrl": "https://covers.openlibrary.org/b/id/4193401-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Basic Perspective Drawing",
+        "author": "John Montague",
+        "coverUrl": "https://books.google.com/books/content?id=j9Gcg3yCBpEC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Basic Perspective Drawing, Enhanced Edition",
+        "author": "John Montague",
+        "coverUrl": "https://books.google.com/books/content?id=vTThAAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Basic Perspective Drawing",
+        "author": "John Montague",
+        "coverUrl": "https://books.google.com/books/content?id=qOFMlLzyeaAC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Basic Perspective Drawing",
+        "author": "John Montague",
+        "coverUrl": "https://books.google.com/books/content?id=OR5QAAAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s2-ansel-parks": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418988727,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Ansel Adams in the national parks",
+        "author": "Ansel Adams",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14682560-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Ansel Adams in the National Parks",
+        "author": "Ansel Adams",
+        "coverUrl": "https://books.google.com/books/content?id=HgqGRAAACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Ansel Adams",
+        "author": "Ansel Adams",
+        "coverUrl": "https://books.google.com/books/content?id=AftOAAAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Ansel Adams",
+        "author": "Ansel Adams",
+        "coverUrl": "https://books.google.com/books/content?id=FwePEAAAQBAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Ansel Adams",
+        "author": "Ansel Adams",
+        "coverUrl": "https://books.google.com/books/content?id=hXZOAAAAYAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Ansel Adams",
+        "author": "Ansel Adams",
+        "coverUrl": "https://books.google.com/books/content?id=NpXbAAAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s2-photography-upton": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418990084,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Photography",
+        "author": "Barbara London Upton",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9570916-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Photography",
+        "author": "Barbara Upton",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11694728-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Photography",
+        "author": "Barbara London",
+        "coverUrl": "https://covers.openlibrary.org/b/id/82163-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Photography",
+        "author": "Barbara London",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14428730-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Photography",
+        "author": "John Upton",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9605915-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Right Place, Right Time a Survey of John Upton's Photographs",
+        "author": "Tyler Stallings",
+        "coverUrl": "https://books.google.com/books/content?id=RTa4zAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Photography",
+        "author": "Barbara London",
+        "coverUrl": "https://books.google.com/books/content?id=e03oPAAACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Photography",
+        "author": "Barbara London",
+        "coverUrl": "https://books.google.com/books/content?id=uNoskgEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s2-just-my-type": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418991349,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Just my type",
+        "author": "Simon Garfield",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6944207-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Just my type",
+        "author": "Simon Garfield",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8944798-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Just My Type",
+        "author": "Simon Garfield",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6718299-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Just My Type: A Book About Fonts",
+        "author": "Simon Garfield",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8771558-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Just My Type",
+        "author": "Simon Garfield",
+        "coverUrl": "https://books.google.com/books/content?id=XQ7mZbRs0j0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Just My Typo",
+        "author": "Drummond Moir",
+        "coverUrl": "https://books.google.com/books/content?id=kl-VAgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Mrs Stone & Dr Smellie",
+        "author": "Robert Woods",
+        "coverUrl": "https://books.google.com/books/content?id=TcXmCwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "To the Letter",
+        "author": "Simon Garfield",
+        "coverUrl": "https://books.google.com/books/content?id=svAKDAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Type Matters",
+        "author": "Christopher Scott Wyatt",
+        "coverUrl": "https://books.google.com/books/content?id=EKwWEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-data-points": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418992397,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Data Points",
+        "author": "Nathan Yau",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7285545-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Data Points",
+        "author": "Nathan Yau",
+        "coverUrl": "https://books.google.com/books/content?id=uD6g_xbJ3sgC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "FlowingData.com Data Visualization Set",
+        "author": "Nathan Yau",
+        "coverUrl": "https://books.google.com/books/content?id=f5EfAwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Visualize This",
+        "author": "Nathan Yau",
+        "coverUrl": "https://books.google.com/books/content?id=CB9XRIv9oigC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Communicating with Data Visualisation",
+        "author": "Adam Frost",
+        "coverUrl": "https://books.google.com/books/content?id=TSIxEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Data Fluency",
+        "author": "Zach Gemignani",
+        "coverUrl": "https://books.google.com/books/content?id=5X6bBQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-visual-explanations": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418993942,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Visual Explanations",
+        "author": "Edward R. Tufte",
+        "coverUrl": "https://covers.openlibrary.org/b/id/725043-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Visual Explanations",
+        "author": "Edward R. Tufte",
+        "coverUrl": "https://books.google.com/books/content?id=OqlpAAAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Beautiful Evidence",
+        "author": "Edward R. Tufte",
+        "coverUrl": "https://books.google.com/books/content?id=v302PAAACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Visual Display of Quantitative Information",
+        "author": "Edward R. Tufte",
+        "coverUrl": "https://books.google.com/books/content?id=7Npo0QEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "A Guide to Forensic Testimony",
+        "author": "Fred Chris Smith",
+        "coverUrl": "https://books.google.com/books/content?id=KmZqqM8nlaUC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Envisioning Information",
+        "author": "Edward R. Tufte",
+        "coverUrl": "https://books.google.com/books/content?id=W4BG0QEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s2-101-photo-school": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768418995708,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "2009 Guide To Literary Agents",
+        "author": "Chuck Sambuchino",
+        "coverUrl": "https://books.google.com/books/content?id=bh9jDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "An Archaeology of Architecture",
+        "author": "Dennis Tedlock",
+        "coverUrl": "https://books.google.com/books/content?id=HFTSEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Guide to Literary Agents 2019",
+        "author": "Robert Lee Brewer",
+        "coverUrl": "https://books.google.com/books/content?id=RXFuDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "2009 Novel & Short Story Writer's Market - Articles",
+        "author": "Editors Of Writers Digest Books",
+        "coverUrl": "https://books.google.com/books/content?id=gB9jDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Novel & Short Story Writer's Market 2020",
+        "author": "Amy Jones",
+        "coverUrl": "https://books.google.com/books/content?id=Vp_JDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s2-blue-note": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768418997093,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Blue Note",
+        "author": "Graham Marsh",
+        "coverUrl": "https://books.google.com/books/content?id=kMQecLFExcAC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Cover Art of Blue Note Records",
+        "author": "Graham Marsh",
+        "coverUrl": "https://books.google.com/books/content?id=QnwJAQAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Cover Art of Blue Note Records",
+        "author": "Graham Marsh",
+        "coverUrl": "https://books.google.com/books/content?id=HgcZAQAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Coverscaping",
+        "author": "Asbjørn Grønstad",
+        "coverUrl": "https://books.google.com/books/content?id=GrDdb4hvVOsC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-postsecret": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768418998472,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "PostSecret",
+        "author": "Frank Warren",
+        "coverUrl": "https://covers.openlibrary.org/b/id/39596-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "PostSecret",
+        "author": "Frank Warren",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10271117-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The World of PostSecret",
+        "author": "Frank Warren",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8367746-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The World of PostSecret",
+        "author": "Frank Warren",
+        "coverUrl": "https://books.google.com/books/content?id=vQkyngEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "PostSecret: Confessions on Life, Death, and God",
+        "author": "Frank Warren",
+        "coverUrl": "https://books.google.com/books/content?id=qVnowAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "A Lifetime of Secrets",
+        "author": "Frank Warren",
+        "coverUrl": "https://books.google.com/books/content?id=TRPj-cmgrqgC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "PostSecret",
+        "author": "Frank Warren",
+        "coverUrl": "https://books.google.com/books/content?id=Mft-Ms1C1zsC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-dont-go-outside": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419000784,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Out Of Control",
+        "author": "Kevin Kelly",
+        "coverUrl": "https://books.google.com/books/content?id=mRMXze_LcO0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Video in Qualitative Research",
+        "author": "Christian Heath",
+        "coverUrl": "https://books.google.com/books/content?id=Ze59B640hbMC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "PC Mag",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=Bwng8NJ5fesC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Counterculture Green",
+        "author": "Andrew G. Kirk",
+        "coverUrl": "https://books.google.com/books/content?id=IuN-AAAAMAAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Realist",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=0pnWAAAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s3-we-feel-fine": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419002259,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "We Feel Fine",
+        "author": "Sep Kamvar",
+        "coverUrl": "https://books.google.com/books/content?id=Lz5U6zbGX3wC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Information Design Workbook",
+        "author": "Kim Baer",
+        "coverUrl": "https://books.google.com/books/content?id=CH2Al4_6_XgC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Visualize This",
+        "author": "Nathan Yau",
+        "coverUrl": "https://books.google.com/books/content?id=CB9XRIv9oigC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Design by Nature",
+        "author": "Maggie Macnab",
+        "coverUrl": "https://books.google.com/books/content?id=rSqP6z0Q9VoC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "New Challenges for Data Design",
+        "author": "David Bihanic",
+        "coverUrl": "https://books.google.com/books/content?id=BrTzBQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-encyclopedia-misinformation": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419003491,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The encyclopedia of misinformation",
+        "author": "Rex Sorgatz",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14605758-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Encyclopedia of Misinformation",
+        "author": "Rex Sorgatz",
+        "coverUrl": "https://books.google.com/books/content?id=dM1FDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Media, Journalism, and \"Fake News\"",
+        "author": "Amy M. Damico",
+        "coverUrl": "https://books.google.com/books/content?id=5QPHEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "News Literacy Across the Undergraduate Curriculum",
+        "author": "Amy M. Damico",
+        "coverUrl": "https://books.google.com/books/content?id=8yMKEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Melanin Is Worth More Than Gold",
+        "author": "Nnamdi Azikiwe",
+        "coverUrl": "https://books.google.com/books/content?id=_bjkDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Nineties",
+        "author": "Chuck Klosterman",
+        "coverUrl": "https://books.google.com/books/content?id=rDUtEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-first-dumb-joke-book": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419005289,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Laughtastic! The Side-Splitting Micronation Joke Book For Aspiring Micronationalists!",
+        "author": "Willy Laughter",
+        "coverUrl": "https://books.google.com/books/content?id=9aOAEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Dxas",
+        "author": "D. Bainbridge",
+        "coverUrl": "https://books.google.com/books/content?id=NCvJh_hI2acC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Come and Knock on Our Door",
+        "author": "Chris Mann",
+        "coverUrl": "https://books.google.com/books/content?id=iSfplRxL8gIC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Editor",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=KRNTAAAAYAAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The American Bibliopolist",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=zj7QAAAAMAAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-magnus-walker": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419006730,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Urban Outlaw",
+        "author": "Magnus Walker",
+        "coverUrl": "https://books.google.com/books/content?id=vZLfDQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Urban Outlaw",
+        "author": "Magnus Walker",
+        "coverUrl": "https://books.google.com/books/content?id=Q_iNEAAAQBAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Urban Outlaw",
+        "author": "Magnus Walker",
+        "coverUrl": "https://books.google.com/books/content?id=sJaVEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Porsche Outlaws",
+        "author": "Michael Alan Ross",
+        "coverUrl": "https://books.google.com/books/content?id=XgQTEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Porsche Special Editions",
+        "author": "Matt Stone",
+        "coverUrl": "https://books.google.com/books/content?id=pNybEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-beastie-boys-book": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419007856,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Beastie Boys Book",
+        "author": "Michael Diamond",
+        "coverUrl": "https://books.google.com/books/content?id=RbtMDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of Michael Diamond's Beastie Boys Book",
+        "author": "Milkyway Media",
+        "coverUrl": "https://books.google.com/books/content?id=cnzxEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Hip Hop Family Tree Book 2",
+        "author": "Ed Piskor",
+        "coverUrl": "https://books.google.com/books/content?id=lDuECgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Hip Hop Family Tree Book 3",
+        "author": "Ed Piskor",
+        "coverUrl": "https://books.google.com/books/content?id=uTuECgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Can't Stop Won't Stop (Young Adult Edition)",
+        "author": "Jeff Chang",
+        "coverUrl": "https://books.google.com/books/content?id=_THoDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-surf-shack": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419008765,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Surf Shack",
+        "author": "Nina Freudenberger",
+        "coverUrl": "https://books.google.com/books/content?id=YAmmDgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Bibliostyle",
+        "author": "Nina Freudenberger",
+        "coverUrl": "https://books.google.com/books/content?id=-qqxDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Mountain House",
+        "author": "Nina Freudenberger",
+        "coverUrl": "https://books.google.com/books/content?id=dTOzEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Modern Bohemian Table",
+        "author": "Amanda Bernardi",
+        "coverUrl": "https://books.google.com/books/content?id=1IoFEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Vanity Fair",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=jNNnbNgIvI8C&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s3-obama-portrait": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419009938,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Obama: An Intimate Portrait",
+        "author": "Pete Souza",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8315342-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Obama: An Intimate Portrait, Deluxe Limited Edition",
+        "author": "Pete Souza",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8403160-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Obama: An Intimate Portrait",
+        "author": "Pete Souza",
+        "coverUrl": "https://books.google.com/books/content?id=eJq7DgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Obama: An Intimate Portrait",
+        "author": "Pete Souza",
+        "coverUrl": "https://books.google.com/books/content?id=lM82DwAAQBAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Obama",
+        "author": "Pete Souza",
+        "coverUrl": "https://books.google.com/books/content?id=lG8rswEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Shade",
+        "author": "Pete Souza",
+        "coverUrl": "https://books.google.com/books/content?id=TmJbDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Obama: An Intimate Portrait, Deluxe Limited Edition",
+        "author": "Pete Souza",
+        "coverUrl": "https://books.google.com/books/content?id=Q0PDAQAACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s3-boneshaker": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419011063,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "CMJ New Music Report",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=wuH6GvuKk-0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-history-of-surfing": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419012091,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The History of surfing",
+        "author": "Matt Warshaw",
+        "coverUrl": "https://covers.openlibrary.org/b/id/12269526-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The History of Surfing",
+        "author": "Matt Warshaw",
+        "coverUrl": "https://books.google.com/books/content?id=HTL8tumsVB0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Encyclopedia of Surfing",
+        "author": "Matt Warshaw",
+        "coverUrl": "https://books.google.com/books/content?id=-DWQSYRx4MUC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "A Brief History of Surfing",
+        "author": "Matt Warshaw",
+        "coverUrl": "https://books.google.com/books/content?id=NhImDgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Maverick's",
+        "author": "Matt Warshaw",
+        "coverUrl": "https://books.google.com/books/content?id=xnesZlZTuVoC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-cut-flower-garden": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419013080,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Floret Farm's cut flower garden",
+        "author": "Erin Benzakein",
+        "coverUrl": "https://covers.openlibrary.org/b/id/12786519-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Floret Farm's Cut Flower Garden",
+        "author": "Erin Benzakein",
+        "coverUrl": "https://books.google.com/books/content?id=RoxODQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Floret Farm's A Year in Flowers",
+        "author": "Erin Benzakein",
+        "coverUrl": "https://books.google.com/books/content?id=GxXGDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Floret Farm's Discovering Dahlias",
+        "author": "Erin Benzakein",
+        "coverUrl": "https://books.google.com/books/content?id=MToWEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Floret Farm's Cut Flower Garden: Dahlia Notes",
+        "author": "Erin Benzakein",
+        "coverUrl": "https://books.google.com/books/content?id=59xh0AEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Serenity Flower Garden",
+        "author": "Chris Kelly",
+        "coverUrl": "https://books.google.com/books/content?id=ZkmhEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-porsche-911-every-model": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419014045,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Porsche 911 The classic models (1964-1989)",
+        "author": "Peter Morgan",
+        "coverUrl": "https://books.google.com/books/content?id=7upcJAAACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Collector's Originality Guide Porsche 911",
+        "author": "Peter Morgan",
+        "coverUrl": "https://books.google.com/books/content?id=NYx5DQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Original Porsche 911 1964-1998",
+        "author": "Peter Morgan",
+        "coverUrl": "https://books.google.com/books/content?id=l1-kjwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Porsche 911 Carrera, Turbo & RS (964)",
+        "author": "Peter Morgan",
+        "coverUrl": "https://books.google.com/books/content?id=Vi9gPQAACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Small Business Casebook",
+        "author": "Sue Birley",
+        "coverUrl": "https://books.google.com/books/content?id=wgCwCwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-complete-book-porsche-911": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419015671,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "The Complete Book of Porsche 911",
+        "author": "Randy Leffingwell",
+        "coverUrl": "https://books.google.com/books/content?id=f6LQDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Complete Book of Porsche 911 4th Edition",
+        "author": "Randy Leffingwell",
+        "coverUrl": "https://books.google.com/books/content?id=091BEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Porsche 911 60 Years",
+        "author": "Randy Leffingwell",
+        "coverUrl": "https://books.google.com/books/content?id=XwjzEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Porsche 911: 50 Years",
+        "author": "Randy Leffingwell",
+        "coverUrl": "https://books.google.com/books/content?id=PTGIAAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Porsche 911",
+        "author": "Randy Leffingwell",
+        "coverUrl": "https://books.google.com/books/content?id=ig5wBMfYpMkC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-tour-de-france": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419016814,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Official History of the Tour de France",
+        "author": "Serge Laget",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14681918-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Official History of The Tour De France",
+        "author": "Andy McGrath",
+        "coverUrl": "https://books.google.com/books/content?id=r4ngEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Le Tour de France",
+        "author": "Luke Edwardes-Evans",
+        "coverUrl": "https://books.google.com/books/content?id=SGlZtAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Official History of the Tour de France",
+        "author": "Luke Edwardes-Evans",
+        "coverUrl": "https://books.google.com/books/content?id=LNqqzwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Official History of the Tour de France (2025)",
+        "author": "Luke Edwardes-Evans",
+        "coverUrl": "https://books.google.com/books/content?id=rrctEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-light-right": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419018179,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Light Right a practising engineer's manual on energy-efficient lighting",
+        "author": "T Senthil Kumar and G Harikumar M K Halpeth",
+        "coverUrl": "https://books.google.com/books/content?id=ZoLC0vgtewwC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Wilson's Photographics. A Series of Lessons, Accompanied by Notes, on All the Processes which are Needful in the Art of Photography",
+        "author": "Edward Livingston Wilson",
+        "coverUrl": "https://books.google.com/books/content?id=IF2IEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Hoard's Dairyman",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=SsxFAQAAMAAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "U.S. Terminal Procedures",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=VZoI5SUgL_MC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Light",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=_Ep-vkxErdYC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-in-camera": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419019672,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "In Camera: How to Get Perfect Pictures Straight Out of the Camera",
+        "author": "Gordon Laing",
+        "coverUrl": "https://books.google.com/books/content?id=DLW0DwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "In Camera",
+        "author": "Gordon Laing",
+        "coverUrl": "https://books.google.com/books/content?id=fa8gvgAACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Digital Photography for Next to Nothing",
+        "author": "John Lewell",
+        "coverUrl": "https://books.google.com/books/content?id=IY2Yq_SHTEkC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "How to Climb Mt. Blanc in a Skirt",
+        "author": "Mick Conefrey",
+        "coverUrl": "https://books.google.com/books/content?id=q4UbYjoz0-EC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Publishers' Circular and Booksellers' Record",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=AM_VqNrq9V0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s3-beginners-photo-course": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419020944,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "The Complete Beginner's Photography Course",
+        "author": "Ben Hawkins",
+        "coverUrl": "https://books.google.com/books/content?id=LpBUEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Complete Beginner's Guide to Photography",
+        "author": "George Laycock",
+        "coverUrl": "https://books.google.com/books/content?id=JOb3j70VUvIC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Beginner's guide to photography, by a fellow of the Chemical society [E.J. Wall].",
+        "author": "Edward John Wall",
+        "coverUrl": "https://books.google.com/books/content?id=AhcGnwdaW1wC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Amateur Photographer & Photography",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=ufdkqAmDR7MC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-honored-dead": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419022186,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The honored dead",
+        "author": "Joseph Braude",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9574444-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Honored Dead",
+        "author": "Joseph Braude",
+        "coverUrl": "https://books.google.com/books/content?id=0F5T5T8DOC8C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Honoured Dead",
+        "author": "Joseph Braude",
+        "coverUrl": "https://books.google.com/books/content?id=FJ_AWRpPgCoC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Union Pacific Magazine",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=tRoTAAAAIAAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Keystone",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=KWF8IjBaLdQC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-book-of-joy": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419023637,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "The Book of Joy",
+        "author": "Dalai Lama",
+        "coverUrl": "https://books.google.com/books/content?id=kJpPEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Book of Joy Journal",
+        "author": "Dalai Lama",
+        "coverUrl": "https://books.google.com/books/content?id=ZRVHDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of The Book of Joy by Dalai Lama and Desmond Tutu",
+        "author": "QuickRead",
+        "coverUrl": "https://books.google.com/books/content?id=ROLiDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Little Book of Joy",
+        "author": "Dalai Lama",
+        "coverUrl": "https://books.google.com/books/content?id=CLyFEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-high-tech-startup": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419024692,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "High tech startup",
+        "author": "John L. Nesheim",
+        "coverUrl": "https://covers.openlibrary.org/b/id/704763-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "High Tech Start Up, Revised and Updated",
+        "author": "John L. Nesheim",
+        "coverUrl": "https://books.google.com/books/content?id=ohxNmF3MUecC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Entrepreneur The Person",
+        "author": "John Nesheim",
+        "coverUrl": "https://books.google.com/books/content?id=yqb_EAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=PgU96Io2JmYC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Ethical Tech Startup Guide",
+        "author": "Ron Baecker",
+        "coverUrl": "https://books.google.com/books/content?id=pc65EAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-dragonfly-effect": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419025789,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The Dragonfly Effect",
+        "author": "Jennifer Aaker",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6935334-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Dragonfly Effect",
+        "author": "Jennifer Aaker",
+        "coverUrl": "https://books.google.com/books/content?id=Ekt-CwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Chocolate Model of Change",
+        "author": "Diane Dormant",
+        "coverUrl": "https://books.google.com/books/content?id=HlhEAwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Encyclopedia of Social Media and Politics",
+        "author": "Kerric Harvey",
+        "coverUrl": "https://books.google.com/books/content?id=qS91AwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Social Media Freaks",
+        "author": "Dustin Kidd",
+        "coverUrl": "https://books.google.com/books/content?id=t75aDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Brand IDEA",
+        "author": "Nathalie Laidler-Kylander",
+        "coverUrl": "https://books.google.com/books/content?id=rQALAgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-hurdle": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419026816,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Hurdle",
+        "author": "Timothy Berry",
+        "coverUrl": "https://books.google.com/books/content?id=F9mr4eoPuUEC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Hurdle, the Book on Business Planning",
+        "author": "Timothy Berry",
+        "coverUrl": "https://books.google.com/books/content?id=yWFMoAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Plan-as-You-Go Business Plan",
+        "author": "Tim Berry",
+        "coverUrl": "https://books.google.com/books/content?id=Wj-XILTUdk4C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-switch": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419027850,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Switch",
+        "author": "Chip; Heath, Dan Heath",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6390711-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Switch (Korean Edition)",
+        "author": "Dan Heath",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8761188-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Switch",
+        "author": "Chip Heath",
+        "coverUrl": "https://books.google.com/books/content?id=QgzBqhbdlvUC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of Switch",
+        "author": "Abbey Beathan",
+        "coverUrl": "https://books.google.com/books/content?id=EYV8xgEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary",
+        "author": "BusinessNews Publishing",
+        "coverUrl": "https://books.google.com/books/content?id=jNXkxQEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s4-stay-alive-woods": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419029374,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "How to stay alive in the woods",
+        "author": "Bradford Angier",
+        "coverUrl": "https://covers.openlibrary.org/b/id/5799005-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "How to stay alive in the woods",
+        "author": "Bradford Angier",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6514085-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "How to stay alive in the woods",
+        "author": "Bradford Angier",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9222882-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "How to Stay Alive in the Woods",
+        "author": "Bradford Angier",
+        "coverUrl": "https://books.google.com/books/content?id=tuOan4sVmy8C&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "How to Stay Alive in the Woods",
+        "author": "Bradford Angier",
+        "coverUrl": "https://books.google.com/books/content?id=NTC87uQewWAC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Living Off the Country",
+        "author": "Bradford Angier",
+        "coverUrl": "https://books.google.com/books/content?id=HfhMtAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s4-dune": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419030556,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Dune",
+        "author": "Frank Herbert",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11481354-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Dune Messiah",
+        "author": "Frank Herbert",
+        "coverUrl": "https://covers.openlibrary.org/b/id/2421405-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Children of Dune",
+        "author": "Frank Herbert",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6976407-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "God Emperor of Dune",
+        "author": "Frank Herbert",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6711531-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Heretics of Dune",
+        "author": "Frank Herbert",
+        "coverUrl": "https://covers.openlibrary.org/b/id/284530-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Dune (Movie Tie-In)",
+        "author": "Frank Herbert",
+        "coverUrl": "https://books.google.com/books/content?id=AQk_EAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Frank Herbert's Dune Saga Collection: Books 1 - 6",
+        "author": "Frank Herbert",
+        "coverUrl": "https://books.google.com/books/content?id=iAblDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Dune",
+        "author": "Frank Herbert",
+        "coverUrl": "https://books.google.com/books/content?id=nrRKDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Dreamer of Dune",
+        "author": "Brian Herbert",
+        "coverUrl": "https://books.google.com/books/content?id=hlbSrcGnhRIC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Road to Dune",
+        "author": "Frank Herbert",
+        "coverUrl": "https://books.google.com/books/content?id=rn5Vb-Uh0LMC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-fifth-season": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419031858,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The Fifth Season",
+        "author": "N. K. Jemisin",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8133598-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Broken Earth Trilogy: The Fifth Season, The Obelisk Gate, The Stone Sky",
+        "author": "N. K. Jemisin",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8539028-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Fifth Season",
+        "author": "N. K. Jemisin",
+        "coverUrl": "https://books.google.com/books/content?id=J0tIAgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Broken Earth Trilogy",
+        "author": "N. K. Jemisin",
+        "coverUrl": "https://books.google.com/books/content?id=muR1swEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Fifth Season",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=XGqyzgEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Obelisk Gate",
+        "author": "N. K. Jemisin",
+        "coverUrl": "https://books.google.com/books/content?id=vNBfCgAAQBAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Stone Sky",
+        "author": "N. K. Jemisin",
+        "coverUrl": "https://books.google.com/books/content?id=cmWnDQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-making-mavericks": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419032745,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Making Mavericks",
+        "author": "Frosty Hesson",
+        "coverUrl": "https://books.google.com/books/content?id=y2P6wAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Making Mavericks",
+        "author": "Frosty Hesson",
+        "coverUrl": "https://books.google.com/books/content?id=sU3AAAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Sports of Santa Cruz County",
+        "author": "Geoffrey Dunn",
+        "coverUrl": "https://books.google.com/books/content?id=MpaVEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Women on Waves",
+        "author": "Jim Kempton",
+        "coverUrl": "https://books.google.com/books/content?id=P9EHEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Crazy Joy",
+        "author": "Mary Katherine Backstrom",
+        "coverUrl": "https://books.google.com/books/content?id=KpBUEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-they-call-me-coach": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419033977,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "They call me coach",
+        "author": "John R. Wooden",
+        "coverUrl": "https://covers.openlibrary.org/b/id/594215-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "They call me coach",
+        "author": "John R. Wooden",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6569289-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "They Call Me Coach",
+        "author": "John Wooden",
+        "coverUrl": "https://books.google.com/books/content?id=fAcPAQAAMAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "They Call Me Coach",
+        "author": "John Wooden",
+        "coverUrl": "https://books.google.com/books/content?id=sD-etTE0uAgC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Coach Wooden One-On-One",
+        "author": "John Wooden",
+        "coverUrl": "https://books.google.com/books/content?id=Td4XBQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Wooden: A Coach's Life",
+        "author": "Seth Davis",
+        "coverUrl": "https://books.google.com/books/content?id=DXLWAAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-elements-of-style": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419035102,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The Elements of Style",
+        "author": "William Strunk, Jr.",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10515358-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Elements of Style",
+        "author": "William Strunk",
+        "coverUrl": "https://books.google.com/books/content?id=W4JDEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Elements of Style",
+        "author": "William Strunk",
+        "coverUrl": "https://books.google.com/books/content?id=ADaMf2tEB7sC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Elements of Style Illustrated",
+        "author": "William Strunk, Jr.",
+        "coverUrl": "https://books.google.com/books/content?id=sj5_wr6zIEcC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Elements of Style",
+        "author": "William Strunk",
+        "coverUrl": "https://books.google.com/books/content?id=LsKRuwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Elements of Style",
+        "author": "William Strunk",
+        "coverUrl": "https://books.google.com/books/content?id=-1ptjwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s4-html-css-duckett": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419036643,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "HTML and CSS",
+        "author": "Jon Duckett",
+        "coverUrl": "https://books.google.com/books/content?id=aGjaBTbT0o0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Web Design with HTML, CSS, JavaScript and jQuery Set",
+        "author": "Jon Duckett",
+        "coverUrl": "https://books.google.com/books/content?id=kghJjwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "JavaScript and jQuery",
+        "author": "Jon Duckett",
+        "coverUrl": "https://books.google.com/books/content?id=LpctBAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-web-design-studios-2": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419037733,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "1000 Ideas by 100 Graphic Designers",
+        "author": "Matteo Cossu",
+        "coverUrl": "https://books.google.com/books/content?id=m2sRLUQ31-AC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Fundamentals of Illustration",
+        "author": "Lawrence Zeegen",
+        "coverUrl": "https://books.google.com/books/content?id=KkvrDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Mexico Style",
+        "author": "Angelika Taschen",
+        "coverUrl": "https://books.google.com/books/content?id=NNlEERrvmNkC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Site",
+        "author": "Steve Womersley",
+        "coverUrl": "https://books.google.com/books/content?id=TwjhOKJm0IAC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s4-user-story-mapping": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419038701,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "User Story Mapping",
+        "author": "Jeff Patton",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8206841-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Le story mapping - Visualisez vos user stories pour développer le bon produit",
+        "author": "Jeff Patton",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11047072-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "User Story Mapping",
+        "author": "Jeff Patton",
+        "coverUrl": "https://books.google.com/books/content?id=4YZyBAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "User Story Mapping",
+        "author": "Jeff Patton (Software developer)",
+        "coverUrl": "https://books.google.com/books/content?id=CkdyvwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Mapping Experiences",
+        "author": "Jim Kalbach",
+        "coverUrl": "https://books.google.com/books/content?id=fK4fDAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-breakfast-bucks": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419042776,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Breakfast at Bucks",
+        "author": "Jamis MacNiven",
+        "coverUrl": "https://covers.openlibrary.org/b/id/739782-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Breakfast at Buck's",
+        "author": "James MacNiven",
+        "coverUrl": "https://books.google.com/books/content?id=udDBBpCcNTMC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Secrets of Silicon Valley",
+        "author": "Deborah Perry Piscione",
+        "coverUrl": "https://books.google.com/books/content?id=cIn0pwKftasC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Valley of Genius",
+        "author": "Adam Fisher",
+        "coverUrl": "https://books.google.com/books/content?id=TKkjEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Starting Something",
+        "author": "Wayne McVicker",
+        "coverUrl": "https://books.google.com/books/content?id=bHTUuz1xRf0C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Startup Game",
+        "author": "William H. Draper",
+        "coverUrl": "https://books.google.com/books/content?id=8ZbeJHFCJQQC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-outliers": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419044064,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Outliers",
+        "author": "Malcolm Gladwell",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10021591-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Outliers",
+        "author": "Malcolm Gladwell",
+        "coverUrl": "https://books.google.com/books/content?id=ialrgIT41OAC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary: Outliers ...in 30 Minutes - A Concise Summary of Malcolm Gladwell's Bestselling Book",
+        "author": "Malcolm Gladwell",
+        "coverUrl": "https://books.google.com/books/content?id=-_i4NAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Outliers",
+        "author": "Malcolm Gladwell",
+        "coverUrl": "https://books.google.com/books/content?id=_tlXMQEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Outliers",
+        "author": "Malcolm Gladwell",
+        "coverUrl": "https://books.google.com/books/content?id=pwCEvgEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Outliers (Fuera de Serie) / Outliers: The Story of Success",
+        "author": "Malcolm Gladwell",
+        "coverUrl": "https://books.google.com/books/content?id=8GPK0AEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s5-team-of-teams": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419045321,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Team of Teams",
+        "author": "General Stanley McChrystal",
+        "coverUrl": "https://books.google.com/books/content?id=wQ2hCgAAQBAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Team of Teams by General Stanley McChrystal | Key Takeaways & Analysis",
+        "author": "Instaread",
+        "coverUrl": "https://books.google.com/books/content?id=sN5ACgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Team of Teams by General Stanley Mcchrystal",
+        "author": "InstaRead Summaries Staff",
+        "coverUrl": "https://books.google.com/books/content?id=I6QxuAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Team of Teams (Summary)",
+        "author": "Summary Station",
+        "coverUrl": "https://books.google.com/books/content?id=OP7KsgEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Team of Teams",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=EbxEzgEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s5-giant-hairball": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419046505,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Orbiting the giant hairball",
+        "author": "Gordon MacKenzie",
+        "coverUrl": "https://covers.openlibrary.org/b/id/402139-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Orbiting the giant hairball",
+        "author": "Gordon MacKenzie",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6463894-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Orbiting the Giant Hairball",
+        "author": "Gordon MacKenzie",
+        "coverUrl": "https://books.google.com/books/content?id=grK9Em7C2IQC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "A Critical Look at Institutional Mission",
+        "author": "Joseph Janangelo",
+        "coverUrl": "https://books.google.com/books/content?id=u6sWEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Becoming a Leader Is Becoming Yourself",
+        "author": "Russ S. Moxley",
+        "coverUrl": "https://books.google.com/books/content?id=skojCgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "100 Best Books for Work and Life",
+        "author": "Todd Sattersten",
+        "coverUrl": "https://books.google.com/books/content?id=Ru5AEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-mba-in-a-day": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419047870,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "MBA In A Day",
+        "author": "Steven Stralser",
+        "coverUrl": "https://covers.openlibrary.org/b/id/306300-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "MBA in a DAY 2.0",
+        "author": "Steven Stralser Ph.D.",
+        "coverUrl": "https://covers.openlibrary.org/b/id/12031401-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "MBA In A Day",
+        "author": "Steven Stralser",
+        "coverUrl": "https://books.google.com/books/content?id=vfn6ID1O6IkC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "MBA in a DAY 2. 0",
+        "author": "Steven Stralser",
+        "coverUrl": "https://books.google.com/books/content?id=BZ8MkAEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Management from A to Z and back again",
+        "author": "Bob Thomson",
+        "coverUrl": "https://books.google.com/books/content?id=tERLEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "OCEB 2 Certification Guide",
+        "author": "Tim Weilkiens",
+        "coverUrl": "https://books.google.com/books/content?id=Y1IkDAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Driving Excellence",
+        "author": "Mike J. Jones",
+        "coverUrl": "https://books.google.com/books/content?id=rXymlgtuZpYC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-raising-the-bar": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419049271,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Raising the bar",
+        "author": "Gary Erickson",
+        "coverUrl": "https://covers.openlibrary.org/b/id/549597-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Raising the Bar",
+        "author": "Gary Erickson",
+        "coverUrl": "https://books.google.com/books/content?id=t5eHyNCnrVgC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Dynamic Models of Advertising Competition",
+        "author": "Gary Erickson",
+        "coverUrl": "https://books.google.com/books/content?id=ITAHswEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The 10 Stories Great Leaders Tell",
+        "author": "Paul Smith",
+        "coverUrl": "https://books.google.com/books/content?id=zFu8DwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Accidental Branding",
+        "author": "David Vinjamuri",
+        "coverUrl": "https://books.google.com/books/content?id=KF0S3yTcOxMC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Sustainable Enterprise",
+        "author": "Mark Peterson",
+        "coverUrl": "https://books.google.com/books/content?id=iO42G5KG-PAC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-serve-to-be-great": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419051022,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "Serve to Be Great",
+        "author": "Matt Tenney",
+        "coverUrl": "https://books.google.com/books/content?id=DEBjAwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Pirkei Avot",
+        "author": "Rabbi Dr. Shmuly Yanklowitz",
+        "coverUrl": "https://books.google.com/books/content?id=o9pdDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Mindfulness Edge",
+        "author": "Matt Tenney",
+        "coverUrl": "https://books.google.com/books/content?id=CgCPCwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Any Dumb-Ass Can Do It",
+        "author": "Garry Ridge",
+        "coverUrl": "https://books.google.com/books/content?id=mhIMEQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Inspire Greatness",
+        "author": "Matt Tenney",
+        "coverUrl": "https://books.google.com/books/content?id=yRLREAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-start-with-why": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419052217,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Start with Why",
+        "author": "Simon Sinek",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8761345-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Start with why",
+        "author": "Simon Sinek",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14811374-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Start with why",
+        "author": "Simon Sinek",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6395237-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Start with why",
+        "author": "Simon Sinek",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8051750-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Start with Why",
+        "author": "Simon Sinek",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8142523-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Start with Why",
+        "author": "Simon Sinek",
+        "coverUrl": "https://books.google.com/books/content?id=tUaNDQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Start with Why",
+        "author": "Simon Sinek",
+        "coverUrl": "https://books.google.com/books/content?id=t0sSzwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Start with why",
+        "author": "Simon Sinek",
+        "coverUrl": "https://books.google.com/books/content?id=T536zgEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Start with Why: How Great Leaders Inspire Everyone to Take Action",
+        "author": "Simon Sinek",
+        "coverUrl": "https://books.google.com/books/content?id=YczF0QEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of Start with Why",
+        "author": "Alexander Cooper",
+        "coverUrl": "https://books.google.com/books/content?id=8nseEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-gtd": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419054390,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Getting Things Done",
+        "author": "David Allen",
+        "coverUrl": "https://covers.openlibrary.org/b/id/109288-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Getting Things Done Workbook",
+        "author": "David Allen",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10333210-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Getting Things Done for Teens",
+        "author": "David Allen",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10455655-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Getting Things Done",
+        "author": "David Allen",
+        "coverUrl": "https://books.google.com/books/content?id=ebNDDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Getting Things Done",
+        "author": "David Allen",
+        "coverUrl": "https://books.google.com/books/content?id=B6MvBgAAQBAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary of Getting Things Done",
+        "author": "Readtrepreneur Publishing",
+        "coverUrl": "https://books.google.com/books/content?id=4TYQxgEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "SUMMARY - Getting Things Done: The Art Of Stress-Free Productivity By David Allen",
+        "author": "Shortcut Edition",
+        "coverUrl": "https://books.google.com/books/content?id=Yz0xEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Ready for Anything",
+        "author": "David Allen",
+        "coverUrl": "https://books.google.com/books/content?id=-iBkZ0aCETgC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-leadership-challenge": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419055661,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The leadership challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://covers.openlibrary.org/b/id/548022-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The student leadership challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9250811-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Leadership Challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6719114-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Christian reflections on The leadership challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://covers.openlibrary.org/b/id/549176-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Christian reflections on the leadership challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://covers.openlibrary.org/b/id/549549-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Leadership Challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://books.google.com/books/content?id=kHt_CeUoVZQC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Leadership Challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://books.google.com/books/content?id=sSqXVS-xmkgC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Leadership Challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://books.google.com/books/content?id=tvyTDgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Leadership Challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://books.google.com/books/content?id=vhWcEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Leadership Challenge",
+        "author": "James M. Kouzes",
+        "coverUrl": "https://books.google.com/books/content?id=P_UlzxnlGDAC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-no-red-lights": {
+    "status": "ok",
+    "source": "googlebooks",
+    "timestamp": 1768419057219,
+    "options": [
+      {
+        "source": "googlebooks",
+        "title": "No Red Lights",
+        "author": "Alan J. Patricof",
+        "coverUrl": "https://books.google.com/books/content?id=jxtdEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "New York Magazine",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=F5bmvOSaIo4C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "New York Magazine",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=hccDAAAAMBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "New York Magazine",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=cdYCAAAAMBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "New York Magazine",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=m-ECAAAAMBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-groundswell": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419058595,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Groundswell : de impact van social media",
+        "author": "Charlene Li",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10494876-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Groundswell, Expanded and Revised Edition",
+        "author": "Charlene Li",
+        "coverUrl": "https://books.google.com/books/content?id=FrB8QCQojyYC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Groundswell",
+        "author": "Charlene Li",
+        "coverUrl": "https://books.google.com/books/content?id=tdnM1MWv5KQC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Open Leadership",
+        "author": "Charlene Li",
+        "coverUrl": "https://books.google.com/books/content?id=fomBQA7dyAYC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Media and Convergence Management",
+        "author": "Sandra Diehl",
+        "coverUrl": "https://books.google.com/books/content?id=fbtAAAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Understanding Marketing",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=epHBAgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-innovators-dilemma": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419059944,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The Innovator's Dilemma",
+        "author": "Clayton M. Christensen",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9274687-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Innovator's Dilemma",
+        "author": "Clayton Christensen",
+        "coverUrl": "https://books.google.com/books/content?id=3JnBAgAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Innovator's Dilemma, with a New Foreword",
+        "author": "Clayton M. Christensen",
+        "coverUrl": "https://books.google.com/books/content?id=1gHIEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Innovator's Dilemma",
+        "author": "Clayton M. Christensen",
+        "coverUrl": "https://books.google.com/books/content?id=K6FrJTWeUssC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Innovator's Dilemma",
+        "author": "Clayton M. Christensen",
+        "coverUrl": "https://books.google.com/books/content?id=mgdKCyS1bToC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Disruptive Innovation: The Christensen Collection (The Innovator's Dilemma, The Innovator's Solution, The Innovator's DNA, and Harvard Business Review article \"How Will You Measure Your Life?\") (4 Items)",
+        "author": "Clayton M. Christensen",
+        "coverUrl": "https://books.google.com/books/content?id=N0zvYCRSYTMC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-buzzmarketing": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419061208,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Buzzmarketing",
+        "author": "Mark Hughes",
+        "coverUrl": "https://covers.openlibrary.org/b/id/866057-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Buzzmarketing",
+        "author": "Mark Hughes",
+        "coverUrl": "https://books.google.com/books/content?id=5-N_FZTn3xwC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Buzz Marketing with Blogs For Dummies",
+        "author": "Susannah Gardner",
+        "coverUrl": "https://books.google.com/books/content?id=kdnHR3hbnncC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Seven Principles of WOM and Buzz Marketing",
+        "author": "Panos Mourdoukoutas",
+        "coverUrl": "https://books.google.com/books/content?id=MSoNz1v5Ip8C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Where's Your WOW?: 16 Ways to Make Your Competitors Wish They Were You!",
+        "author": "Robyn Spizman",
+        "coverUrl": "https://books.google.com/books/content?id=tOpCm9qVQTkC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s5-built-to-last": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419062799,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Built to Last",
+        "author": "Collins, James C.",
+        "coverUrl": "https://covers.openlibrary.org/b/id/684195-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Built to Last",
+        "author": "James Charles Collins",
+        "coverUrl": "https://books.google.com/books/content?id=oiwdqJ2JfrQC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Jim Collins' Built to Last",
+        "author": "Ant Hive Media",
+        "coverUrl": "https://books.google.com/books/content?id=82HXjwEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Summary - Built to Last",
+        "author": "Quicksummary",
+        "coverUrl": "https://books.google.com/books/content?id=Ip-OswEACAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      }
+    ]
+  },
+  "s5-happy-employee": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419064049,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The happy employee",
+        "author": "Julia Mcgovern",
+        "coverUrl": "https://covers.openlibrary.org/b/id/2971301-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Happy Employee",
+        "author": "Julia McGovern",
+        "coverUrl": "https://books.google.com/books/content?id=kMzrDQAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The Complete Idiot's Guide to Boosting Employee Performance",
+        "author": "Marc Dorio",
+        "coverUrl": "https://books.google.com/books/content?id=7GO8NOdoP38C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "The British National Bibliography",
+        "author": "Arthur James Wells",
+        "coverUrl": "https://books.google.com/books/content?id=iydFAQAAIAAJ&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Illinois Bell Magazine",
+        "author": "Illinois Bell Telephone Company",
+        "coverUrl": "https://books.google.com/books/content?id=3mxScpvbTRUC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Baltimore and Ohio Employes Magazine",
+        "author": "",
+        "coverUrl": "https://books.google.com/books/content?id=GGdCAQAAIAAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-13-sf-stories": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419065459,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "13 great stories of science fiction",
+        "author": "Groff Conklin",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6379333-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "13 great stories of science fiction",
+        "author": "Groff Conklin",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8328883-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "13 great stories of science fiction",
+        "author": "Groff Conklin",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7276908-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "41 Above the Rest",
+        "author": "Bud Webster",
+        "coverUrl": "https://books.google.com/books/content?id=ZNFCTuTkFi8C&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "s5-100-ways-writing": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1768419066685,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "100 Ways to Improve Your Writing",
+        "author": "Gary Provost",
+        "coverUrl": "https://covers.openlibrary.org/b/id/5007439-L.jpg"
+      },
+      {
+        "source": "googlebooks",
+        "title": "100 Ways to Improve Your Writing",
+        "author": "Gary Provost",
+        "coverUrl": "https://books.google.com/books/content?id=4dqja0Qf3hQC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Real-World Writers: A Handbook for Teaching Writing with 7-11 Year Olds",
+        "author": "Ross Young",
+        "coverUrl": "https://books.google.com/books/content?id=ugfoDwAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Christian Academic Writing",
+        "author": "Benjamin L. Merkle",
+        "coverUrl": "https://books.google.com/books/content?id=Ds3IEAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "101 Ways To Boost Your Writing Skills",
+        "author": "Linda Williams Aber",
+        "coverUrl": "https://books.google.com/books/content?id=7bw0JfP2OlwC&printsec=frontcover&img=1&zoom=2&source=gbs_api"
+      },
+      {
+        "source": "googlebooks",
+        "title": "Nonfiction Writing Strategies Using Content-Area Mentor Texts",
+        "author": "Marcia S. Freeman",
+        "coverUrl": "https://books.google.com/books/content?id=_g1XBAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  }
+}
