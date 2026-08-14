@@ -22,6 +22,9 @@ async function loadApp(books = BOOKS) {
       const updated = { ...existing, ...JSON.parse(opts.body), id: idMatch[1] }
       return { ok: true, json: async () => updated }
     }
+    if (u.endsWith('/api/import') && opts.method === 'POST') {
+      return { ok: true, json: async () => ({ added: 1, filled: 1, skipped: 0 }) }
+    }
     throw new Error('unexpected fetch: ' + u)
   }))
   vi.resetModules()
@@ -182,6 +185,32 @@ describe('keyboard access', () => {
     tile.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
 
     expect(document.querySelector('.drawer-title').textContent).toBe('Dune')
+  })
+})
+
+describe('goodreads import', () => {
+  beforeEach(() => loadApp())
+
+  const CSV = 'Title,Author,My Rating\nNew Book,Someone,4\nDune,Frank Herbert,0\n,Broken,1'
+
+  it('shows a preview after loading a file', async () => {
+    document.querySelector('[data-action="import"]').click()
+    await window.__loadImportText(CSV)
+    const preview = document.querySelector('.import-preview').textContent
+    expect(preview).toContain('1 new')
+    expect(preview).toContain('1 update')
+    expect(preview).toContain('1 unparseable (rows 4)')
+  })
+
+  it('confirms via POST /api/import and refreshes', async () => {
+    document.querySelector('[data-action="import"]').click()
+    await window.__loadImportText(CSV)
+    document.querySelector('[data-action="confirm-import"]').click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.modal-panel')) throw new Error('modal open')
+    })
+    const call = fetch.mock.calls.find(([u, o]) => String(u).endsWith('/api/import') && !JSON.parse(o.body).dryRun)
+    expect(JSON.parse(call[1].body).books).toHaveLength(2)
   })
 })
 

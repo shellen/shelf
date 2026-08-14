@@ -1,5 +1,6 @@
 import './style.css'
 import embeddedBooks from 'virtual:bookshelf-data'
+import { parseGoodreadsCsv } from './goodreads.js'
 
 // Escape data for safe interpolation into HTML templates (element and attribute contexts)
 function esc(s) {
@@ -129,6 +130,11 @@ const state = {
   modalLoading: false,
   modalStatus: null,
   editingId: null,
+  importOpen: false,
+  importBooks: [],
+  importFailed: [],
+  importPreview: null,
+  importLoading: false,
   coverPickerOpen: false,
   coverOptions: [],
   coverLoading: false,
@@ -385,6 +391,7 @@ function render() {
               <button class="view-btn ${state.view === 'list' ? 'active' : ''}" data-action="view" data-view="list">List</button>
             </div>
             <button class="btn" data-action="reset">Reset</button>
+            ${state.readOnly ? '' : '<button class="btn" data-action="import">Import</button>'}
             ${state.readOnly ? '' : '<button class="btn btn-primary" data-action="add-book">+ Add Book</button>'}
           </div>
         </div>
@@ -394,6 +401,7 @@ function render() {
     <div id="results">${renderResults(filtered)}</div>
     ${state.drawerOpen ? renderDrawer() : ''}
     ${state.modalOpen ? renderModal() : ''}
+    ${state.importOpen ? renderImportModal() : ''}
     ${state.coverPickerOpen ? renderCoverPicker() : ''}
     ${state.confirmOpen ? renderConfirmDialog() : ''}
     ${state.toast ? renderToast() : ''}
@@ -692,6 +700,64 @@ function openBook(id) {
   }
 }
 
+function renderImportModal() {
+  const p = state.importPreview
+  const failed = state.importFailed
+  return `
+    <div class="modal-backdrop" data-action="close-import">
+      <div class="modal-panel" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Import from Goodreads</h2>
+          <button class="drawer-close" data-action="close-import">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="form-hint">Export from Goodreads: My Books &rarr; Tools &rarr; Import and Export &rarr; Export Library</p>
+          <div class="drop-zone" data-action="pick-import-file">
+            ${state.importLoading ? '<span class="loading"></span> Reading file...' : 'Drop goodreads_library_export.csv here or click to choose'}
+          </div>
+          <input type="file" accept=".csv,text/csv" id="import-file" class="hidden">
+          ${p ? `
+            <div class="import-preview">
+              ${p.added} new &bull; ${p.filled} update${p.filled === 1 ? '' : 's'} &bull; ${p.skipped} already complete${failed.length ? ` &bull; ${failed.length} unparseable (rows ${failed.join(', ')})` : ''}
+            </div>
+          ` : ''}
+        </div>
+        <div class="modal-actions">
+          <button class="btn" data-action="close-import">Cancel</button>
+          <button class="btn btn-primary" data-action="confirm-import" ${p && state.importBooks.length ? '' : 'disabled'}>Confirm Import</button>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+async function loadImportText(text) {
+  const { books, failed } = parseGoodreadsCsv(text)
+  state.importBooks = books
+  state.importFailed = failed
+  state.importLoading = false
+  try {
+    const res = await fetch('/api/import', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ books, dryRun: true })
+    })
+    state.importPreview = res.ok ? await res.json() : null
+  } catch (e) {
+    state.importPreview = null
+  }
+  render()
+}
+if (import.meta.env?.MODE === 'test') window.__loadImportText = loadImportText
+
+function closeImport() {
+  state.importOpen = false
+  state.importBooks = []
+  state.importFailed = []
+  state.importPreview = null
+  state.importLoading = false
+  render()
+}
+
 function attachEventListeners() {
   // Search input
   document.querySelector('[data-action="search"]')?.addEventListener('input', e => {
@@ -732,6 +798,60 @@ function attachEventListeners() {
     state.modalOpen = true
     state.modalStatus = null
     render()
+  })
+
+  // Import button
+  document.querySelector('.header [data-action="import"]')?.addEventListener('click', () => {
+    state.importOpen = true
+    render()
+  })
+
+  // Import modal: close (backdrop only on direct clicks)
+  document.querySelectorAll('[data-action="close-import"]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (el.classList.contains('modal-backdrop') && e.target !== el) return
+      closeImport()
+    })
+  })
+
+  // Import modal: file picking
+  const importFile = document.getElementById('import-file')
+  document.querySelector('[data-action="pick-import-file"]')?.addEventListener('click', () => importFile?.click())
+  importFile?.addEventListener('change', () => {
+    const file = importFile.files?.[0]
+    if (!file) return
+    state.importLoading = true
+    render()
+    file.text().then(loadImportText)
+  })
+  const dropZone = document.querySelector('.drop-zone')
+  dropZone?.addEventListener('dragover', e => e.preventDefault())
+  dropZone?.addEventListener('drop', e => {
+    e.preventDefault()
+    const file = e.dataTransfer?.files?.[0]
+    if (!file) return
+    state.importLoading = true
+    render()
+    file.text().then(loadImportText)
+  })
+
+  // Import modal: confirm
+  document.querySelector('[data-action="confirm-import"]')?.addEventListener('click', async () => {
+    if (!state.importBooks.length) return
+    try {
+      const res = await fetch('/api/import', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ books: state.importBooks })
+      })
+      if (!res.ok) throw new Error('Import failed')
+      const counts = await res.json()
+      state.books = await api.getBooks()
+      closeImport()
+      showToast(`Imported: ${counts.added} added, ${counts.filled} filled, ${counts.skipped} skipped`)
+    } catch (e) {
+      console.error('Import failed:', e)
+      showToast('Import failed: ' + e.message, 'error')
+    }
   })
 
   // Results interactions - delegated so results can re-render without re-attaching listeners
