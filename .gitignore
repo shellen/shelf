@@ -27,3 +27,6 @@ data/*.db-shm
 *.njsproj
 *.sln
 *.sw?
+
+# Brainstorm session artifacts
+.superpowers/
