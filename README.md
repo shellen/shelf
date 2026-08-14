@@ -13,13 +13,13 @@ npm run dev          # Dev server + API at localhost:5173
 ## Features
 
 - **Cover wall view** - Visual grid of book covers
-- **List view** - Sortable table with all book details
+- **List view** - Sortable table with all book details (click column headers to sort)
 - **Search** - Filter by title, author, or tags
-- **Add books** - In-app form with ISBN lookup (saves instantly)
+- **Add & edit books** - In-app forms with ISBN lookup (saves instantly)
 - **Change covers** - Pick from Open Library, Google Books results
 - **SQLite storage** - All changes persist immediately
 - **Local cover caching** - Downloads covers once, embeds in final HTML
-- **Single file output** - One portable `index.html` file
+- **Single file output** - One portable `index.html` file (read-only snapshot with covers embedded)
 
 ## Adding Books
 
@@ -50,6 +50,7 @@ npm run add-book
 | `npm run add-book` | Interactive CLI to add a book |
 | `npm run db:init` | Create fresh SQLite database |
 | `npm run db:migrate` | Import books.json into SQLite |
+| `npm test` | Run the test suite |
 
 ## Architecture
 
@@ -101,7 +102,7 @@ Covers are fetched from multiple sources and cached in `public/covers/`:
 2. **Google Books** - Fallback option
 3. **ISBN lookup** - Direct URL if ISBN is known
 
-Run `npm run fetch-covers` to download all covers. Covers are embedded as base64 in the final HTML build.
+Run `npm run fetch-covers` to download covers for all books in the database. Cached covers are embedded as base64 in the final HTML build; books with a custom cover URL keep that URL.
 
 ## API Endpoints
 
@@ -124,6 +125,6 @@ After `npm run build`, find your bookshelf at:
 dist/index.html
 ```
 
-This single file contains everything - HTML, CSS, JS, and cover images. Open it directly in any browser or host anywhere.
+This single file contains everything - HTML, CSS, JS, and cover images. Open it directly in any browser or host anywhere. The book list and cached covers are embedded at build time straight from the SQLite database.
 
-**Note:** The built HTML file is read-only (no API server). It's a snapshot of your bookshelf at build time.
+**Note:** The built HTML file is read-only (no API server). It's a snapshot of your bookshelf at build time; editing controls are hidden automatically.
