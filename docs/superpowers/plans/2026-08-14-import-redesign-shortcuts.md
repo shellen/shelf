@@ -36,7 +36,8 @@
 
 ### Task 0: Feature branch
 
-- [ ] **Step 0.1:** `cd "/Users/shellen/Documents/Claude Stuff/bookshelf" && git checkout -b feat/import-redesign-shortcuts`
+- [ ] **Step 0.1:** Commit the pending `.gitignore` change (`.superpowers/` entry) if still uncommitted: `git add .gitignore && git commit -m "Ignore brainstorm session artifacts"`
+- [ ] **Step 0.2:** `cd "/Users/shellen/Documents/Claude Stuff/bookshelf" && git checkout -b feat/import-redesign-shortcuts`
 
 ---
 
@@ -409,6 +410,12 @@ describe('importBooks', () => {
     expect(importBooks([dune], { dryRun: true })).toEqual({ added: 1, filled: 0, skipped: 0 })
     expect(getAllBooks()).toEqual([])
   })
+
+  it('rolls the whole batch back when a row is invalid', async () => {
+    const { importBooks, getAllBooks } = await loadDb()
+    expect(() => importBooks([dune, { author: 'No Title' }])).toThrow()
+    expect(getAllBooks()).toEqual([])   // first row rolled back too
+  })
 })
 ```
 
@@ -417,7 +424,8 @@ describe('importBooks', () => {
 ```js
 const normKey = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, '').replace(/\s+/g, ' ').trim()
 
-const FILLABLE = ['author', 'isbn', 'rating', 'notes', 'dateRead', 'dateAdded', 'pages', 'year']
+const FILLABLE = ['isbn', 'rating', 'notes', 'dateRead', 'dateAdded', 'pages', 'year']
+// (author is intentionally not fillable: it's part of the match key — spec'd list only)
 
 // Helper: bulk import with fill-in-blanks merging. Returns {added, filled, skipped}.
 export function importBooks(entries, { dryRun = false } = {}) {
@@ -432,6 +440,7 @@ export function importBooks(entries, { dryRun = false } = {}) {
         || byKey.get(normKey(entry.title) + '|' + normKey(entry.author))
 
       if (!match) {
+        if (!entry.title) throw new Error('import row missing title')
         const book = { ...entry, id: dryRun ? normKey(entry.title) : generateBookId(entry.title) }
         if (!dryRun) saveBook(book)
         byKey.set(normKey(book.title) + '|' + normKey(book.author), book)
@@ -570,7 +579,20 @@ it('shows metadata instead of shelf in the drawer', async () => {
 </div>
 ```
 
-(escape year via `esc(b.year)` inline); list view: replace the Shelf column with Rating and Year columns — header cells `data-sort="rating"` / `data-sort="year"` (grid template becomes `5fr 3fr 1fr 1fr 3fr` in `style.css` for `.list-header`/`.list-row`), row cells `${b.rating ? esc(b.rating) + '★' : '—'}` and `${b.year ? esc(b.year) : '—'}`. Remove `shelf` from the add/edit modal payloads.
+Corrected template (use exactly this — everything escaped, no stray map):
+
+```js
+<div class="drawer-meta">
+  ${[
+    b.year ? esc(b.year) : null,
+    b.pages ? `${esc(b.pages)} pages` : null,
+    b.dateRead ? `read ${esc(b.dateRead)}` : null,
+    b.isbn ? `ISBN ${esc(b.isbn)}` : null
+  ].filter(Boolean).join(' &bull; ') || '&nbsp;'}
+</div>
+```
+
+List view: replace the Shelf column with Rating and Year columns — header cells `data-sort="rating"` / `data-sort="year"` (grid template becomes `5fr 3fr 1fr 1fr 3fr` in `style.css` for `.list-header`/`.list-row`), row cells `${b.rating ? esc(b.rating) + '★' : '—'}` and `${b.year ? esc(b.year) : '—'}`. Remove `shelf` from the add/edit modal payloads.
 
 - [ ] **Step 7.4:** `npm test` — green. **Step 7.5:** Commit: `"Remove shelf from UI; show metadata in drawer and list"`
 
@@ -697,7 +719,8 @@ it('renders the status bar with count and sort', async () => {
 })
 ```
 
-- [ ] **Step 10.2:** Run — FAIL. **Step 10.3: Template changes** (`src/main.js`): remove `.header-count` span; append `renderStatusBar()` after `#results` in `render()`:
+- [ ] **Step 10.1b: Update the two existing `.header-count` tests** in `src/main.test.js` — "shows all books in the cover wall" asserts `document.querySelector('.status-bar').textContent` contains `'3 BOOKS'`, and "filters results as the query is typed" asserts it contains `'1/3 BOOKS'`. Without this, Step 10.3 breaks them (null `.header-count`).
+- [ ] **Step 10.2:** Run — FAIL. **Step 10.3: Template changes** (`src/main.js`): remove the `.header-count` span from the header AND replace `updateResults()`'s `.header-count` update with a status-bar refresh (replace the `.status-bar` element's textContent/outerHTML from `renderStatusBar(filtered)`); append `renderStatusBar()` after `#results` in `render()`:
 
 ```js
 function renderStatusBar(filtered) {
@@ -791,9 +814,17 @@ describe('keyboard shortcuts', () => {
 ```js
 function onKeydown(e) {
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)
-  if (e.key === 'Escape') { /* close cover picker > modal > import > drawer; else blur+clear search if q; existing behavior + clear */ return }
+  if (e.key === 'Escape') {
+    if (state.helpOpen) { state.helpOpen = false; render(); return }
+    if (state.coverPickerOpen) { state.coverPickerOpen = false; state.coverOptions = []; render(); return }
+    if (state.modalOpen) { state.modalOpen = false; state.modalStatus = null; state.editingId = null; render(); return }
+    if (state.importOpen) { state.importOpen = false; state.importBooks = []; state.importPreview = null; render(); return }
+    if (state.drawerOpen) { state.drawerOpen = false; state.selected = null; render(); return }
+    if (state.q) { state.q = ''; document.querySelector('[data-action="search"]')?.blur(); render() }
+    return
+  }
   if (typing) return
-  if (state.confirmOpen || state.modalOpen || state.coverPickerOpen || state.importOpen) return
+  if (state.confirmOpen || state.modalOpen || state.coverPickerOpen || state.importOpen || state.helpOpen) return
 
   const filtered = getFilteredSorted()
   if (e.key === '/') { e.preventDefault(); document.querySelector('[data-action="search"]')?.focus(); return }
@@ -805,7 +836,12 @@ function onKeydown(e) {
       if (next) { state.selectedIndex = i + delta; openBook(next.id) }
       return
     }
-    if (e.key === 'e' && !state.readOnly) { /* open edit for state.selected */ }
+    if (e.key === 'e' && !state.readOnly && state.selected) {
+      state.editingId = state.selected.id
+      state.modalOpen = true
+      state.modalStatus = null
+      render()
+    }
     return
   }
   const cols = state.view === 'covers' ? wallColumns() : 1
@@ -826,7 +862,15 @@ function onKeydown(e) {
 }
 ```
 
-`wallColumns()`: `getComputedStyle(document.querySelector('.wall')).gridTemplateColumns.split(' ').length`, falling back to 1 when unavailable (happy-dom). Tile/row templates add `class="... ${i === state.selectedIndex ? 'kb-selected' : ''}"` — pass the index from the `map`. Delete the old Escape block from `attachEventListeners`.
+`wallColumns()`: `getComputedStyle(document.querySelector('.wall')).gridTemplateColumns.split(' ').length`, falling back to 1 when unavailable (happy-dom). Tile/row templates add `class="... ${i === state.selectedIndex ? 'kb-selected' : ''}"` — pass the index from the `map`. Delete the old Escape block from `attachEventListeners`. Register the listener via a window-scoped guard so test module reloads (and Vite HMR) don't stack handlers:
+
+```js
+if (window.__bookshelfKeydown) document.removeEventListener('keydown', window.__bookshelfKeydown)
+window.__bookshelfKeydown = onKeydown
+document.addEventListener('keydown', onKeydown)
+```
+
+Selection reset: `state.selectedIndex = -1` (no selection) whenever `q`, `tag`, or sort changes — the spec's "resets to 0" is amended to "clears" (no phantom selection ring before the user touches the keyboard); the spec file gets a one-line update in Task 13.
 
 - [ ] **Step 11.4:** `npm test` green. **Step 11.5:** Commit: `"Add keyboard navigation: arrows, enter, /, v, s, a, i, e"`
 
@@ -861,6 +905,7 @@ it('number keys toggle tag filters', async () => {
 
 ### Task 13: Docs, build verification, wrap-up
 
+- [ ] **Step 13.0:** Update the spec's shortcut section: selection "resets to 0" → "clears (no selection)" to match implementation.
 - [ ] **Step 13.1:** Update `README.md`: remove shelf from the data-format example and prose (id no longer encodes shelf; note legacy ids persist); add Import section (Goodreads CSV steps, fill-in-blanks semantics); add keyboard shortcut table; note new sort fields; update the features list.
 - [ ] **Step 13.2:** `npm test` — full suite green, output pristine.
 - [ ] **Step 13.3:** `npm run build:quick`; serve `dist/` without the API (`python3 -m http.server`) and verify: read-only fallback works, no Import/Add buttons, `a`/`i`/`e` inert, arrows + Enter + `v` + `?` still work, brutalist styling intact, status bar correct.
