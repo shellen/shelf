@@ -1,4 +1,5 @@
 import './style.css'
+import embeddedBooks from 'virtual:bookshelf-data'
 
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
@@ -96,6 +97,7 @@ const state = {
   books: [],
   loading: true,
   error: null,
+  readOnly: false,
   view: 'covers',
   q: '',
   tag: '',
@@ -344,7 +346,7 @@ function render() {
               <button class="view-btn ${state.view === 'list' ? 'active' : ''}" data-action="view" data-view="list">List</button>
             </div>
             <button class="btn" data-action="reset">Reset</button>
-            <button class="btn btn-primary" data-action="add-book">+ Add Book</button>
+            ${state.readOnly ? '' : '<button class="btn btn-primary" data-action="add-book">+ Add Book</button>'}
           </div>
         </div>
       </div>
@@ -469,9 +471,10 @@ function renderDrawer() {
             <img class="drawer-cover-img" src="${coverUrl}" alt="Cover for ${b.title}"
                  onerror="this.onerror=null; this.src='${generatePlaceholder(b).replace(/'/g, "\\'")}'"
             >
+            ${state.readOnly ? '' : `
             <button class="btn drawer-change-cover" data-action="open-cover-picker" ${state.savingCover ? 'disabled' : ''}>
               ${state.savingCover ? '<span class="loading"></span>' : 'Change Cover'}
-            </button>
+            </button>`}
           </div>
           <div class="drawer-details">
             <div class="drawer-title">${b.title}</div>
@@ -490,12 +493,13 @@ function renderDrawer() {
                 return `
                   <span class="star-wrapper">
                     <span class="star-display ${fillClass}">★</span>
+                    ${state.readOnly ? '' : `
                     <button class="star-hit star-hit-left" data-action="set-rating" data-rating="${halfValue}" title="${halfValue} stars"></button>
-                    <button class="star-hit star-hit-right" data-action="set-rating" data-rating="${fullValue}" title="${fullValue} stars"></button>
+                    <button class="star-hit star-hit-right" data-action="set-rating" data-rating="${fullValue}" title="${fullValue} stars"></button>`}
                   </span>
                 `
               }).join('')}
-              ${rating > 0 ? `<button class="star-clear" data-action="clear-rating">Clear</button>` : ''}
+              ${rating > 0 && !state.readOnly ? `<button class="star-clear" data-action="clear-rating">Clear</button>` : ''}
               ${rating > 0 ? `<span class="rating-value">${rating}</span>` : ''}
             </div>
             <div class="drawer-tags">
@@ -507,16 +511,17 @@ function renderDrawer() {
             </div>
             <div class="drawer-notes">
               <label class="notes-label">Notes</label>
-              <textarea class="notes-input" data-action="notes" placeholder="Add your notes...">${b.notes || ''}</textarea>
+              <textarea class="notes-input" data-action="notes" placeholder="${state.readOnly ? '' : 'Add your notes...'}" ${state.readOnly ? 'readonly' : ''}>${b.notes || ''}</textarea>
             </div>
             <div class="drawer-links">
               <a class="drawer-link" href="${bookshopLink(b)}" target="_blank" rel="noreferrer">Bookshop.org search &rarr;</a>
               <a class="drawer-link" href="${amazonLink(b)}" target="_blank" rel="noreferrer">Amazon search &rarr;</a>
               <a class="drawer-link" href="${openLibraryLink(b)}" target="_blank" rel="noreferrer">Open Library search &rarr;</a>
             </div>
+            ${state.readOnly ? '' : `
             <div class="drawer-actions">
               <button class="btn btn-danger" data-action="delete-book">Remove Book</button>
-            </div>
+            </div>`}
           </div>
         </div>
       </div>
@@ -966,16 +971,20 @@ function attachEventListeners() {
   })
 }
 
-// Init - load books from API
+// Init - load books from API, falling back to build-time embedded data
 async function init() {
   try {
     state.books = await api.getBooks()
-    state.loading = false
   } catch (e) {
-    console.error('Failed to load books:', e)
-    state.error = e.message
-    state.loading = false
+    if (embeddedBooks) {
+      state.books = embeddedBooks
+      state.readOnly = true
+    } else {
+      console.error('Failed to load books:', e)
+      state.error = e.message
+    }
   }
+  state.loading = false
   render()
 }
 

@@ -1,7 +1,7 @@
 // ABOUTME: Frontend tests for the bookshelf app.
 // ABOUTME: Covers initial render and search interaction behavior.
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 const BOOKS = [
   { id: 's1-flow', shelf: 1, title: 'Flow', author: 'Mihaly Csikszentmihalyi', tags: ['psychology'], isbn: null, coverUrl: null, rating: null, notes: null },
@@ -39,6 +39,26 @@ describe('initial render', () => {
   it('shows all books in the cover wall', () => {
     expect(document.querySelectorAll('.cover-tile').length).toBe(3)
     expect(document.querySelector('.header-count').textContent).toContain('3 shown')
+  })
+})
+
+describe('static build fallback', () => {
+  afterEach(() => {
+    vi.doUnmock('virtual:bookshelf-data')
+  })
+
+  it('renders embedded books read-only when the API is unavailable', async () => {
+    vi.doMock('virtual:bookshelf-data', () => ({ default: BOOKS }))
+    document.body.innerHTML = '<div id="app"></div>'
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('network unavailable') }))
+    vi.resetModules()
+    await import('./main.js')
+    await vi.waitFor(() => {
+      if (!document.querySelector('.header')) throw new Error('app not rendered yet')
+    })
+
+    expect(document.querySelectorAll('.cover-tile').length).toBe(3)
+    expect(document.querySelector('[data-action="add-book"]')).toBeNull()
   })
 })
 
