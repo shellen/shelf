@@ -102,6 +102,16 @@ function updateBookInState(updatedBook) {
   render()
 }
 
+const SORT_OPTIONS = [
+  { key: 'title', label: 'Title', dir: 'asc', value: b => (b.title || '').toLowerCase() },
+  { key: 'author', label: 'Author', dir: 'asc', value: b => (b.author || '').toLowerCase() || null },
+  { key: 'rating', label: 'Rating', dir: 'desc', value: b => b.rating ?? null },
+  { key: 'dateRead', label: 'Date Read', dir: 'desc', value: b => b.dateRead || null },
+  { key: 'dateAdded', label: 'Date Added', dir: 'desc', value: b => b.dateAdded || null },
+  { key: 'pages', label: 'Pages', dir: 'desc', value: b => b.pages ?? null },
+  { key: 'year', label: 'Year', dir: 'desc', value: b => b.year ?? null },
+]
+
 // State
 const state = {
   books: [],
@@ -112,6 +122,7 @@ const state = {
   q: '',
   tag: '',
   sortBy: 'title',
+  sortDir: 'asc',
   drawerOpen: false,
   selected: null,
   modalOpen: false,
@@ -149,12 +160,32 @@ function getFilteredSorted() {
     return hay.includes(q)
   })
 
+  const opt = SORT_OPTIONS.find(o => o.key === state.sortBy) || SORT_OPTIONS[0]
+  const sign = state.sortDir === 'desc' ? -1 : 1
   out.sort((a, b) => {
-    if (state.sortBy === 'author') return (a.author || '').localeCompare(b.author || '') || (a.title || '').localeCompare(b.title || '')
+    const va = opt.value(a)
+    const vb = opt.value(b)
+    if (va === null && vb === null) return (a.title || '').localeCompare(b.title || '')
+    if (va === null) return 1   // nulls last regardless of direction
+    if (vb === null) return -1
+    if (va < vb) return -1 * sign
+    if (va > vb) return 1 * sign
     return (a.title || '').localeCompare(b.title || '')
   })
 
   return out
+}
+
+function setSort(key) {
+  if (state.sortBy === key) {
+    state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc'
+  } else {
+    const opt = SORT_OPTIONS.find(o => o.key === key)
+    if (!opt) return
+    state.sortBy = key
+    state.sortDir = opt.dir
+  }
+  render()
 }
 
 // Cover URL - check book's saved coverUrl first, then try local cached
@@ -347,8 +378,7 @@ function render() {
               ${allTags.map(t => `<option value="${esc(t)}" ${state.tag === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}
             </select>
             <select class="select select-sort" data-action="sort">
-              <option value="title" ${state.sortBy === 'title' ? 'selected' : ''}>Title</option>
-              <option value="author" ${state.sortBy === 'author' ? 'selected' : ''}>Author</option>
+              ${SORT_OPTIONS.map(o => `<option value="${o.key}" ${state.sortBy === o.key ? 'selected' : ''}>${o.label}${state.sortBy === o.key ? (state.sortDir === 'asc' ? ' ↑' : ' ↓') : ''}</option>`).join('')}
             </select>
             <div class="view-toggle">
               <button class="view-btn ${state.view === 'covers' ? 'active' : ''}" data-action="view" data-view="covers">Covers</button>
@@ -649,6 +679,7 @@ function resetFilters() {
   state.q = ''
   state.tag = ''
   state.sortBy = 'title'
+  state.sortDir = 'asc'
   render()
 }
 
@@ -682,8 +713,7 @@ function attachEventListeners() {
 
   // Sort select
   document.querySelector('[data-action="sort"]')?.addEventListener('change', e => {
-    state.sortBy = e.target.value
-    render()
+    setSort(e.target.value)
   })
 
   // View toggle
@@ -712,8 +742,7 @@ function attachEventListeners() {
     }
     const sortBtn = e.target.closest('[data-sort]')
     if (sortBtn) {
-      state.sortBy = sortBtn.dataset.sort
-      render()
+      setSort(sortBtn.dataset.sort)
       return
     }
     const el = e.target.closest('[data-action="open-book"]')

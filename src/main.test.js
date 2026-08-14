@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 const BOOKS = [
   { id: 's1-flow', title: 'Flow', author: 'Mihaly Csikszentmihalyi', tags: ['psychology'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null },
   { id: 's2-dune', title: 'Dune', author: 'Frank Herbert', tags: ['sci-fi'], isbn: null, coverUrl: null, rating: 5, notes: null, dateRead: null, dateAdded: null, pages: 412, year: 1965 },
-  { id: 's2-design-of-everyday-things', title: 'The Design of Everyday Things', author: 'Don Norman', tags: ['design'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null },
+  { id: 's2-design-of-everyday-things', title: 'The Design of Everyday Things', author: 'Don Norman', tags: ['design'], isbn: null, coverUrl: null, rating: 4, notes: null, dateRead: null, dateAdded: null, pages: null, year: null },
 ]
 
 async function loadApp(books = BOOKS) {
@@ -182,6 +182,24 @@ describe('keyboard access', () => {
     tile.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
 
     expect(document.querySelector('.drawer-title').textContent).toBe('Dune')
+  })
+})
+
+describe('metadata sorting', () => {
+  beforeEach(() => loadApp())
+
+  it('sorts by rating descending by default with nulls last', () => {
+    document.querySelector('[data-view="list"]').click()
+    document.querySelector('[data-sort="rating"]').click()
+    const titles = [...document.querySelectorAll('.list-title button')].map(b => b.textContent)
+    expect(titles).toEqual(['Dune', 'The Design of Everyday Things', 'Flow']) // 5, 4, null last
+  })
+
+  it('re-selecting the active sort flips direction', () => {
+    document.querySelector('[data-view="list"]').click()
+    document.querySelector('[data-sort="title"]').click() // active, flips to desc
+    const titles = [...document.querySelectorAll('.list-title button')].map(b => b.textContent)
+    expect(titles[0] > titles[titles.length - 1]).toBe(true)
   })
 })
 
