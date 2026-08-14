@@ -570,16 +570,7 @@ it('shows metadata instead of shelf in the drawer', async () => {
 })
 ```
 
-- [ ] **Step 7.2:** Run — new/changed tests FAIL. **Step 7.3: Implement** in `src/main.js`: delete the shelf `<input id="add-shelf">` form-row half and its reads in save/lookup handlers (keep the tags input, now full-width); drop `shelf` from the search haystack and from `getFilteredSorted`'s sort special-case (full sort rework is Task 8 — for now delete the `'shelf'` branch and the sort `<option>`); drawer meta line becomes:
-
-```js
-<div class="drawer-meta">
-  ${[b.year, b.pages && `${esc(b.pages)} pages`, b.dateRead && `read ${esc(b.dateRead)}`, b.isbn && `ISBN ${esc(b.isbn)}`]
-    .filter(Boolean).map(esc0 => esc0).join(' &bull; ') || '&nbsp;'}
-</div>
-```
-
-Corrected template (use exactly this — everything escaped, no stray map):
+- [ ] **Step 7.2:** Run — new/changed tests FAIL. **Step 7.3: Implement** in `src/main.js`: delete the shelf `<input id="add-shelf">` form-row half and its reads in save/lookup handlers (keep the tags input, now full-width); drop `shelf` from the search haystack and from `getFilteredSorted`'s sort special-case (full sort rework is Task 8 — for now delete the `'shelf'` branch and the sort `<option>`); drawer meta line becomes exactly this:
 
 ```js
 <div class="drawer-meta">
@@ -639,7 +630,7 @@ const SORT_OPTIONS = [
 ]
 ```
 
-State: `sortBy: 'title', sortDir: 'asc'`. Replace the sort body of `getFilteredSorted` with a comparator: nulls always last regardless of direction; compare with `<`/`>` (works for strings and numbers); tiebreak by title asc; apply `sortDir === 'desc'` by negation (but nulls stay last). `setSort(key)`: same key → flip `sortDir`; new key → that option's default `dir`; then `render()`. Wire: sort `<select>` options generated from `SORT_OPTIONS` (change handler calls `setSort` only when key differs — selects can't re-select); list-header `data-sort` clicks call `setSort` (this replaces the Task 8-interim direct assignment); header select shows `label` plus `↑/↓` on the active option; `resetFilters` restores `title/asc`.
+State: `sortBy: 'title', sortDir: 'asc'`. Replace the sort body of `getFilteredSorted` with a comparator: nulls always last regardless of direction; compare with `<`/`>` (works for strings and numbers); tiebreak by title asc; apply `sortDir === 'desc'` by negation (but nulls stay last). `setSort(key)`: same key → flip `sortDir`; new key → that option's default `dir`; then `render()`. Wire: sort `<select>` options generated from `SORT_OPTIONS` (change handler calls `setSort` only when key differs — selects can't re-select); list-header `data-sort` clicks call `setSort` (this replaces the Task 7-interim direct assignment); header select shows `label` plus `↑/↓` on the active option; `resetFilters` restores `title/asc`.
 
 - [ ] **Step 8.4:** `npm test` green (the Task-7 author-header test still passes — author asc default). **Step 8.5:** Commit: `"Sort by any metadata with per-field default directions"`
 
@@ -720,7 +711,7 @@ it('renders the status bar with count and sort', async () => {
 ```
 
 - [ ] **Step 10.1b: Update the two existing `.header-count` tests** in `src/main.test.js` — "shows all books in the cover wall" asserts `document.querySelector('.status-bar').textContent` contains `'3 BOOKS'`, and "filters results as the query is typed" asserts it contains `'1/3 BOOKS'`. Without this, Step 10.3 breaks them (null `.header-count`).
-- [ ] **Step 10.2:** Run — FAIL. **Step 10.3: Template changes** (`src/main.js`): remove the `.header-count` span from the header AND replace `updateResults()`'s `.header-count` update with a status-bar refresh (replace the `.status-bar` element's textContent/outerHTML from `renderStatusBar(filtered)`); append `renderStatusBar()` after `#results` in `render()`:
+- [ ] **Step 10.2:** Run — FAIL. **Step 10.3: Template changes** (`src/main.js`): remove the `.header-count` span from the header AND replace `updateResults()`'s `.header-count` update with a status-bar refresh (replace the `.status-bar` element's `outerHTML` with `renderStatusBar(filtered)`); append `renderStatusBar()` after `#results` in `render()`:
 
 ```js
 function renderStatusBar(filtered) {
@@ -805,6 +796,12 @@ describe('keyboard shortcuts', () => {
     press('ArrowRight'); press('Enter')
     press('Escape')
     expect(document.querySelector('.drawer-panel')).toBeNull()
+    const input = document.querySelector('[data-action="search"]')
+    input.focus(); input.value = 'dune'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    input.blur()
+    press('Escape')
+    expect(document.querySelector('[data-action="search"]').value).toBe('')
   })
 })
 ```
