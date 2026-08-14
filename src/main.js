@@ -350,7 +350,7 @@ function render() {
       </div>
     </div>
 
-    ${state.view === 'covers' ? renderCoversView(filtered) : renderListView(filtered)}
+    <div id="results">${renderResults(filtered)}</div>
     ${state.drawerOpen ? renderDrawer() : ''}
     ${state.modalOpen ? renderModal() : ''}
     ${state.coverPickerOpen ? renderCoverPicker() : ''}
@@ -359,6 +359,21 @@ function render() {
   `
 
   attachEventListeners()
+}
+
+function renderResults(filtered) {
+  return state.view === 'covers' ? renderCoversView(filtered) : renderListView(filtered)
+}
+
+// Update only the results region so header controls (like the search input) keep focus
+function updateResults() {
+  const filtered = getFilteredSorted()
+  const results = document.querySelector('#results')
+  if (results) results.innerHTML = renderResults(filtered)
+  const count = document.querySelector('.header-count')
+  if (count) count.innerHTML = `${filtered.length} shown &bull; ${state.books.length} total`
+  const clearBtn = document.querySelector('[data-action="clear-search"]')
+  if (clearBtn) clearBtn.classList.toggle('hidden', !state.q)
 }
 
 function renderConfirmDialog() {
@@ -610,7 +625,7 @@ function attachEventListeners() {
   // Search input
   document.querySelector('[data-action="search"]')?.addEventListener('input', e => {
     state.q = e.target.value
-    render()
+    updateResults()
   })
 
   // Clear search
@@ -654,16 +669,16 @@ function attachEventListeners() {
     render()
   })
 
-  // Open book
-  document.querySelectorAll('[data-action="open-book"]').forEach(el => {
-    el.addEventListener('click', () => {
-      const book = state.books.find(b => b.id === el.dataset.id)
-      if (book) {
-        state.selected = book
-        state.drawerOpen = true
-        render()
-      }
-    })
+  // Open book - delegated so results can re-render without re-attaching listeners
+  document.querySelector('#results')?.addEventListener('click', e => {
+    const el = e.target.closest('[data-action="open-book"]')
+    if (!el) return
+    const book = state.books.find(b => b.id === el.dataset.id)
+    if (book) {
+      state.selected = book
+      state.drawerOpen = true
+      render()
+    }
   })
 
   // Close drawer
