@@ -5,13 +5,15 @@
 
 import express from 'express'
 import cors from 'cors'
-import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId } from './db.js'
+import { fileURLToPath } from 'url'
+import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks } from './db.js'
 
-const app = express()
+export const app = express()
 const PORT = 3001
 
 app.use(cors())
-app.use(express.json())
+// Large limit: a full library export with reviews exceeds the 100kb default
+app.use(express.json({ limit: '10mb' }))
 
 // GET /api/books - List all books
 app.get('/api/books', (req, res) => {
@@ -114,11 +116,27 @@ app.get('/api/tags', (req, res) => {
   }
 })
 
+// POST /api/import - bulk import with fill-in-blanks merging
+app.post('/api/import', (req, res) => {
+  try {
+    const { books, dryRun } = req.body
+    if (!Array.isArray(books)) {
+      return res.status(400).json({ error: 'books array is required' })
+    }
+    res.json(importBooks(books, { dryRun: !!dryRun }))
+  } catch (e) {
+    console.error('Error importing books:', e)
+    res.status(500).json({ error: 'Failed to import books' })
+  }
+})
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-app.listen(PORT, () => {
-  console.log(`📚 Bookshelf API running at http://localhost:${PORT}`)
-})
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  app.listen(PORT, () => {
+    console.log(`📚 Bookshelf API running at http://localhost:${PORT}`)
+  })
+}
