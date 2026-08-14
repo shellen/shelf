@@ -9,10 +9,10 @@ import fs from 'fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
-const DB_PATH = path.join(ROOT, 'data', 'bookshelf.db')
+const DB_PATH = process.env.BOOKSHELF_DB || path.join(ROOT, 'data', 'bookshelf.db')
 
 // Ensure data directory exists
-const dataDir = path.join(ROOT, 'data')
+const dataDir = path.dirname(DB_PATH)
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true })
 }
@@ -151,6 +151,16 @@ export function updateBookCover(id, coverUrl) {
     WHERE id = ?
   `)
   const result = stmt.run(coverUrl, id)
+  return result.changes > 0
+}
+
+// Helper: set a book's ISBN
+export function updateBookIsbn(id, isbn) {
+  const stmt = db.prepare(`
+    UPDATE books SET isbn = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `)
+  const result = stmt.run(isbn, id)
   return result.changes > 0
 }
 

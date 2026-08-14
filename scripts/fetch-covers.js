@@ -7,10 +7,10 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { getAllBooks, updateBookIsbn } from '../server/db.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
-const BOOKS_PATH = path.join(ROOT, 'books.json')
 const COVERS_DIR = path.join(ROOT, 'public', 'covers')
 const CACHE_FILE = path.join(COVERS_DIR, '.cache.json')
 
@@ -222,6 +222,7 @@ async function fetchCover(book, cache) {
       // If we found an ISBN and the book doesn't have one, save it
       if (option.isbn && !book.isbn) {
         book.isbn = option.isbn
+        updateBookIsbn(book.id, option.isbn)
       }
       break
     } catch (e) {
@@ -258,8 +259,7 @@ async function main() {
 
   await ensureDir(COVERS_DIR)
 
-  const booksData = JSON.parse(await fs.readFile(BOOKS_PATH, 'utf-8'))
-  let books = booksData.books
+  let books = getAllBooks()
   const cache = await loadCache()
 
   // Filter to specific book if ID provided
@@ -299,9 +299,6 @@ async function main() {
   }
 
   await saveCache(cache)
-
-  // Update books.json with any ISBNs we discovered
-  await fs.writeFile(BOOKS_PATH, JSON.stringify(booksData, null, 2))
 
   console.log(`\n✨ Done! ${updated} downloaded, ${skipped} cached, ${failed} missing`)
 }
