@@ -172,6 +172,53 @@ export function generateBookId(title) {
   return id
 }
 
+const normKey = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, '').replace(/\s+/g, ' ').trim()
+
+const FILLABLE = ['isbn', 'rating', 'notes', 'dateRead', 'dateAdded', 'pages', 'year']
+// (author is intentionally not fillable: it's part of the match key)
+
+// Helper: bulk import with fill-in-blanks merging. Returns {added, filled, skipped}.
+export function importBooks(entries, { dryRun = false } = {}) {
+  const apply = (items) => {
+    let added = 0, filled = 0, skipped = 0
+    const existing = getAllBooks()
+    const byIsbn = new Map(existing.filter(b => b.isbn).map(b => [String(b.isbn), b]))
+    const byKey = new Map(existing.map(b => [normKey(b.title) + '|' + normKey(b.author), b]))
+
+    for (const entry of items) {
+      const match = (entry.isbn && byIsbn.get(String(entry.isbn)))
+        || byKey.get(normKey(entry.title) + '|' + normKey(entry.author))
+
+      if (!match) {
+        if (!entry.title) throw new Error('import row missing title')
+        const book = { ...entry, id: dryRun ? normKey(entry.title) : generateBookId(entry.title) }
+        if (!dryRun) saveBook(book)
+        byKey.set(normKey(book.title) + '|' + normKey(book.author), book)
+        if (book.isbn) byIsbn.set(String(book.isbn), book)
+        added++
+        continue
+      }
+
+      const updates = {}
+      for (const f of FILLABLE) {
+        const empty = match[f] === null || match[f] === undefined || match[f] === ''
+        if (empty && entry[f] !== null && entry[f] !== undefined) updates[f] = entry[f]
+      }
+      const tags = Array.from(new Set([...(match.tags || []), ...(entry.tags || [])]))
+      const tagsChanged = tags.length !== (match.tags || []).length
+
+      if (Object.keys(updates).length || tagsChanged) {
+        if (!dryRun) saveBook({ ...match, ...updates, tags })
+        filled++
+      } else {
+        skipped++
+      }
+    }
+    return { added, filled, skipped }
+  }
+  return dryRun ? apply(entries) : db.transaction(apply)(entries)
+}
+
 // Helper: set a book's ISBN
 export function updateBookIsbn(id, isbn) {
   const stmt = db.prepare(`

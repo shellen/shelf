@@ -78,6 +78,55 @@ describe('generateBookId', () => {
   })
 })
 
+describe('importBooks', () => {
+  const dune = { title: 'Dune', author: 'Frank Herbert', isbn: '9780441172719', rating: 5, notes: 'Spice.', tags: ['sci-fi'], dateRead: '2024-07-04', dateAdded: '2023-01-02', pages: 412, year: 1965 }
+
+  it('adds unmatched books with slug ids', async () => {
+    const { importBooks, getAllBooks } = await loadDb()
+    expect(importBooks([dune])).toEqual({ added: 1, filled: 0, skipped: 0 })
+    const b = getAllBooks()[0]
+    expect(b.id).toBe('dune')
+    expect(b.rating).toBe(5)
+  })
+
+  it('fills only blank fields on an ISBN match and unions tags', async () => {
+    const { importBooks, saveBook, getBook } = await loadDb()
+    saveBook({ id: 's4-dune', title: 'DUNE (movie tie-in)', isbn: '9780441172719', rating: 3, tags: ['fiction'] })
+    expect(importBooks([dune])).toEqual({ added: 0, filled: 1, skipped: 0 })
+    const b = getBook('s4-dune')
+    expect(b.rating).toBe(3)               // non-empty: untouched
+    expect(b.title).toBe('DUNE (movie tie-in)') // never overwritten
+    expect(b.notes).toBe('Spice.')         // blank: filled
+    expect(b.pages).toBe(412)
+    expect(b.tags.sort()).toEqual(['fiction', 'sci-fi'])
+  })
+
+  it('matches by normalized title+author when there is no ISBN', async () => {
+    const { importBooks, saveBook, getBook } = await loadDb()
+    saveBook({ id: 'x', title: 'Dune!', author: 'frank  herbert', tags: [] })
+    expect(importBooks([{ ...dune, isbn: null }])).toEqual({ added: 0, filled: 1, skipped: 0 })
+    expect(getBook('x').year).toBe(1965)
+  })
+
+  it('skips matches with nothing to fill', async () => {
+    const { importBooks } = await loadDb()
+    importBooks([dune])
+    expect(importBooks([dune])).toEqual({ added: 0, filled: 0, skipped: 1 })
+  })
+
+  it('dry run reports counts without writing', async () => {
+    const { importBooks, getAllBooks } = await loadDb()
+    expect(importBooks([dune], { dryRun: true })).toEqual({ added: 1, filled: 0, skipped: 0 })
+    expect(getAllBooks()).toEqual([])
+  })
+
+  it('rolls the whole batch back when a row is invalid', async () => {
+    const { importBooks, getAllBooks } = await loadDb()
+    expect(() => importBooks([dune, { author: 'No Title' }])).toThrow()
+    expect(getAllBooks()).toEqual([])   // first row rolled back too
+  })
+})
+
 describe('updateBookIsbn', () => {
   it('sets the isbn on a book that has none', async () => {
     const { saveBook, getBook, updateBookIsbn } = await loadDb()
