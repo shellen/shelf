@@ -1,6 +1,16 @@
 import './style.css'
 import embeddedBooks from 'virtual:bookshelf-data'
 
+// Escape data for safe interpolation into HTML templates (element and attribute contexts)
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
   return `/covers/${bookId}.jpg`
@@ -313,7 +323,7 @@ function render() {
     document.querySelector('#app').innerHTML = `
       <div class="error-screen">
         <h2>Error loading books</h2>
-        <p>${state.error}</p>
+        <p>${esc(state.error)}</p>
         <button class="btn btn-primary" onclick="location.reload()">Retry</button>
       </div>
     `
@@ -330,12 +340,12 @@ function render() {
           </div>
           <div class="header-controls">
             <div class="search-wrap">
-              <input type="text" class="search-input" placeholder="Search title / author / tags" value="${state.q}" data-action="search">
+              <input type="text" class="search-input" placeholder="Search title / author / tags" value="${esc(state.q)}" data-action="search">
               <button class="search-clear ${state.q ? '' : 'hidden'}" data-action="clear-search">&times;</button>
             </div>
             <select class="select select-tag" data-action="tag">
               <option value="">All tags</option>
-              ${allTags.map(t => `<option value="${t}" ${state.tag === t ? 'selected' : ''}>${t}</option>`).join('')}
+              ${allTags.map(t => `<option value="${esc(t)}" ${state.tag === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}
             </select>
             <select class="select select-sort" data-action="sort">
               <option value="title" ${state.sortBy === 'title' ? 'selected' : ''}>Title</option>
@@ -383,8 +393,8 @@ function renderConfirmDialog() {
   return `
     <div class="modal-backdrop confirm-backdrop">
       <div class="confirm-dialog">
-        <h3>${state.confirmTitle}</h3>
-        <p>${state.confirmMessage}</p>
+        <h3>${esc(state.confirmTitle)}</h3>
+        <p>${esc(state.confirmMessage)}</p>
         <div class="confirm-actions">
           <button class="btn" data-action="confirm-cancel">Cancel</button>
           <button class="btn btn-danger" data-action="confirm-ok">Remove</button>
@@ -397,7 +407,7 @@ function renderConfirmDialog() {
 function renderToast() {
   return `
     <div class="toast toast-${state.toast.type}">
-      ${state.toast.message}
+      ${esc(state.toast.message)}
     </div>
   `
 }
@@ -406,18 +416,18 @@ function renderCoversView(books) {
   return `
     <div class="wall">
       ${books.map(b => `
-        <div class="cover-tile" data-action="open-book" data-id="${b.id}">
+        <div class="cover-tile" data-action="open-book" data-id="${esc(b.id)}">
           <div class="cover-aspect">
-            <img class="cover-img" src="${getCoverUrl(b)}" alt="Cover for ${b.title}" loading="lazy"
+            <img class="cover-img" src="${esc(getCoverUrl(b))}" alt="Cover for ${esc(b.title)}" loading="lazy"
                  onerror="this.onerror=null; this.src='${generatePlaceholder(b).replace(/'/g, "\\'")}'"
             >
           </div>
           <div class="cover-overlay">
             <div class="cover-info">
-              <div class="cover-title">${b.title}</div>
-              <div class="cover-author">${b.author || '—'}</div>
+              <div class="cover-title">${esc(b.title)}</div>
+              <div class="cover-author">${esc(b.author) || '—'}</div>
               <div class="cover-tags">
-                ${(b.tags || []).map(t => `<span class="cover-tag">${t}</span>`).join('')}
+                ${(b.tags || []).map(t => `<span class="cover-tag">${esc(t)}</span>`).join('')}
               </div>
             </div>
           </div>
@@ -439,11 +449,11 @@ function renderListView(books) {
         </div>
         ${books.map(b => `
           <div class="list-row">
-            <div class="list-title"><button data-action="open-book" data-id="${b.id}">${b.title}</button></div>
-            <div class="list-author">${b.author || '—'}</div>
-            <div class="list-shelf">${b.shelf}</div>
+            <div class="list-title"><button data-action="open-book" data-id="${esc(b.id)}">${esc(b.title)}</button></div>
+            <div class="list-author">${esc(b.author) || '—'}</div>
+            <div class="list-shelf">${esc(b.shelf)}</div>
             <div class="list-tags">
-              ${(b.tags || []).map(t => `<span class="list-tag">${t}</span>`).join('')}
+              ${(b.tags || []).map(t => `<span class="list-tag">${esc(t)}</span>`).join('')}
             </div>
           </div>
         `).join('')}
@@ -469,7 +479,7 @@ function renderDrawer() {
       <div class="drawer-content">
         <div class="drawer-book">
           <div class="drawer-cover">
-            <img class="drawer-cover-img" src="${coverUrl}" alt="Cover for ${b.title}"
+            <img class="drawer-cover-img" src="${esc(coverUrl)}" alt="Cover for ${esc(b.title)}"
                  onerror="this.onerror=null; this.src='${generatePlaceholder(b).replace(/'/g, "\\'")}'"
             >
             ${state.readOnly ? '' : `
@@ -478,8 +488,8 @@ function renderDrawer() {
             </button>`}
           </div>
           <div class="drawer-details">
-            <div class="drawer-title">${b.title}</div>
-            <div class="drawer-author">${b.author || '—'}</div>
+            <div class="drawer-title">${esc(b.title)}</div>
+            <div class="drawer-author">${esc(b.author) || '—'}</div>
             <div class="drawer-rating">
               ${[1,2,3,4,5].map(star => {
                 const halfValue = star - 0.5
@@ -504,20 +514,20 @@ function renderDrawer() {
               ${rating > 0 ? `<span class="rating-value">${rating}</span>` : ''}
             </div>
             <div class="drawer-tags">
-              ${(b.tags || []).map(t => `<span class="drawer-tag">${t}</span>`).join('')}
+              ${(b.tags || []).map(t => `<span class="drawer-tag">${esc(t)}</span>`).join('')}
             </div>
             <div class="drawer-meta">
-              Shelf <span>${b.shelf}</span>
-              ${b.isbn ? ` &bull; ISBN <span>${b.isbn}</span>` : ''}
+              Shelf <span>${esc(b.shelf)}</span>
+              ${b.isbn ? ` &bull; ISBN <span>${esc(b.isbn)}</span>` : ''}
             </div>
             <div class="drawer-notes">
               <label class="notes-label">Notes</label>
-              <textarea class="notes-input" data-action="notes" placeholder="${state.readOnly ? '' : 'Add your notes...'}" ${state.readOnly ? 'readonly' : ''}>${b.notes || ''}</textarea>
+              <textarea class="notes-input" data-action="notes" placeholder="${state.readOnly ? '' : 'Add your notes...'}" ${state.readOnly ? 'readonly' : ''}>${esc(b.notes)}</textarea>
             </div>
             <div class="drawer-links">
-              <a class="drawer-link" href="${bookshopLink(b)}" target="_blank" rel="noreferrer">Bookshop.org search &rarr;</a>
-              <a class="drawer-link" href="${amazonLink(b)}" target="_blank" rel="noreferrer">Amazon search &rarr;</a>
-              <a class="drawer-link" href="${openLibraryLink(b)}" target="_blank" rel="noreferrer">Open Library search &rarr;</a>
+              <a class="drawer-link" href="${esc(bookshopLink(b))}" target="_blank" rel="noreferrer">Bookshop.org search &rarr;</a>
+              <a class="drawer-link" href="${esc(amazonLink(b))}" target="_blank" rel="noreferrer">Amazon search &rarr;</a>
+              <a class="drawer-link" href="${esc(openLibraryLink(b))}" target="_blank" rel="noreferrer">Open Library search &rarr;</a>
             </div>
             ${state.readOnly ? '' : `
             <div class="drawer-actions">
@@ -539,7 +549,7 @@ function renderCoverPicker() {
     <div class="modal-backdrop" data-action="close-cover-picker">
       <div class="modal-panel cover-picker-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
-          <h2>Choose Cover for "${b.title}"</h2>
+          <h2>Choose Cover for "${esc(b.title)}"</h2>
           <button class="drawer-close" data-action="close-cover-picker">&times;</button>
         </div>
         <div class="modal-body">
@@ -556,13 +566,13 @@ function renderCoverPicker() {
               ${state.coverOptions.map((opt, i) => `
                 <div class="cover-option" data-action="select-cover" data-index="${i}">
                   <div class="cover-option-img-wrap">
-                    <img src="${opt.thumbUrl || opt.coverUrl}" alt="${opt.title}" loading="lazy"
+                    <img src="${esc(opt.thumbUrl || opt.coverUrl)}" alt="${esc(opt.title)}" loading="lazy"
                          onerror="this.parentElement.classList.add('cover-option-error')">
                   </div>
                   <div class="cover-option-info">
-                    <div class="cover-option-title">${opt.title}</div>
-                    <div class="cover-option-author">${opt.author || '—'}</div>
-                    <div class="cover-option-source">${opt.source}</div>
+                    <div class="cover-option-title">${esc(opt.title)}</div>
+                    <div class="cover-option-author">${esc(opt.author) || '—'}</div>
+                    <div class="cover-option-source">${esc(opt.source)}</div>
                   </div>
                 </div>
               `).join('')}
@@ -589,29 +599,29 @@ function renderModal() {
           <h2>${editing ? 'Edit Book' : 'Add Book'}</h2>
           <button class="drawer-close" data-action="close-modal">&times;</button>
         </div>
-        ${state.modalStatus ? `<div class="status ${state.modalStatus.type}">${state.modalStatus.message}</div>` : ''}
+        ${state.modalStatus ? `<div class="status ${state.modalStatus.type}">${esc(state.modalStatus.message)}</div>` : ''}
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">ISBN (optional)</label>
-            <input type="text" class="form-input" id="add-isbn" placeholder="9780143127741" value="${editing?.isbn || ''}">
+            <input type="text" class="form-input" id="add-isbn" placeholder="9780143127741" value="${esc(editing?.isbn)}">
             <div class="form-hint">Enter ISBN to auto-fill title & author</div>
           </div>
           <div class="form-group">
             <label class="form-label">Title</label>
-            <input type="text" class="form-input" id="add-title" placeholder="The Design of Everyday Things" value="${editing?.title || ''}">
+            <input type="text" class="form-input" id="add-title" placeholder="The Design of Everyday Things" value="${esc(editing?.title)}">
           </div>
           <div class="form-group">
             <label class="form-label">Author</label>
-            <input type="text" class="form-input" id="add-author" placeholder="Don Norman" value="${editing?.author || ''}">
+            <input type="text" class="form-input" id="add-author" placeholder="Don Norman" value="${esc(editing?.author)}">
           </div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Shelf</label>
-              <input type="number" class="form-input" id="add-shelf" value="${editing?.shelf || 1}" min="1">
+              <input type="number" class="form-input" id="add-shelf" value="${esc(editing?.shelf || 1)}" min="1">
             </div>
             <div class="form-group">
               <label class="form-label">Tags</label>
-              <input type="text" class="form-input" id="add-tags" placeholder="design, ux" value="${(editing?.tags || []).join(', ')}">
+              <input type="text" class="form-input" id="add-tags" placeholder="design, ux" value="${esc((editing?.tags || []).join(', '))}">
             </div>
           </div>
         </div>

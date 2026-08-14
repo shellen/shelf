@@ -9,16 +9,16 @@ const BOOKS = [
   { id: 's2-design-of-everyday-things', shelf: 2, title: 'The Design of Everyday Things', author: 'Don Norman', tags: ['design'], isbn: null, coverUrl: null, rating: null, notes: null },
 ]
 
-async function loadApp() {
+async function loadApp(books = BOOKS) {
   document.body.innerHTML = '<div id="app"></div>'
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const u = String(url)
     if (u.endsWith('/api/books') && (!opts.method || opts.method === 'GET')) {
-      return { ok: true, json: async () => ({ books: BOOKS.map(b => ({ ...b, tags: [...b.tags] })) }) }
+      return { ok: true, json: async () => ({ books: books.map(b => ({ ...b, tags: [...b.tags] })) }) }
     }
     const idMatch = u.match(/\/api\/books\/([^/]+)$/)
     if (idMatch && opts.method === 'PUT') {
-      const existing = BOOKS.find(b => b.id === idMatch[1])
+      const existing = books.find(b => b.id === idMatch[1])
       const updated = { ...existing, ...JSON.parse(opts.body), id: idMatch[1] }
       return { ok: true, json: async () => updated }
     }
@@ -41,7 +41,7 @@ function typeInSearch(chars) {
 }
 
 describe('initial render', () => {
-  beforeEach(loadApp)
+  beforeEach(() => loadApp())
 
   it('shows all books in the cover wall', () => {
     expect(document.querySelectorAll('.cover-tile').length).toBe(3)
@@ -49,8 +49,41 @@ describe('initial render', () => {
   })
 })
 
+describe('html escaping', () => {
+  const HOSTILE = [{
+    id: 's1-hostile',
+    shelf: 1,
+    title: '<img src=x onerror="window.pwned=true"> & "Friends"',
+    author: '<b>Bold Author</b>',
+    tags: ['<i>tag</i>'],
+    isbn: null,
+    coverUrl: null,
+    rating: null,
+    notes: null
+  }]
+
+  it('renders markup in book data as plain text', async () => {
+    await loadApp(HOSTILE)
+
+    expect(window.pwned).toBeUndefined()
+    expect(document.querySelector('.cover-tile img[src="x"]')).toBeNull()
+    expect(document.querySelector('.cover-title').textContent).toBe('<img src=x onerror="window.pwned=true"> & "Friends"')
+    expect(document.querySelector('.cover-tag').textContent).toBe('<i>tag</i>')
+  })
+
+  it('keeps quoted data intact in edit form value attributes', async () => {
+    await loadApp(HOSTILE)
+
+    document.querySelector('[data-id="s1-hostile"]').click()
+    document.querySelector('[data-action="edit-book"]').click()
+
+    expect(document.getElementById('add-title').value).toBe('<img src=x onerror="window.pwned=true"> & "Friends"')
+    expect(document.getElementById('add-author').value).toBe('<b>Bold Author</b>')
+  })
+})
+
 describe('editing a book', () => {
-  beforeEach(loadApp)
+  beforeEach(() => loadApp())
 
   it('opens a prefilled edit form from the drawer', () => {
     document.querySelector('[data-id="s2-dune"]').click()
@@ -101,7 +134,7 @@ describe('static build fallback', () => {
 })
 
 describe('search', () => {
-  beforeEach(loadApp)
+  beforeEach(() => loadApp())
 
   it('keeps focus in the search input while typing', () => {
     const input = document.querySelector('[data-action="search"]')
