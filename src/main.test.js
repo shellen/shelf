@@ -11,11 +11,18 @@ const BOOKS = [
 
 async function loadApp() {
   document.body.innerHTML = '<div id="app"></div>'
-  vi.stubGlobal('fetch', vi.fn(async (url) => {
-    if (String(url).endsWith('/api/books')) {
+  vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
+    const u = String(url)
+    if (u.endsWith('/api/books') && (!opts.method || opts.method === 'GET')) {
       return { ok: true, json: async () => ({ books: BOOKS.map(b => ({ ...b, tags: [...b.tags] })) }) }
     }
-    throw new Error('unexpected fetch: ' + url)
+    const idMatch = u.match(/\/api\/books\/([^/]+)$/)
+    if (idMatch && opts.method === 'PUT') {
+      const existing = BOOKS.find(b => b.id === idMatch[1])
+      const updated = { ...existing, ...JSON.parse(opts.body), id: idMatch[1] }
+      return { ok: true, json: async () => updated }
+    }
+    throw new Error('unexpected fetch: ' + u)
   }))
   vi.resetModules()
   await import('./main.js')
@@ -39,6 +46,37 @@ describe('initial render', () => {
   it('shows all books in the cover wall', () => {
     expect(document.querySelectorAll('.cover-tile').length).toBe(3)
     expect(document.querySelector('.header-count').textContent).toContain('3 shown')
+  })
+})
+
+describe('editing a book', () => {
+  beforeEach(loadApp)
+
+  it('opens a prefilled edit form from the drawer', () => {
+    document.querySelector('[data-id="s2-dune"]').click()
+    document.querySelector('[data-action="edit-book"]').click()
+
+    expect(document.getElementById('add-title').value).toBe('Dune')
+    expect(document.getElementById('add-author').value).toBe('Frank Herbert')
+    expect(document.getElementById('add-shelf').value).toBe('2')
+    expect(document.getElementById('add-tags').value).toBe('sci-fi')
+  })
+
+  it('saves edited fields via PUT and updates the drawer', async () => {
+    document.querySelector('[data-id="s2-dune"]').click()
+    document.querySelector('[data-action="edit-book"]').click()
+
+    document.getElementById('add-author').value = 'Frank Herbert Sr.'
+    document.querySelector('[data-action="save-book"]').click()
+
+    await vi.waitFor(() => {
+      if (document.querySelector('.modal-panel')) throw new Error('modal still open')
+    })
+
+    const put = fetch.mock.calls.find(([, opts]) => opts?.method === 'PUT')
+    expect(put[0]).toContain('/api/books/s2-dune')
+    expect(JSON.parse(put[1].body).author).toBe('Frank Herbert Sr.')
+    expect(document.querySelector('.drawer-author').textContent).toBe('Frank Herbert Sr.')
   })
 })
 

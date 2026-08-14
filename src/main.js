@@ -107,6 +107,7 @@ const state = {
   modalOpen: false,
   modalLoading: false,
   modalStatus: null,
+  editingId: null,
   coverPickerOpen: false,
   coverOptions: [],
   coverLoading: false,
@@ -520,6 +521,7 @@ function renderDrawer() {
             </div>
             ${state.readOnly ? '' : `
             <div class="drawer-actions">
+              <button class="btn" data-action="edit-book">Edit Book</button>
               <button class="btn btn-danger" data-action="delete-book">Remove Book</button>
             </div>`}
           </div>
@@ -579,36 +581,37 @@ function renderCoverPicker() {
 }
 
 function renderModal() {
+  const editing = state.editingId ? state.books.find(b => b.id === state.editingId) : null
   return `
     <div class="modal-backdrop" data-action="close-modal">
       <div class="modal-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
-          <h2>Add Book</h2>
+          <h2>${editing ? 'Edit Book' : 'Add Book'}</h2>
           <button class="drawer-close" data-action="close-modal">&times;</button>
         </div>
         ${state.modalStatus ? `<div class="status ${state.modalStatus.type}">${state.modalStatus.message}</div>` : ''}
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">ISBN (optional)</label>
-            <input type="text" class="form-input" id="add-isbn" placeholder="9780143127741">
+            <input type="text" class="form-input" id="add-isbn" placeholder="9780143127741" value="${editing?.isbn || ''}">
             <div class="form-hint">Enter ISBN to auto-fill title & author</div>
           </div>
           <div class="form-group">
             <label class="form-label">Title</label>
-            <input type="text" class="form-input" id="add-title" placeholder="The Design of Everyday Things">
+            <input type="text" class="form-input" id="add-title" placeholder="The Design of Everyday Things" value="${editing?.title || ''}">
           </div>
           <div class="form-group">
             <label class="form-label">Author</label>
-            <input type="text" class="form-input" id="add-author" placeholder="Don Norman">
+            <input type="text" class="form-input" id="add-author" placeholder="Don Norman" value="${editing?.author || ''}">
           </div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Shelf</label>
-              <input type="number" class="form-input" id="add-shelf" value="1" min="1">
+              <input type="number" class="form-input" id="add-shelf" value="${editing?.shelf || 1}" min="1">
             </div>
             <div class="form-group">
               <label class="form-label">Tags</label>
-              <input type="text" class="form-input" id="add-tags" placeholder="design, ux">
+              <input type="text" class="form-input" id="add-tags" placeholder="design, ux" value="${(editing?.tags || []).join(', ')}">
             </div>
           </div>
         </div>
@@ -618,7 +621,7 @@ function renderModal() {
             ${state.modalLoading ? '<span class="loading"></span>' : ''}Lookup ISBN
           </button>
           <button class="btn btn-primary" data-action="save-book" ${state.modalLoading ? 'disabled' : ''}>
-            ${state.modalLoading ? '<span class="loading"></span>' : ''}Add Book
+            ${state.modalLoading ? '<span class="loading"></span>' : editing ? 'Save Changes' : 'Add Book'}
           </button>
         </div>
       </div>
@@ -693,6 +696,15 @@ function attachEventListeners() {
       state.selected = null
       render()
     })
+  })
+
+  // Edit book
+  document.querySelector('[data-action="edit-book"]')?.addEventListener('click', () => {
+    if (!state.selected) return
+    state.editingId = state.selected.id
+    state.modalOpen = true
+    state.modalStatus = null
+    render()
   })
 
   // Delete book
@@ -775,11 +787,13 @@ function attachEventListeners() {
     }
   })
 
-  // Close modal
+  // Close modal - backdrop only closes on direct clicks, not bubbled ones
   document.querySelectorAll('[data-action="close-modal"]').forEach(el => {
-    el.addEventListener('click', () => {
+    el.addEventListener('click', (e) => {
+      if (el.classList.contains('modal-backdrop') && e.target !== el) return
       state.modalOpen = false
       state.modalStatus = null
+      state.editingId = null
       render()
     })
   })
@@ -802,9 +816,10 @@ function attachEventListeners() {
     render()
   })
 
-  // Close cover picker
+  // Close cover picker - backdrop only closes on direct clicks, not bubbled ones
   document.querySelectorAll('[data-action="close-cover-picker"]').forEach(el => {
-    el.addEventListener('click', () => {
+    el.addEventListener('click', (e) => {
+      if (el.classList.contains('modal-backdrop') && e.target !== el) return
       state.coverPickerOpen = false
       state.coverOptions = []
       render()
@@ -932,21 +947,27 @@ function attachEventListeners() {
     render()
 
     try {
-      // Create via API
-      const newBook = await api.createBook({ title, author, shelf, tags, isbn })
+      if (state.editingId) {
+        const updatedBook = await api.updateBook(state.editingId, { title, author, shelf, tags, isbn })
+        state.modalOpen = false
+        state.modalLoading = false
+        state.editingId = null
+        updateBookInState(updatedBook)
+        showToast(`"${updatedBook.title}" updated`)
+      } else {
+        const newBook = await api.createBook({ title, author, shelf, tags, isbn })
+        state.books.push(newBook)
 
-      // Add to local state
-      state.books.push(newBook)
+        state.modalOpen = false
+        state.modalStatus = null
+        state.modalLoading = false
 
-      state.modalOpen = false
-      state.modalStatus = null
-      state.modalLoading = false
-
-      console.log(`✓ Book added: "${newBook.title}"`)
-      render()
+        console.log(`✓ Book added: "${newBook.title}"`)
+        render()
+      }
     } catch (e) {
       state.modalLoading = false
-      state.modalStatus = { type: 'error', message: e.message || 'Failed to add book' }
+      state.modalStatus = { type: 'error', message: e.message || 'Failed to save book' }
       render()
     }
   })
