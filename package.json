@@ -8,6 +8,8 @@
     "build": "npm run fetch-covers && vite build",
     "build:quick": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "fetch-covers": "node scripts/fetch-covers.js",
     "add-book": "node scripts/add-book.js",
     "db:init": "node scripts/init-db.js",
@@ -20,7 +22,9 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
+    "happy-dom": "^20.11.2",
     "vite": "^7.2.4",
-    "vite-plugin-singlefile": "^2.3.0"
+    "vite-plugin-singlefile": "^2.3.0",
+    "vitest": "^4.1.10"
   }
 }
