@@ -5,7 +5,7 @@
 
 ## Overview
 
-Three features landing together on the bookshelf app:
+Four coordinated changes landing together on the bookshelf app:
 
 1. Import books from a Goodreads library export (CSV) via an in-app modal.
 2. Replace the physical shelf number with rich, sortable metadata.
@@ -18,13 +18,16 @@ The shelf-number removal is a prerequisite for import (Goodreads has no such con
 
 Applied via the existing idempotent `ALTER TABLE ... ADD COLUMN` pattern in `server/db.js` (try/catch per column), plus a one-time column drop:
 
-- **Drop** `books.shelf` (SQLite 3.35+ `ALTER TABLE books DROP COLUMN shelf`). Guarded the same way: attempt, swallow "no such column".
+- **Drop `idx_books_shelf` FIRST** (`DROP INDEX IF EXISTS idx_books_shelf`). Order matters: `DROP COLUMN shelf` fails while the index exists, and that failure's message (`error in index idx_books_shelf after drop column: no such column: shelf`) contains the "no such column" text a naive guard would swallow, silently leaving the column in place. (Verified against this project's SQLite 3.49.2.)
+- **Drop** `books.shelf` (`ALTER TABLE books DROP COLUMN shelf`). Guard: swallow the error only when its message is exactly the re-run case `no such column: "shelf"` / starts with `no such column`, after the index is already gone.
 - **Add** `date_read TEXT` (ISO `YYYY-MM-DD` or null)
 - **Add** `date_added TEXT` (ISO `YYYY-MM-DD` or null)
 - **Add** `pages INTEGER` (null when unknown)
 - **Add** `year INTEGER` — original publication year, falling back to edition year (null when unknown)
 
-Also drop `idx_books_shelf`.
+The fresh-database bootstrap `CREATE TABLE` in `db.js` is updated to the new shape (no `shelf`, no `idx_books_shelf`, new columns present) so new databases don't create-then-drop.
+
+**New metadata is import-populated only** (YAGNI): `date_read`, `date_added`, `pages`, `year` do not appear in the add/edit modal. They display in the drawer metadata line when present. If hand-editing them matters later, that's its own small feature.
 
 **Book IDs:** existing ids (`s4-dune`) are opaque strings and stay unchanged — renaming would orphan the 81 cached cover files keyed by id. New books get `slugify(title)` (max 40 chars, as today); on collision append `-2`, `-3`, etc. The `s{shelf}-` prefix disappears from new ids only.
 
@@ -114,7 +117,7 @@ Suspended whenever focus is in an input/textarea/select or a modal is open (Esc 
 | Esc | close drawer/modal; if none open and search has text, clear search |
 | `←` `→` (drawer open) | previous / next book in current filtered order |
 | `v` | toggle Covers/List |
-| `s` | cycle sort options |
+| `s` | cycle to next sort option, always at that option's default direction (never flips; flipping stays on re-select of the active sort) |
 | `a` | open Add Book |
 | `e` | edit selected (or currently open) book |
 | `i` | open Import |
