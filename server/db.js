@@ -25,13 +25,16 @@ if (!fs.existsSync(DB_PATH)) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS books (
       id TEXT PRIMARY KEY,
-      shelf INTEGER NOT NULL DEFAULT 1,
       title TEXT NOT NULL,
       author TEXT,
       isbn TEXT,
       cover_url TEXT,
       rating REAL,
       notes TEXT,
+      date_read TEXT,
+      date_added TEXT,
+      pages INTEGER,
+      year INTEGER,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
@@ -43,7 +46,6 @@ if (!fs.existsSync(DB_PATH)) {
       FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
     );
 
-    CREATE INDEX IF NOT EXISTS idx_books_shelf ON books(shelf);
     CREATE INDEX IF NOT EXISTS idx_books_title ON books(title);
     CREATE INDEX IF NOT EXISTS idx_books_author ON books(author);
     CREATE INDEX IF NOT EXISTS idx_book_tags_tag ON book_tags(tag);
@@ -57,24 +59,27 @@ const db = new Database(DB_PATH)
 db.pragma('journal_mode = WAL')
 db.pragma('foreign_keys = ON')
 
-// Add rating and notes columns if they don't exist
+// Migrations for existing databases. Index must go before the column: DROP COLUMN
+// fails while idx_books_shelf exists, with an error that also says "no such column".
+db.exec('DROP INDEX IF EXISTS idx_books_shelf')
 try {
-  db.exec(`ALTER TABLE books ADD COLUMN rating REAL`)
+  db.exec('ALTER TABLE books DROP COLUMN shelf')
 } catch (e) {
-  // Column already exists
+  if (!/no such column/.test(e.message)) throw e
 }
-try {
-  db.exec(`ALTER TABLE books ADD COLUMN notes TEXT`)
-} catch (e) {
-  // Column already exists
+for (const col of ['rating REAL', 'notes TEXT', 'date_read TEXT', 'date_added TEXT', 'pages INTEGER', 'year INTEGER']) {
+  try {
+    db.exec(`ALTER TABLE books ADD COLUMN ${col}`)
+  } catch (e) {
+    if (!/duplicate column/.test(e.message)) throw e
+  }
 }
-
-// Database connection is already open from migrations above
 
 // Helper: get all books with their tags
 export function getAllBooks() {
   const books = db.prepare(`
-    SELECT id, shelf, title, author, isbn, cover_url as coverUrl, rating, notes
+    SELECT id, title, author, isbn, cover_url as coverUrl, rating, notes,
+           date_read as dateRead, date_added as dateAdded, pages, year
     FROM books
     ORDER BY title
   `).all()
@@ -91,7 +96,8 @@ export function getAllBooks() {
 // Helper: get single book
 export function getBook(id) {
   const book = db.prepare(`
-    SELECT id, shelf, title, author, isbn, cover_url as coverUrl, rating, notes
+    SELECT id, title, author, isbn, cover_url as coverUrl, rating, notes,
+           date_read as dateRead, date_added as dateAdded, pages, year
     FROM books WHERE id = ?
   `).get(id)
 
@@ -107,8 +113,8 @@ export function getBook(id) {
 // Helper: create or update book
 export function saveBook(book) {
   const insertBook = db.prepare(`
-    INSERT OR REPLACE INTO books (id, shelf, title, author, isbn, cover_url, rating, notes, updated_at)
-    VALUES (@id, @shelf, @title, @author, @isbn, @coverUrl, @rating, @notes, CURRENT_TIMESTAMP)
+    INSERT OR REPLACE INTO books (id, title, author, isbn, cover_url, rating, notes, date_read, date_added, pages, year, updated_at)
+    VALUES (@id, @title, @author, @isbn, @coverUrl, @rating, @notes, @dateRead, @dateAdded, @pages, @year, CURRENT_TIMESTAMP)
   `)
 
   const deleteTags = db.prepare('DELETE FROM book_tags WHERE book_id = ?')
@@ -117,13 +123,16 @@ export function saveBook(book) {
   const save = db.transaction((b) => {
     insertBook.run({
       id: b.id,
-      shelf: b.shelf || 1,
       title: b.title,
       author: b.author || null,
       isbn: b.isbn || null,
       coverUrl: b.coverUrl || null,
       rating: b.rating || null,
-      notes: b.notes || null
+      notes: b.notes || null,
+      dateRead: b.dateRead || null,
+      dateAdded: b.dateAdded || null,
+      pages: b.pages || null,
+      year: b.year || null
     })
 
     deleteTags.run(b.id)
