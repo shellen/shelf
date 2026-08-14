@@ -145,12 +145,11 @@ function getFilteredSorted() {
   let out = state.books.filter(b => {
     if (tag && !(b.tags || []).includes(tag)) return false
     if (!q) return true
-    const hay = [b.title || '', b.author || '', ...(b.tags || []), String(b.shelf || '')].join(' ').toLowerCase()
+    const hay = [b.title || '', b.author || '', ...(b.tags || [])].join(' ').toLowerCase()
     return hay.includes(q)
   })
 
   out.sort((a, b) => {
-    if (state.sortBy === 'shelf') return (a.shelf ?? 999) - (b.shelf ?? 999) || (a.title || '').localeCompare(b.title || '')
     if (state.sortBy === 'author') return (a.author || '').localeCompare(b.author || '') || (a.title || '').localeCompare(b.title || '')
     return (a.title || '').localeCompare(b.title || '')
   })
@@ -350,7 +349,6 @@ function render() {
             <select class="select select-sort" data-action="sort">
               <option value="title" ${state.sortBy === 'title' ? 'selected' : ''}>Title</option>
               <option value="author" ${state.sortBy === 'author' ? 'selected' : ''}>Author</option>
-              <option value="shelf" ${state.sortBy === 'shelf' ? 'selected' : ''}>Shelf</option>
             </select>
             <div class="view-toggle">
               <button class="view-btn ${state.view === 'covers' ? 'active' : ''}" data-action="view" data-view="covers">Covers</button>
@@ -452,14 +450,16 @@ function renderListView(books) {
         <div class="list-header">
           <div><button class="list-sort ${state.sortBy === 'title' ? 'active' : ''}" data-sort="title">Title</button></div>
           <div><button class="list-sort ${state.sortBy === 'author' ? 'active' : ''}" data-sort="author">Author</button></div>
-          <div style="text-align:right"><button class="list-sort ${state.sortBy === 'shelf' ? 'active' : ''}" data-sort="shelf">Shelf</button></div>
+          <div style="text-align:right"><button class="list-sort ${state.sortBy === 'rating' ? 'active' : ''}" data-sort="rating">Rating</button></div>
+          <div style="text-align:right"><button class="list-sort ${state.sortBy === 'year' ? 'active' : ''}" data-sort="year">Year</button></div>
           <div>Tags</div>
         </div>
         ${books.map(b => `
           <div class="list-row">
             <div class="list-title"><button data-action="open-book" data-id="${esc(b.id)}">${esc(b.title)}</button></div>
             <div class="list-author">${esc(b.author) || '—'}</div>
-            <div class="list-shelf">${esc(b.shelf)}</div>
+            <div class="list-rating">${b.rating ? esc(b.rating) + '★' : '—'}</div>
+            <div class="list-year">${b.year ? esc(b.year) : '—'}</div>
             <div class="list-tags">
               ${(b.tags || []).map(t => `<span class="list-tag">${esc(t)}</span>`).join('')}
             </div>
@@ -525,8 +525,12 @@ function renderDrawer() {
               ${(b.tags || []).map(t => `<span class="drawer-tag">${esc(t)}</span>`).join('')}
             </div>
             <div class="drawer-meta">
-              Shelf <span>${esc(b.shelf)}</span>
-              ${b.isbn ? ` &bull; ISBN <span>${esc(b.isbn)}</span>` : ''}
+              ${[
+                b.year ? esc(b.year) : null,
+                b.pages ? `${esc(b.pages)} pages` : null,
+                b.dateRead ? `read ${esc(b.dateRead)}` : null,
+                b.isbn ? `ISBN ${esc(b.isbn)}` : null
+              ].filter(Boolean).join(' &bull; ') || '&nbsp;'}
             </div>
             <div class="drawer-notes">
               <label class="notes-label">Notes</label>
@@ -622,15 +626,9 @@ function renderModal() {
             <label class="form-label">Author</label>
             <input type="text" class="form-input" id="add-author" placeholder="Don Norman" value="${esc(editing?.author)}">
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Shelf</label>
-              <input type="number" class="form-input" id="add-shelf" value="${esc(editing?.shelf || 1)}" min="1">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Tags</label>
-              <input type="text" class="form-input" id="add-tags" placeholder="design, ux" value="${esc((editing?.tags || []).join(', '))}">
-            </div>
+          <div class="form-group">
+            <label class="form-label">Tags</label>
+            <input type="text" class="form-input" id="add-tags" placeholder="design, ux" value="${esc((editing?.tags || []).join(', '))}">
           </div>
         </div>
         <div class="modal-actions">
@@ -973,7 +971,6 @@ function attachEventListeners() {
   document.querySelector('[data-action="save-book"]')?.addEventListener('click', async () => {
     const title = document.getElementById('add-title')?.value.trim()
     const author = document.getElementById('add-author')?.value.trim()
-    const shelf = parseInt(document.getElementById('add-shelf')?.value) || 1
     const tags = document.getElementById('add-tags')?.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
     const isbn = document.getElementById('add-isbn')?.value.trim().replace(/-/g, '') || null
 
@@ -989,14 +986,14 @@ function attachEventListeners() {
 
     try {
       if (state.editingId) {
-        const updatedBook = await api.updateBook(state.editingId, { title, author, shelf, tags, isbn })
+        const updatedBook = await api.updateBook(state.editingId, { title, author, tags, isbn })
         state.modalOpen = false
         state.modalLoading = false
         state.editingId = null
         updateBookInState(updatedBook)
         showToast(`"${updatedBook.title}" updated`)
       } else {
-        const newBook = await api.createBook({ title, author, shelf, tags, isbn })
+        const newBook = await api.createBook({ title, author, tags, isbn })
         state.books.push(newBook)
 
         state.modalOpen = false

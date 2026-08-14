@@ -4,9 +4,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 const BOOKS = [
-  { id: 's1-flow', shelf: 1, title: 'Flow', author: 'Mihaly Csikszentmihalyi', tags: ['psychology'], isbn: null, coverUrl: null, rating: null, notes: null },
-  { id: 's2-dune', shelf: 2, title: 'Dune', author: 'Frank Herbert', tags: ['sci-fi'], isbn: null, coverUrl: null, rating: null, notes: null },
-  { id: 's2-design-of-everyday-things', shelf: 2, title: 'The Design of Everyday Things', author: 'Don Norman', tags: ['design'], isbn: null, coverUrl: null, rating: null, notes: null },
+  { id: 's1-flow', title: 'Flow', author: 'Mihaly Csikszentmihalyi', tags: ['psychology'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null },
+  { id: 's2-dune', title: 'Dune', author: 'Frank Herbert', tags: ['sci-fi'], isbn: null, coverUrl: null, rating: 5, notes: null, dateRead: null, dateAdded: null, pages: 412, year: 1965 },
+  { id: 's2-design-of-everyday-things', title: 'The Design of Everyday Things', author: 'Don Norman', tags: ['design'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null },
 ]
 
 async function loadApp(books = BOOKS) {
@@ -52,14 +52,17 @@ describe('initial render', () => {
 describe('html escaping', () => {
   const HOSTILE = [{
     id: 's1-hostile',
-    shelf: 1,
     title: '<img src=x onerror="window.pwned=true"> & "Friends"',
     author: '<b>Bold Author</b>',
     tags: ['<i>tag</i>'],
     isbn: null,
     coverUrl: null,
     rating: null,
-    notes: null
+    notes: null,
+    dateRead: null,
+    dateAdded: null,
+    pages: null,
+    year: null
   }]
 
   it('renders markup in book data as plain text', async () => {
@@ -82,6 +85,17 @@ describe('html escaping', () => {
   })
 })
 
+describe('drawer metadata', () => {
+  it('shows metadata instead of shelf in the drawer', async () => {
+    await loadApp()
+    document.querySelector('[data-id="s2-dune"]').click()
+    const meta = document.querySelector('.drawer-meta').textContent
+    expect(meta).not.toContain('Shelf')
+    expect(meta).toContain('1965')
+    expect(meta).toContain('412')
+  })
+})
+
 describe('editing a book', () => {
   beforeEach(() => loadApp())
 
@@ -91,7 +105,6 @@ describe('editing a book', () => {
 
     expect(document.getElementById('add-title').value).toBe('Dune')
     expect(document.getElementById('add-author').value).toBe('Frank Herbert')
-    expect(document.getElementById('add-shelf').value).toBe('2')
     expect(document.getElementById('add-tags').value).toBe('sci-fi')
   })
 
