@@ -15,6 +15,9 @@ npm run dev          # Dev server + API at localhost:5173
 - **Cover wall view** - Visual grid of book covers
 - **List view** - Sortable table with all book details (click column headers to sort)
 - **Search** - Filter by title, author, or tags
+- **Sort by anything** - Title, author, rating, date read, date added, pages, or year; re-select to flip direction
+- **Goodreads import** - Drop in a `goodreads_library_export.csv`; new books are added, existing ones get blanks filled
+- **Keyboard-first** - Full navigation without the mouse; press `?` for the shortcut list
 - **Add & edit books** - In-app forms with ISBN lookup (saves instantly)
 - **Change covers** - Pick from Open Library, Google Books results
 - **SQLite storage** - All changes persist immediately
@@ -35,9 +38,33 @@ npm run add-book
 # Follow prompts to search by ISBN or title
 ```
 
-### Option 3: Edit books.json + migrate
+### Option 3: Import from Goodreads
+1. On Goodreads: My Books → Tools → Import and Export → Export Library
+2. In the app, click **Import** (or press `i`) and drop the downloaded `goodreads_library_export.csv`
+3. Review the preview (new / updates / unparseable) and confirm
+
+Import merging is fill-in-blanks: books matched by ISBN or title+author keep everything they already have; only empty fields (rating, notes, dates, pages, year, ISBN) are filled from the export, and tags are unioned. Goodreads shelves (including `read` / `to-read` / `currently-reading`) become tags.
+
+### Option 4: Edit books.json + migrate
 1. Add entries to `books.json`
 2. Run `npm run db:migrate` to sync to SQLite
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `/` | Focus search |
+| Arrows | Navigate the wall/list |
+| `Enter` | Open selected book |
+| `←` `→` (book open) | Previous / next book |
+| `Esc` | Close panels, then clear search |
+| `v` | Toggle Covers / List |
+| `s` | Cycle sort field |
+| `a` | Add book |
+| `e` | Edit selected book |
+| `i` | Import from Goodreads |
+| `1`–`9` | Toggle Nth tag filter |
+| `?` | Show shortcut help |
 
 ## Scripts
 
@@ -78,21 +105,27 @@ bookshelf/
 
 ```json
 {
-  "id": "s1-flow",
-  "shelf": 1,
+  "id": "flow",
   "title": "Flow",
   "author": "Mihaly Csikszentmihalyi",
   "tags": ["psychology", "creativity"],
   "isbn": "9780061339202",
-  "coverUrl": "https://..."
+  "coverUrl": "https://...",
+  "rating": 4.5,
+  "notes": "…",
+  "dateRead": "2024-07-04",
+  "dateAdded": "2023-01-02",
+  "pages": 336,
+  "year": 1990
 }
 ```
 
-- `id` - Unique identifier (auto-generated from shelf + title)
-- `shelf` - Physical shelf number for organization
+- `id` - Unique identifier (a title slug; ids created before the shelf field was retired keep their old `s1-` style prefixes)
 - `isbn` - Optional, but helps with cover accuracy + links
 - `tags` - Array of lowercase tags for filtering
 - `coverUrl` - Custom cover URL (from cover picker)
+- `rating`, `notes` - Editable in the book drawer
+- `dateRead`, `dateAdded`, `pages`, `year` - Populated by Goodreads import; used for sorting
 
 ## Cover Images
 

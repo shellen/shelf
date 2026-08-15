@@ -124,7 +124,7 @@ Suspended whenever focus is in an input/textarea/select or a modal is open (Esc 
 | `?` | help overlay listing all shortcuts |
 | 1–9 | apply Nth tag filter (order of the tag dropdown); same key again clears |
 
-Selection state: index into the filtered array; rendered as a thick black outline + red corner tick on the tile/row; scrolls into view; resets to 0 when filters change. Read-only builds disable `a`/`e`/`i`.
+Selection state: index into the filtered array; rendered as a thick black outline + red corner tick on the tile/row; scrolls into view; clears (no selection) when filters change. Read-only builds disable `a`/`e`/`i`.
 
 ## Testing
 
