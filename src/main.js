@@ -124,6 +124,7 @@ const state = {
   tag: '',
   sortBy: 'title',
   sortDir: 'asc',
+  selectedIndex: -1,
   drawerOpen: false,
   selected: null,
   modalOpen: false,
@@ -191,6 +192,7 @@ function setSort(key) {
     state.sortBy = key
     state.sortDir = opt.dir
   }
+  state.selectedIndex = -1
   render()
 }
 
@@ -473,8 +475,8 @@ function renderToast() {
 function renderCoversView(books) {
   return `
     <div class="wall">
-      ${books.map(b => `
-        <div class="cover-tile" data-action="open-book" data-id="${esc(b.id)}" tabindex="0" role="button" aria-label="${esc(b.title)}${b.author ? ` by ${esc(b.author)}` : ''}">
+      ${books.map((b, i) => `
+        <div class="cover-tile ${i === state.selectedIndex ? 'kb-selected' : ''}" data-action="open-book" data-id="${esc(b.id)}" tabindex="0" role="button" aria-label="${esc(b.title)}${b.author ? ` by ${esc(b.author)}` : ''}">
           <div class="cover-aspect" style="background-image:url('${generatePlaceholder(b).replace(/'/g, "\\'")}')">
             <img class="cover-img" src="${esc(getCoverUrl(b))}" alt="Cover for ${esc(b.title)}" loading="lazy"
                  onerror="this.onerror=null; this.src='${generatePlaceholder(b).replace(/'/g, "\\'")}'"
@@ -506,8 +508,8 @@ function renderListView(books) {
           <div style="text-align:right"><button class="list-sort ${state.sortBy === 'year' ? 'active' : ''}" data-sort="year">Year</button></div>
           <div>Tags</div>
         </div>
-        ${books.map(b => `
-          <div class="list-row">
+        ${books.map((b, i) => `
+          <div class="list-row ${i === state.selectedIndex ? 'kb-selected' : ''}">
             <div class="list-title"><button data-action="open-book" data-id="${esc(b.id)}">${esc(b.title)}</button></div>
             <div class="list-author">${esc(b.author) || '—'}</div>
             <div class="list-rating">${b.rating ? esc(b.rating) + '★' : '—'}</div>
@@ -702,6 +704,7 @@ function resetFilters() {
   state.tag = ''
   state.sortBy = 'title'
   state.sortDir = 'asc'
+  state.selectedIndex = -1
   render()
 }
 
@@ -776,6 +779,7 @@ function attachEventListeners() {
   // Search input
   document.querySelector('[data-action="search"]')?.addEventListener('input', e => {
     state.q = e.target.value
+    state.selectedIndex = -1
     updateResults()
   })
 
@@ -788,6 +792,7 @@ function attachEventListeners() {
   // Tag select
   document.querySelector('[data-action="tag"]')?.addEventListener('change', e => {
     state.tag = e.target.value
+    state.selectedIndex = -1
     render()
   })
 
@@ -1173,25 +1178,104 @@ function attachEventListeners() {
     }
   })
 
-  // ESC key to close modals
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      if (state.coverPickerOpen) {
-        state.coverPickerOpen = false
-        state.coverOptions = []
-        render()
-      } else if (state.modalOpen) {
-        state.modalOpen = false
-        state.modalStatus = null
-        render()
-      } else if (state.drawerOpen) {
-        state.drawerOpen = false
-        state.selected = null
-        render()
-      }
-    }
-  })
 }
+
+function wallColumns() {
+  const wall = document.querySelector('.wall')
+  if (!wall || typeof getComputedStyle !== 'function') return 1
+  const cols = getComputedStyle(wall).gridTemplateColumns
+  if (!cols || cols === 'none') return 1
+  return cols.split(' ').length
+}
+
+function onKeydown(e) {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)
+  if (e.key === 'Escape') {
+    if (state.helpOpen) { state.helpOpen = false; render(); return }
+    if (state.coverPickerOpen) { state.coverPickerOpen = false; state.coverOptions = []; render(); return }
+    if (state.modalOpen) { state.modalOpen = false; state.modalStatus = null; state.editingId = null; render(); return }
+    if (state.importOpen) { closeImport(); return }
+    if (state.drawerOpen) { state.drawerOpen = false; state.selected = null; render(); return }
+    if (state.q) { state.q = ''; document.querySelector('[data-action="search"]')?.blur(); render() }
+    return
+  }
+  if (typing) return
+  if (state.confirmOpen || state.modalOpen || state.coverPickerOpen || state.importOpen || state.helpOpen) return
+
+  const filtered = getFilteredSorted()
+  if (e.key === '/') {
+    e.preventDefault()
+    document.querySelector('[data-action="search"]')?.focus()
+    return
+  }
+  if (state.drawerOpen) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      const delta = e.key === 'ArrowRight' ? 1 : -1
+      const i = filtered.findIndex(b => b.id === state.selected?.id)
+      const next = filtered[i + delta]
+      if (next) { state.selectedIndex = i + delta; openBook(next.id) }
+      return
+    }
+    if (e.key === 'e' && !state.readOnly && state.selected) {
+      state.editingId = state.selected.id
+      state.modalOpen = true
+      state.modalStatus = null
+      render()
+    }
+    return
+  }
+  const cols = state.view === 'covers' ? wallColumns() : 1
+  const move = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cols, ArrowUp: -cols }[e.key]
+  if (move !== undefined) {
+    e.preventDefault()
+    state.selectedIndex = Math.max(0, Math.min(filtered.length - 1, (state.selectedIndex < 0 ? 0 : state.selectedIndex + move)))
+    updateResults()
+    document.querySelector('.kb-selected')?.scrollIntoView({ block: 'nearest' })
+    return
+  }
+  if (e.key === 'Enter' && state.selectedIndex >= 0) {
+    openBook(filtered[state.selectedIndex]?.id)
+    return
+  }
+  if (e.key === 'v') {
+    state.view = state.view === 'covers' ? 'list' : 'covers'
+    render()
+    return
+  }
+  if (e.key === 's') {
+    const i = SORT_OPTIONS.findIndex(o => o.key === state.sortBy)
+    const next = SORT_OPTIONS[(i + 1) % SORT_OPTIONS.length]
+    state.sortBy = next.key
+    state.sortDir = next.dir
+    state.selectedIndex = -1
+    render()
+    return
+  }
+  if (!state.readOnly && e.key === 'a') {
+    state.modalOpen = true
+    state.modalStatus = null
+    render()
+    return
+  }
+  if (!state.readOnly && e.key === 'i') {
+    state.importOpen = true
+    render()
+    return
+  }
+  if (!state.readOnly && e.key === 'e' && state.selectedIndex >= 0) {
+    state.selected = filtered[state.selectedIndex]
+    state.editingId = state.selected.id
+    state.modalOpen = true
+    state.modalStatus = null
+    render()
+  }
+}
+
+// Single document-level listener; the window guard keeps test module
+// reloads and Vite HMR from stacking handlers.
+if (window.__bookshelfKeydown) document.removeEventListener('keydown', window.__bookshelfKeydown)
+window.__bookshelfKeydown = onKeydown
+document.addEventListener('keydown', onKeydown)
 
 // Init - load books from API, falling back to build-time embedded data
 async function init() {

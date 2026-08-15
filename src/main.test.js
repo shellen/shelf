@@ -188,6 +188,54 @@ describe('keyboard access', () => {
   })
 })
 
+describe('keyboard shortcuts', () => {
+  beforeEach(() => loadApp())
+  const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+
+  it('slash focuses search; typing there suspends shortcuts', () => {
+    press('/')
+    expect(document.activeElement.dataset.action).toBe('search')
+    press('v')                                   // must NOT toggle view
+    expect(document.querySelector('.view-btn.active').dataset.view).toBe('covers')
+  })
+
+  it('arrows move the selection and Enter opens', () => {
+    press('ArrowRight')
+    press('ArrowRight')
+    const selected = document.querySelector('.kb-selected')
+    expect(selected).not.toBeNull()
+    press('Enter')
+    expect(document.querySelector('.drawer-title').textContent)
+      .toBe(selected.getAttribute('aria-label').split(' by ')[0])
+  })
+
+  it('left/right walk prev/next while the drawer is open', () => {
+    press('ArrowRight'); press('Enter')
+    const first = document.querySelector('.drawer-title').textContent
+    press('ArrowRight')
+    expect(document.querySelector('.drawer-title').textContent).not.toBe(first)
+  })
+
+  it('v toggles view and s cycles sort at default direction', () => {
+    press('v')
+    expect(document.querySelector('.view-btn.active').dataset.view).toBe('list')
+    press('s')
+    expect(document.querySelector('.status-bar').textContent).toContain('AUTHOR ↑')
+  })
+
+  it('Escape closes the drawer, then clears the search', () => {
+    press('ArrowRight'); press('Enter')
+    press('Escape')
+    expect(document.querySelector('.drawer-panel')).toBeNull()
+    const input = document.querySelector('[data-action="search"]')
+    input.focus(); input.value = 'dune'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    input.blur()
+    press('Escape')
+    expect(document.querySelector('[data-action="search"]').value).toBe('')
+  })
+})
+
 describe('status bar', () => {
   it('renders the status bar with count and sort', async () => {
     await loadApp()
