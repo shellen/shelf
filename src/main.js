@@ -131,6 +131,7 @@ const state = {
   modalLoading: false,
   modalStatus: null,
   editingId: null,
+  helpOpen: false,
   importOpen: false,
   importBooks: [],
   importFailed: [],
@@ -406,6 +407,7 @@ function render() {
     ${state.importOpen ? renderImportModal() : ''}
     ${state.coverPickerOpen ? renderCoverPicker() : ''}
     ${state.confirmOpen ? renderConfirmDialog() : ''}
+    ${state.helpOpen ? renderHelpOverlay() : ''}
     ${state.toast ? renderToast() : ''}
   `
 
@@ -717,6 +719,33 @@ function openBook(id) {
   }
 }
 
+function renderHelpOverlay() {
+  const rows = [
+    ['/', 'focus search'],
+    ['← → ↑ ↓', 'navigate the wall or list'],
+    ['Enter', 'open selected book'],
+    ['← →', 'previous / next book while a book is open'],
+    ['Esc', 'close panels; then clear search'],
+    ['v', 'toggle Covers / List'],
+    ['s', 'cycle sort field'],
+    ['a', 'add a book'],
+    ['e', 'edit selected book'],
+    ['i', 'import from Goodreads'],
+    ['1–9', 'toggle Nth tag filter'],
+    ['?', 'this help'],
+  ]
+  return `
+    <div class="help-overlay" data-action="close-help">
+      <div class="help-panel" onclick="event.stopPropagation()">
+        <h2>Keyboard Shortcuts</h2>
+        <div class="help-grid">
+          ${rows.map(([k, d]) => `<span class="help-key">${esc(k)}</span><span>${esc(d)}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `
+}
+
 function renderImportModal() {
   const p = state.importPreview
   const failed = state.importFailed
@@ -822,6 +851,13 @@ function attachEventListeners() {
   // Import button
   document.querySelector('.header [data-action="import"]')?.addEventListener('click', () => {
     state.importOpen = true
+    render()
+  })
+
+  // Help overlay: close on backdrop click
+  document.querySelector('[data-action="close-help"]')?.addEventListener('click', (e) => {
+    if (e.target !== e.currentTarget) return
+    state.helpOpen = false
     render()
   })
 
@@ -1267,6 +1303,19 @@ function onKeydown(e) {
     state.editingId = state.selected.id
     state.modalOpen = true
     state.modalStatus = null
+    render()
+    return
+  }
+  if (e.key === '?') {
+    state.helpOpen = true
+    render()
+    return
+  }
+  if (/^[1-9]$/.test(e.key)) {
+    const tag = getAllTags()[Number(e.key) - 1]
+    if (!tag) return
+    state.tag = state.tag === tag ? '' : tag
+    state.selectedIndex = -1
     render()
   }
 }

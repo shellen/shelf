@@ -236,6 +236,25 @@ describe('keyboard shortcuts', () => {
   })
 })
 
+describe('help overlay and tag keys', () => {
+  beforeEach(() => loadApp())
+  const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+
+  it('? opens the help overlay listing shortcuts', () => {
+    press('?')
+    expect(document.querySelector('.help-overlay').textContent).toContain('navigate')
+    press('Escape')
+    expect(document.querySelector('.help-overlay')).toBeNull()
+  })
+
+  it('number keys toggle tag filters', () => {
+    press('1')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1) // first tag alphabetically
+    press('1')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(3)
+  })
+})
+
 describe('status bar', () => {
   it('renders the status bar with count and sort', async () => {
     await loadApp()
