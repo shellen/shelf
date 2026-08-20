@@ -66,14 +66,18 @@ const api = {
   }
 }
 
-// Toast helper
+// Toast helper - renders into its own root so it never disturbs focus or form state
+let toastTimer = null
 function showToast(message, type = 'success') {
-  state.toast = { message, type }
-  render()
-  setTimeout(() => {
-    state.toast = null
-    render()
-  }, 3000)
+  let root = document.getElementById('toast-root')
+  if (!root) {
+    root = document.createElement('div')
+    root.id = 'toast-root'
+    document.body.appendChild(root)
+  }
+  root.innerHTML = `<div class="toast toast-${type}">${esc(message)}</div>`
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { root.innerHTML = '' }, 3000)
 }
 
 // Confirm dialog helper
@@ -87,8 +91,8 @@ function showConfirm(title, message) {
   })
 }
 
-// Helper to update a book in state
-function updateBookInState(updatedBook) {
+// Helpers to update a book in state
+function syncBookState(updatedBook) {
   const bookIndex = state.books.findIndex(b => b.id === updatedBook.id)
   if (bookIndex !== -1) {
     state.books = [
@@ -100,7 +104,46 @@ function updateBookInState(updatedBook) {
       state.selected = { ...updatedBook }
     }
   }
+}
+
+function updateBookInState(updatedBook) {
+  syncBookState(updatedBook)
   render()
+}
+
+function parseTags(value) {
+  return value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
+}
+
+// Inline field save - commits one drawer field, leaving the drawer DOM alone
+async function saveField(el) {
+  const book = state.selected
+  if (!book || state.readOnly) return
+  const fieldName = el.dataset.field
+  const original = el.dataset.original || ''
+
+  if (fieldName === 'title' && !el.value.trim()) {
+    el.value = original
+    return
+  }
+  if (el.value === original) return
+
+  const payload = fieldName === 'tags'
+    ? { tags: parseTags(el.value) }
+    : { [fieldName]: el.value.trim() || null }
+
+  try {
+    const updated = await api.updateBook(book.id, payload)
+    const canonical = fieldName === 'tags' ? (updated.tags || []).join(', ') : String(updated[fieldName] ?? '')
+    el.value = canonical
+    el.dataset.original = canonical
+    syncBookState(updated)
+    updateResults()
+    showToast('Saved')
+  } catch (e) {
+    el.value = original
+    showToast('Save failed — reverted', 'error')
+  }
 }
 
 const SORT_OPTIONS = [
@@ -130,7 +173,6 @@ const state = {
   modalOpen: false,
   modalLoading: false,
   modalStatus: null,
-  editingId: null,
   helpOpen: false,
   importOpen: false,
   importBooks: [],
@@ -145,9 +187,7 @@ const state = {
   confirmOpen: false,
   confirmTitle: '',
   confirmMessage: '',
-  confirmAction: null,
-  // Toast notification
-  toast: null
+  confirmAction: null
 }
 
 // Computed
@@ -408,7 +448,6 @@ function render() {
     ${state.coverPickerOpen ? renderCoverPicker() : ''}
     ${state.confirmOpen ? renderConfirmDialog() : ''}
     ${state.helpOpen ? renderHelpOverlay() : ''}
-    ${state.toast ? renderToast() : ''}
   `
 
   attachEventListeners()
@@ -462,14 +501,6 @@ function renderConfirmDialog() {
           <button class="btn btn-danger" data-action="confirm-ok">Remove</button>
         </div>
       </div>
-    </div>
-  `
-}
-
-function renderToast() {
-  return `
-    <div class="toast toast-${state.toast.type}">
-      ${esc(state.toast.message)}
     </div>
   `
 }
@@ -552,8 +583,8 @@ function renderDrawer() {
             </button>`}
           </div>
           <div class="drawer-details">
-            <div class="drawer-title">${esc(b.title)}</div>
-            <div class="drawer-author">${esc(b.author) || '—'}</div>
+            <input class="drawer-title" data-field="title" value="${esc(b.title)}" data-original="${esc(b.title)}" placeholder="Title" ${state.readOnly ? 'readonly' : ''}>
+            <input class="drawer-author" data-field="author" value="${esc(b.author)}" data-original="${esc(b.author)}" placeholder="Author" ${state.readOnly ? 'readonly' : ''}>
             <div class="drawer-rating">
               ${[1,2,3,4,5].map(star => {
                 const halfValue = star - 0.5
@@ -577,17 +608,24 @@ function renderDrawer() {
               ${rating > 0 && !state.readOnly ? `<button class="star-clear" data-action="clear-rating">Clear</button>` : ''}
               ${rating > 0 ? `<span class="rating-value">${rating}</span>` : ''}
             </div>
+            ${state.readOnly ? `
             <div class="drawer-tags">
               ${(b.tags || []).map(t => `<span class="drawer-tag">${esc(t)}</span>`).join('')}
-            </div>
+            </div>` : `
+            <input class="drawer-tags-input" data-field="tags" value="${esc((b.tags || []).join(', '))}" data-original="${esc((b.tags || []).join(', '))}" placeholder="tags, comma, separated">`}
             <div class="drawer-meta">
               ${[
                 b.year ? esc(b.year) : null,
                 b.pages ? `${esc(b.pages)} pages` : null,
                 b.dateRead ? `read ${esc(b.dateRead)}` : null,
-                b.isbn ? `ISBN ${esc(b.isbn)}` : null
+                state.readOnly && b.isbn ? `ISBN ${esc(b.isbn)}` : null
               ].filter(Boolean).join(' &bull; ') || '&nbsp;'}
             </div>
+            ${state.readOnly ? '' : `
+            <div class="drawer-isbn-row">
+              <span>ISBN</span>
+              <input class="drawer-isbn" data-field="isbn" value="${esc(b.isbn)}" data-original="${esc(b.isbn)}" placeholder="—">
+            </div>`}
             <div class="drawer-notes">
               <label class="notes-label">Notes</label>
               <textarea class="notes-input" data-action="notes" placeholder="${state.readOnly ? '' : 'Add your notes...'}" ${state.readOnly ? 'readonly' : ''}>${esc(b.notes)}</textarea>
@@ -599,7 +637,6 @@ function renderDrawer() {
             </div>
             ${state.readOnly ? '' : `
             <div class="drawer-actions">
-              <button class="btn" data-action="edit-book">Edit Book</button>
               <button class="btn btn-danger" data-action="delete-book">Remove Book</button>
             </div>`}
           </div>
@@ -659,32 +696,31 @@ function renderCoverPicker() {
 }
 
 function renderModal() {
-  const editing = state.editingId ? state.books.find(b => b.id === state.editingId) : null
   return `
     <div class="modal-backdrop" data-action="close-modal">
       <div class="modal-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
-          <h2>${editing ? 'Edit Book' : 'Add Book'}</h2>
+          <h2>Add Book</h2>
           <button class="drawer-close" data-action="close-modal">&times;</button>
         </div>
         ${state.modalStatus ? `<div class="status ${state.modalStatus.type}">${esc(state.modalStatus.message)}</div>` : ''}
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">ISBN (optional)</label>
-            <input type="text" class="form-input" id="add-isbn" placeholder="9780143127741" value="${esc(editing?.isbn)}">
+            <input type="text" class="form-input" id="add-isbn" placeholder="9780143127741">
             <div class="form-hint">Enter ISBN to auto-fill title & author</div>
           </div>
           <div class="form-group">
             <label class="form-label">Title</label>
-            <input type="text" class="form-input" id="add-title" placeholder="The Design of Everyday Things" value="${esc(editing?.title)}">
+            <input type="text" class="form-input" id="add-title" placeholder="The Design of Everyday Things">
           </div>
           <div class="form-group">
             <label class="form-label">Author</label>
-            <input type="text" class="form-input" id="add-author" placeholder="Don Norman" value="${esc(editing?.author)}">
+            <input type="text" class="form-input" id="add-author" placeholder="Don Norman">
           </div>
           <div class="form-group">
             <label class="form-label">Tags</label>
-            <input type="text" class="form-input" id="add-tags" placeholder="design, ux" value="${esc((editing?.tags || []).join(', '))}">
+            <input type="text" class="form-input" id="add-tags" placeholder="design, ux">
           </div>
         </div>
         <div class="modal-actions">
@@ -693,7 +729,7 @@ function renderModal() {
             ${state.modalLoading ? '<span class="loading"></span>' : ''}Lookup ISBN
           </button>
           <button class="btn btn-primary" data-action="save-book" ${state.modalLoading ? 'disabled' : ''}>
-            ${state.modalLoading ? '<span class="loading"></span>' : editing ? 'Save Changes' : 'Add Book'}
+            ${state.modalLoading ? '<span class="loading"></span>' : 'Add Book'}
           </button>
         </div>
       </div>
@@ -941,13 +977,19 @@ function attachEventListeners() {
     })
   })
 
-  // Edit book
-  document.querySelector('[data-action="edit-book"]')?.addEventListener('click', () => {
-    if (!state.selected) return
-    state.editingId = state.selected.id
-    state.modalOpen = true
-    state.modalStatus = null
-    render()
+  // Inline field editing - save on blur, Enter commits, Escape reverts
+  document.querySelectorAll('.drawer-panel [data-field]').forEach(el => {
+    el.addEventListener('blur', () => saveField(el))
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        el.blur()
+      } else if (e.key === 'Escape') {
+        e.stopPropagation()
+        el.value = el.dataset.original || ''
+        el.blur()
+      }
+    })
   })
 
   // Delete book
@@ -1036,7 +1078,6 @@ function attachEventListeners() {
       if (el.classList.contains('modal-backdrop') && e.target !== el) return
       state.modalOpen = false
       state.modalStatus = null
-      state.editingId = null
       render()
     })
   })
@@ -1189,24 +1230,15 @@ function attachEventListeners() {
     render()
 
     try {
-      if (state.editingId) {
-        const updatedBook = await api.updateBook(state.editingId, { title, author, tags, isbn })
-        state.modalOpen = false
-        state.modalLoading = false
-        state.editingId = null
-        updateBookInState(updatedBook)
-        showToast(`"${updatedBook.title}" updated`)
-      } else {
-        const newBook = await api.createBook({ title, author, tags, isbn })
-        state.books.push(newBook)
+      const newBook = await api.createBook({ title, author, tags, isbn })
+      state.books.push(newBook)
 
-        state.modalOpen = false
-        state.modalStatus = null
-        state.modalLoading = false
+      state.modalOpen = false
+      state.modalStatus = null
+      state.modalLoading = false
 
-        console.log(`✓ Book added: "${newBook.title}"`)
-        render()
-      }
+      showToast(`"${newBook.title}" added`)
+      render()
     } catch (e) {
       state.modalLoading = false
       state.modalStatus = { type: 'error', message: e.message || 'Failed to save book' }
@@ -1229,7 +1261,7 @@ function onKeydown(e) {
   if (e.key === 'Escape') {
     if (state.helpOpen) { state.helpOpen = false; render(); return }
     if (state.coverPickerOpen) { state.coverPickerOpen = false; state.coverOptions = []; render(); return }
-    if (state.modalOpen) { state.modalOpen = false; state.modalStatus = null; state.editingId = null; render(); return }
+    if (state.modalOpen) { state.modalOpen = false; state.modalStatus = null; render(); return }
     if (state.importOpen) { closeImport(); return }
     if (state.drawerOpen) { state.drawerOpen = false; state.selected = null; render(); return }
     if (state.q) { state.q = ''; document.querySelector('[data-action="search"]')?.blur(); render() }
@@ -1253,10 +1285,8 @@ function onKeydown(e) {
       return
     }
     if (e.key === 'e' && !state.readOnly && state.selected) {
-      state.editingId = state.selected.id
-      state.modalOpen = true
-      state.modalStatus = null
-      render()
+      e.preventDefault()
+      document.querySelector('.drawer-panel [data-field="title"]')?.focus()
     }
     return
   }
@@ -1299,11 +1329,9 @@ function onKeydown(e) {
     return
   }
   if (!state.readOnly && e.key === 'e' && state.selectedIndex >= 0) {
-    state.selected = filtered[state.selectedIndex]
-    state.editingId = state.selected.id
-    state.modalOpen = true
-    state.modalStatus = null
-    render()
+    e.preventDefault()
+    openBook(filtered[state.selectedIndex].id)
+    document.querySelector('.drawer-panel [data-field="title"]')?.focus()
     return
   }
   if (e.key === '?') {

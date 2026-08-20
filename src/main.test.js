@@ -77,14 +77,13 @@ describe('html escaping', () => {
     expect(document.querySelector('.cover-tag').textContent).toBe('<i>tag</i>')
   })
 
-  it('keeps quoted data intact in edit form value attributes', async () => {
+  it('keeps quoted data intact in inline field value attributes', async () => {
     await loadApp(HOSTILE)
 
     document.querySelector('[data-id="s1-hostile"]').click()
-    document.querySelector('[data-action="edit-book"]').click()
 
-    expect(document.getElementById('add-title').value).toBe('<img src=x onerror="window.pwned=true"> & "Friends"')
-    expect(document.getElementById('add-author').value).toBe('<b>Bold Author</b>')
+    expect(document.querySelector('[data-field="title"]').value).toBe('<img src=x onerror="window.pwned=true"> & "Friends"')
+    expect(document.querySelector('[data-field="author"]').value).toBe('<b>Bold Author</b>')
   })
 })
 
@@ -99,33 +98,91 @@ describe('drawer metadata', () => {
   })
 })
 
-describe('editing a book', () => {
+describe('inline editing', () => {
   beforeEach(() => loadApp())
 
-  it('opens a prefilled edit form from the drawer', () => {
-    document.querySelector('[data-id="s2-dune"]').click()
-    document.querySelector('[data-action="edit-book"]').click()
+  const openDune = () => document.querySelector('[data-id="s2-dune"]').click()
+  const field = (name) => document.querySelector(`[data-field="${name}"]`)
 
-    expect(document.getElementById('add-title').value).toBe('Dune')
-    expect(document.getElementById('add-author').value).toBe('Frank Herbert')
-    expect(document.getElementById('add-tags').value).toBe('sci-fi')
+  it('shows editable fields prefilled in the drawer, with no edit modal path', () => {
+    openDune()
+    expect(field('title').value).toBe('Dune')
+    expect(field('author').value).toBe('Frank Herbert')
+    expect(field('tags').value).toBe('sci-fi')
+    expect(field('isbn').value).toBe('')
+    expect(document.querySelector('[data-action="edit-book"]')).toBeNull()
   })
 
-  it('saves edited fields via PUT and updates the drawer', async () => {
-    document.querySelector('[data-id="s2-dune"]').click()
-    document.querySelector('[data-action="edit-book"]').click()
-
-    document.getElementById('add-author').value = 'Frank Herbert Sr.'
-    document.querySelector('[data-action="save-book"]').click()
+  it('saves a changed field on blur via PUT without rebuilding the drawer', async () => {
+    openDune()
+    const author = field('author')
+    author.value = 'Frank Herbert Sr.'
+    author.dispatchEvent(new Event('blur'))
 
     await vi.waitFor(() => {
-      if (document.querySelector('.modal-panel')) throw new Error('modal still open')
+      if (!fetch.mock.calls.some(([, o]) => o?.method === 'PUT')) throw new Error('no PUT yet')
     })
-
-    const put = fetch.mock.calls.find(([, opts]) => opts?.method === 'PUT')
+    const put = fetch.mock.calls.find(([, o]) => o?.method === 'PUT')
     expect(put[0]).toContain('/api/books/s2-dune')
-    expect(JSON.parse(put[1].body).author).toBe('Frank Herbert Sr.')
-    expect(document.querySelector('.drawer-author').textContent).toBe('Frank Herbert Sr.')
+    expect(JSON.parse(put[1].body)).toEqual({ author: 'Frank Herbert Sr.' })
+    expect(field('author')).toBe(author)   // drawer not re-rendered out from under the user
+  })
+
+  it('parses tags on save', async () => {
+    openDune()
+    const tags = field('tags')
+    tags.value = 'Sci-Fi,  Classics '
+    tags.dispatchEvent(new Event('blur'))
+
+    await vi.waitFor(() => {
+      if (!fetch.mock.calls.some(([, o]) => o?.method === 'PUT')) throw new Error('no PUT yet')
+    })
+    const put = fetch.mock.calls.find(([, o]) => o?.method === 'PUT')
+    expect(JSON.parse(put[1].body)).toEqual({ tags: ['sci-fi', 'classics'] })
+  })
+
+  it('does not save an unchanged field', () => {
+    openDune()
+    const author = field('author')
+    author.dispatchEvent(new Event('blur'))
+    expect(fetch.mock.calls.some(([, o]) => o?.method === 'PUT')).toBe(false)
+  })
+
+  it('Escape reverts the field and keeps the drawer open', () => {
+    openDune()
+    const author = field('author')
+    author.value = 'Wrong Name'
+    author.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    expect(field('author').value).toBe('Frank Herbert')
+    expect(document.querySelector('.drawer-panel')).not.toBeNull()
+    expect(fetch.mock.calls.some(([, o]) => o?.method === 'PUT')).toBe(false)
+  })
+
+  it('refuses to save an empty title', () => {
+    openDune()
+    const title = field('title')
+    title.value = '   '
+    title.dispatchEvent(new Event('blur'))
+    expect(field('title').value).toBe('Dune')
+    expect(fetch.mock.calls.some(([, o]) => o?.method === 'PUT')).toBe(false)
+  })
+
+  it('reverts the field when the save fails', async () => {
+    openDune()
+    fetch.mockImplementationOnce(async () => ({ ok: false, json: async () => ({}) }))
+    const author = field('author')
+    author.value = 'Frank Herbert Sr.'
+    author.dispatchEvent(new Event('blur'))
+
+    await vi.waitFor(() => {
+      if (field('author').value !== 'Frank Herbert') throw new Error('not reverted yet')
+    })
+  })
+
+  it('e focuses the title field for the selected book', () => {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'e', bubbles: true }))
+    expect(document.activeElement?.dataset.field).toBe('title')
   })
 })
 
@@ -184,7 +241,7 @@ describe('keyboard access', () => {
 
     tile.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
 
-    expect(document.querySelector('.drawer-title').textContent).toBe('Dune')
+    expect(document.querySelector('.drawer-title').value).toBe('Dune')
   })
 })
 
@@ -205,15 +262,15 @@ describe('keyboard shortcuts', () => {
     const selected = document.querySelector('.kb-selected')
     expect(selected).not.toBeNull()
     press('Enter')
-    expect(document.querySelector('.drawer-title').textContent)
+    expect(document.querySelector('.drawer-title').value)
       .toBe(selected.getAttribute('aria-label').split(' by ')[0])
   })
 
   it('left/right walk prev/next while the drawer is open', () => {
     press('ArrowRight'); press('Enter')
-    const first = document.querySelector('.drawer-title').textContent
+    const first = document.querySelector('.drawer-title').value
     press('ArrowRight')
-    expect(document.querySelector('.drawer-title').textContent).not.toBe(first)
+    expect(document.querySelector('.drawer-title').value).not.toBe(first)
   })
 
   it('v toggles view and s cycles sort at default direction', () => {

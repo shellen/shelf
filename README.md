@@ -18,7 +18,8 @@ npm run dev          # Dev server + API at localhost:5173
 - **Sort by anything** - Title, author, rating, date read, date added, pages, or year; re-select to flip direction
 - **Goodreads import** - Drop in a `goodreads_library_export.csv`; new books are added, existing ones get blanks filled
 - **Keyboard-first** - Full navigation without the mouse; press `?` for the shortcut list
-- **Add & edit books** - In-app forms with ISBN lookup (saves instantly)
+- **Add books** - In-app form with ISBN lookup
+- **Edit in place** - Click any field in the book drawer (title, author, tags, ISBN, notes, rating) and it autosaves on blur; Enter commits, Esc reverts
 - **Change covers** - Pick from Open Library, Google Books results
 - **SQLite storage** - All changes persist immediately
 - **Local cover caching** - Downloads covers once, embeds in final HTML

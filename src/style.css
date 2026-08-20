@@ -569,17 +569,60 @@ input, select, button, textarea {
 
 .drawer-details { flex: 1; min-width: 0; }
 
+/* Inline-editable fields: read as text until focused */
+input.drawer-title, input.drawer-author, .drawer-tags-input, .drawer-isbn {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 1px 2px;
+  margin-left: -2px;
+  background: transparent;
+}
+
+input.drawer-title:focus, input.drawer-author:focus,
+.drawer-tags-input:focus, .drawer-isbn:focus {
+  background: var(--highlight);
+}
+
+input.drawer-title:hover:not(:focus), input.drawer-author:hover:not(:focus),
+.drawer-tags-input:hover:not(:focus), .drawer-isbn:hover:not(:focus) {
+  box-shadow: inset 0 -2px 0 var(--ink);
+}
+
 .drawer-title {
   font-size: 1.15rem;
   font-weight: 900;
   line-height: 1.15;
   text-transform: uppercase;
+  font-family: var(--display);
 }
 
 .drawer-author {
   font-family: var(--mono);
   font-size: 0.8rem;
   margin-top: 0.25rem;
+}
+
+.drawer-tags-input {
+  margin-top: 0.5rem;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.drawer-isbn-row {
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.drawer-isbn {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 0.72rem;
 }
 
 .drawer-rating {
