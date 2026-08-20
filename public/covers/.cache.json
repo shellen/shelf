@@ -1,4 +1,35 @@
 {
+  "1984": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754008849,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "1984 (adaptation)",
+        "author": "Michael Dean",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8745958-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "1984",
+        "author": "George Orwell",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14351142-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "1984",
+        "author": "George Orwell",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10502178-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "'1984' i esse raznykh let roman i khudozhestvennaya publitsistika",
+        "author": "George Orwell",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9267251-L.jpg"
+      }
+    ]
+  },
   "s1-flow": {
     "status": "ok",
     "source": "openlibrary",
@@ -3340,6 +3371,2142 @@
         "title": "Nonfiction Writing Strategies Using Content-Area Mentor Texts",
         "author": "Marcia S. Freeman",
         "coverUrl": "https://books.google.com/books/content?id=_g1XBAAAQBAJ&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api"
+      }
+    ]
+  },
+  "1q84-1q84-1-3": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754010595,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "1Q84 (1Q84, #1-3)",
+        "author": "Haruki Murakami",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780307593313-L.jpg"
+      }
+    ]
+  },
+  "50-fast-digital-camera-techniques-50-fas": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754012205,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "50 Fast Digital Camera Techniques (50 Fast Techniques Series)",
+        "author": "Gregory Georges",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780764525001-L.jpg"
+      }
+    ]
+  },
+  "a-headache-in-the-pelvis-a-new-understan": {
+    "status": "failed",
+    "timestamp": 1786754374929,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "A Headache in the Pelvis: A New Understanding and Treatment for Prostatitis and Chronic Pelvic Pain Syndromes",
+        "author": "David  Wise",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780972775571-L.jpg"
+      }
+    ]
+  },
+  "a-long-walk-to-water-a-powerful-adventur": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754014662,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "A Long Walk to Water: A Powerful Adventure of Survival, Perseverance, and Hope in Sudan",
+        "author": "Linda Sue Park",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780547532844-L.jpg"
+      }
+    ]
+  },
+  "a-smile-in-the-mind": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754016737,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "A Smile in the Mind",
+        "author": "Beryl McAlhone",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780714838120-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "A smile in the mind",
+        "author": "Beryl McAlhone",
+        "coverUrl": "https://covers.openlibrary.org/b/id/453545-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "A Smile in the Mind - Revised and Expanded Edition: Witty Thinking in Graphic Design",
+        "author": "Beryl McAlhone",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8494481-L.jpg"
+      }
+    ]
+  },
+  "agile-project-management-creating-innova": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754018667,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Agile Project Management: Creating Innovative Products",
+        "author": "Jim Highsmith",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780321219770-L.jpg"
+      }
+    ]
+  },
+  "american-sniper-the-autobiography-of-the": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754020547,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "American Sniper: The Autobiography of the Most Lethal Sniper in U.S. Military History",
+        "author": "Chris Kyle",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062107060-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "American Sniper: The Autobiography of the Most Lethal Sniper in U.S. Military History",
+        "author": "Chris Kyle",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8314131-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "American Sniper [Movie Tie-in Edition]: The Autobiography of the Most Lethal Sniper in U.S. Military History",
+        "author": "Chris Kyle",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8778346-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "American Sniper: The Autobiography of the Most Lethal Sniper in U.S. Military History",
+        "author": "Chris Kyle",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8367821-L.jpg"
+      }
+    ]
+  },
+  "are-you-anybody-a-memoir": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754022850,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Are You Anybody?: A Memoir",
+        "author": "Jeffrey Tambor",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780451496355-L.jpg"
+      }
+    ]
+  },
+  "armada": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754023675,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Armada",
+        "author": "Ernest Cline",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7421644-L.jpg"
+      }
+    ]
+  },
+  "armageddon-in-retrospect": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754025202,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Armageddon in Retrospect",
+        "author": "Kurt Vonnegut Jr.",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780399155086-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Armageddon in Retrospect",
+        "author": "Kurt Vonnegut",
+        "coverUrl": "https://covers.openlibrary.org/b/id/2413511-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Armageddon in Retrospect",
+        "author": "Kurt Vonnegut",
+        "coverUrl": "https://covers.openlibrary.org/b/id/13768500-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Armageddon in Retrospect",
+        "author": "Kurt Vonnegut",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10533273-L.jpg"
+      }
+    ]
+  },
+  "atmosph-ra-incognita": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754026816,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Atmosphæra Incognita",
+        "author": "Neal Stephenson",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781596069268-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Atmosphæra Incognita",
+        "author": "Neal Stephenson",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8746018-L.jpg"
+      }
+    ]
+  },
+  "atomic-habits-an-easy-proven-way-to-buil": {
+    "status": "missing",
+    "timestamp": 1786754380036,
+    "options": []
+  },
+  "awareness-the-perils-and-opportunities-o": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754045756,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Awareness: The Perils and Opportunities of Reality",
+        "author": "Anthony de Mello",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780385249379-L.jpg"
+      }
+    ]
+  },
+  "becoming-steve-jobs-the-evolution-of-a-r": {
+    "status": "failed",
+    "timestamp": 1786754382453,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Becoming Steve Jobs: The Evolution of a Reckless Upstart into a Visionary Leader",
+        "author": "Brent Schlender",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780385347419-L.jpg"
+      }
+    ]
+  },
+  "between-the-world-and-me-one-world-essen": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754049037,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Between the World and Me (One World Essentials)",
+        "author": "Ta-Nehisi Coates",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780679645986-L.jpg"
+      }
+    ]
+  },
+  "blink-the-power-of-thinking-without-thin": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754050551,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Blink: The Power of Thinking Without Thinking",
+        "author": "Malcolm Gladwell",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780316010665-L.jpg"
+      }
+    ]
+  },
+  "born-standing-up-a-comic-s-life": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754053036,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Born Standing Up: A Comic's Life",
+        "author": "Steve  Martin",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781416553649-L.jpg"
+      }
+    ]
+  },
+  "born-a-crime-stories-from-a-south-africa": {
+    "status": "missing",
+    "timestamp": 1786754385032,
+    "options": []
+  },
+  "built-to-last-successful-habits-of-visio": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754055937,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Built to Last: Successful Habits of Visionary Companies",
+        "author": "Jim Collins",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780060566104-L.jpg"
+      }
+    ]
+  },
+  "business-model-generation-a-handbook-for": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754060278,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Business Model Generation: A Handbook for Visionaries, Game Changers, and Challengers (The Strategyzer series)",
+        "author": "Alexander Osterwalder",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780470876411-L.jpg"
+      }
+    ]
+  },
+  "buzzmarketing-get-people-to-talk-about-y": {
+    "status": "failed",
+    "timestamp": 1786754388642,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Buzzmarketing: Get People to Talk About Your Stuff",
+        "author": "Mark Hughes",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781101218402-L.jpg"
+      }
+    ]
+  },
+  "cat-s-cradle": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754062690,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Cat's Cradle",
+        "author": "Kurt Vonnegut",
+        "coverUrl": "https://covers.openlibrary.org/b/id/12709654-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Player Piano / The Sirens of Titan / Mother Night / Cat's Cradle / God Bless You, Mr. Rosewater / Slaughterhouse-Five / Breakfast of Champions / Slapstick / Jailbird / Deadeye Dick / Galapagos / Bluebeard / Hocus Pocus / Timequake",
+        "author": "Kurt Vonnegut",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8435398-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Sirens of Titan / Cat's Cradle",
+        "author": "Kurt Vonnegut",
+        "coverUrl": "https://covers.openlibrary.org/b/id/15239206-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Cat's Cradle / God Bless You, Mr. Rosewater / Slaughterhouse-Five",
+        "author": "Kurt Vonnegut",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11961203-L.jpg"
+      }
+    ]
+  },
+  "change-principles-of-problem-formation-a": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754064420,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Change: Principles of Problem Formation and Problem Resolution",
+        "author": "Paul Watzlawick",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780393707212-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Change; principles of problem formation and problem resolution",
+        "author": "Paul Watzlawick",
+        "coverUrl": "https://covers.openlibrary.org/b/id/246596-L.jpg"
+      }
+    ]
+  },
+  "coaching-kids-to-play-soccer": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754065790,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Coaching Kids to Play Soccer",
+        "author": "Kurt Aschermann",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780671639365-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Coaching kids to play soccer",
+        "author": "Jim San Marco",
+        "coverUrl": "https://covers.openlibrary.org/b/id/407012-L.jpg"
+      }
+    ]
+  },
+  "contagious-why-things-catch-on": {
+    "status": "failed",
+    "timestamp": 1786754390944,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Contagious: Why Things Catch On",
+        "author": "Jonah Berger",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781451686593-L.jpg"
+      }
+    ]
+  },
+  "creativity-inc-overcoming-the-unseen-for": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754068616,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Creativity, Inc.: Overcoming the Unseen Forces That Stand in the Way of True Inspiration",
+        "author": "Ed Catmull",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780812993011-L.jpg"
+      }
+    ]
+  },
+  "crimes-and-punishments-in-the-21st-centu": {
+    "status": "failed",
+    "timestamp": 1786754392352,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Crimes and Punishments: In the 21st Century",
+        "author": "Michael Wood",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781370325283-L.jpg"
+      }
+    ]
+  },
+  "crossing-the-chasm-marketing-and-selling": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754071081,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Crossing the Chasm: Marketing and Selling High-Tech Products to Mainstream Customers",
+        "author": "Geoffrey A. Moore",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780887307171-L.jpg"
+      }
+    ]
+  },
+  "cryptonomicon": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754071983,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Cryptonomicon",
+        "author": "Neal Stephenson",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6424001-L.jpg"
+      }
+    ]
+  },
+  "culpability": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754073122,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Culpability",
+        "author": "Bruce Holsinger",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781954118966-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Culpability",
+        "author": "Bruce Holsinger",
+        "coverUrl": "https://covers.openlibrary.org/b/id/15104477-L.jpg"
+      }
+    ]
+  },
+  "dare-to-lead": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754075177,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Dare to Lead",
+        "author": "Brené Brown",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781473562523-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Dare to lead",
+        "author": "Brené Brown",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10304768-L.jpg"
+      }
+    ]
+  },
+  "daring-greatly-how-the-courage-to-be-vul": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754076847,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Daring Greatly: How the Courage to Be Vulnerable Transforms the Way We Live, Love, Parent, and Lead",
+        "author": "Brené Brown",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781592407330-L.jpg"
+      }
+    ]
+  },
+  "design-like-you-give-a-damn-architectura": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754078975,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Design Like You Give A Damn: Architectural Responses To Humanitarian Crises",
+        "author": "Architecture For Humanity",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781933045252-L.jpg"
+      }
+    ]
+  },
+  "designing-your-life-how-to-build-a-well-": {
+    "status": "failed",
+    "timestamp": 1786754397490,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Designing Your Life: How to Build a Well-lived, Joyful Life",
+        "author": "Bill Burnett",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780451494085-L.jpg"
+      }
+    ]
+  },
+  "don-t-make-me-think-a-common-sense-appro": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754082429,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Don't Make Me Think: A Common Sense Approach to Web Usability",
+        "author": "Steve Krug",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780321344755-L.jpg"
+      }
+    ]
+  },
+  "down-and-out-in-the-magic-kingdom": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754084040,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Down and Out in the Magic Kingdom",
+        "author": "Cory Doctorow",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780765309532-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Down and out in the Magic Kingdom",
+        "author": "Cory Doctorow",
+        "coverUrl": "https://covers.openlibrary.org/b/id/524060-L.jpg"
+      }
+    ]
+  },
+  "drive-the-surprising-truth-about-what-mo": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754085196,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Drive: The Surprising Truth About What Motivates Us",
+        "author": "Daniel H. Pink",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781594488849-L.jpg"
+      }
+    ]
+  },
+  "eastern-standard-tribe": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754086962,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Eastern Standard Tribe",
+        "author": "Cory Doctorow",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780765310453-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Eastern standard tribe",
+        "author": "Cory Doctorow",
+        "coverUrl": "https://covers.openlibrary.org/b/id/524280-L.jpg"
+      }
+    ]
+  },
+  "eat-that-frog-21-great-ways-to-stop-proc": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754088404,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Eat That Frog! 21 Great Ways to Stop Procrastinating and Get More Done in Less Time",
+        "author": "Brian Tracy",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781574534399-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Eat That Frog! 21 Great Ways to Stop Procrastinating and Get More Done in Less Time",
+        "author": "Brian Tracy",
+        "coverUrl": "https://covers.openlibrary.org/b/id/847534-L.jpg"
+      }
+    ]
+  },
+  "everything-is-perfect-when-you-re-a-liar": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754089421,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Everything is perfect when you're a liar",
+        "author": "Kelly Oxford",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10753347-L.jpg"
+      }
+    ]
+  },
+  "evil-genius-genius-1": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754090936,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Evil Genius (Genius, #1)",
+        "author": "Catherine Jinks",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780547416137-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Evil Genius (Genius #1)",
+        "author": "Catherine Jinks",
+        "coverUrl": "https://covers.openlibrary.org/b/id/4859458-L.jpg"
+      }
+    ]
+  },
+  "fall-or-dodge-in-hell": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754092023,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Fall; or, Dodge in Hell",
+        "author": "Neal Stephenson",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8742303-L.jpg"
+      }
+    ]
+  },
+  "follow-the-line": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754093960,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Follow the Line",
+        "author": "Laura Ljungkvist",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780670060498-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Follow the line",
+        "author": "Laura Ljungkvist",
+        "coverUrl": "https://covers.openlibrary.org/b/id/401045-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Follow the Line through the House",
+        "author": "Laura Ljungkvist",
+        "coverUrl": "https://covers.openlibrary.org/b/id/1333432-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Follow the Line to School",
+        "author": "Laura Ljungkvist",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6874155-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Follow the Line Around the World",
+        "author": "Laura Ljungkvist",
+        "coverUrl": "https://covers.openlibrary.org/b/id/2547019-L.jpg"
+      }
+    ]
+  },
+  "genius-squad-genius-2": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754095927,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Genius Squad (Genius, #2)",
+        "author": "Catherine Jinks",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780547416045-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Genius squad (Genius #2)",
+        "author": "Catherine Jinks",
+        "coverUrl": "https://covers.openlibrary.org/b/id/2325449-L.jpg"
+      }
+    ]
+  },
+  "getting-things-done-the-art-of-stress-fr": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754097844,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Getting Things Done: The Art of Stress-Free Productivity",
+        "author": "David    Allen",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780142000281-L.jpg"
+      }
+    ]
+  },
+  "golden-son-red-rising-saga-2": {
+    "status": "missing",
+    "timestamp": 1786754404841,
+    "options": []
+  },
+  "hackers-painters-big-ideas-from-the-comp": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754101160,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Hackers & Painters: Big Ideas from the Computer Age",
+        "author": "Paul    Graham",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780596006624-L.jpg"
+      }
+    ]
+  },
+  "hatching-twitter-a-true-story-of-money-p": {
+    "status": "failed",
+    "timestamp": 1786754408006,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Hatching Twitter: A True Story of Money, Power, Friendship, and Betrayal",
+        "author": "Nick Bilton",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781101605233-L.jpg"
+      }
+    ]
+  },
+  "helping-people-win-at-work-a-business-ph": {
+    "status": "missing",
+    "timestamp": 1786754409231,
+    "options": []
+  },
+  "high-output-management": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754113911,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "High Output Management",
+        "author": "Andrew S. Grove",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780679762881-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "High Output Management",
+        "author": "Andrew S. Grove",
+        "coverUrl": "https://covers.openlibrary.org/b/id/421244-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "High Output Management",
+        "author": "Andrew S. Grove",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11427954-L.jpg"
+      }
+    ]
+  },
+  "high-tech-start-up-revised-and-updated-t": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754115419,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "High Tech Start Up, Revised and Updated: The Complete Handbook For Creating Successful New High Tech Companies",
+        "author": "John L. Nesheim",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780684871707-L.jpg"
+      }
+    ]
+  },
+  "how-to-absurd-scientific-advice-for-comm": {
+    "status": "failed",
+    "timestamp": 1786754412191,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "How To: Absurd Scientific Advice for Common Real-World Problems",
+        "author": "Randall Munroe",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781473680333-L.jpg"
+      }
+    ]
+  },
+  "how-to-raise-an-adult-break-free-of-the-": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754119329,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "How to Raise an Adult: Break Free of the Overparenting Trap and Prepare Your Kid for Success",
+        "author": "Julie Lythcott-Haims",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781627791779-L.jpg"
+      }
+    ]
+  },
+  "how-to-win-friends-influence-people": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754121166,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "How to Win Friends and Influence People",
+        "author": "Dale Carnegie",
+        "coverUrl": "https://covers.openlibrary.org/b/id/13314878-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "How to Win Friends and Influence People in the Digital Age",
+        "author": "The Dale Carnegie Organization",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9095869-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "How to Win Friends and Influence People / How to stop worrying and start living",
+        "author": "Dale Carnegie",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6549931-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Dale Carnegie's Radio Program: How to Win Friends and Influence People - Lesson 1",
+        "author": "Dale Carnegie",
+        "coverUrl": "https://covers.openlibrary.org/b/id/2292451-L.jpg"
+      }
+    ]
+  },
+  "implementing-value-pricing-a-radical-bus": {
+    "status": "missing",
+    "timestamp": 1786754415192,
+    "options": []
+  },
+  "in-camera-perfect-pictures-straight-out-": {
+    "status": "failed",
+    "timestamp": 1786754416736,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "In Camera: Perfect Pictures Straight out of the Camera",
+        "author": "Gordon J. Laing",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781781573617-L.jpg"
+      }
+    ]
+  },
+  "inbox-freedom-the-zen-master-s-guide-to-": {
+    "status": "missing",
+    "timestamp": 1786754417428,
+    "options": []
+  },
+  "inspired-how-to-create-products-customer": {
+    "status": "failed",
+    "timestamp": 1786754418461,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Inspired: How To Create Products Customers Love",
+        "author": "Marty Cagan",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780981690414-L.jpg"
+      }
+    ]
+  },
+  "it-will-be-exhilarating-indie-capitalism": {
+    "status": "failed",
+    "timestamp": 1786754419470,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "It Will Be Exhilarating: Indie Capitalism and Design Entrepreneurship in the 21st Century",
+        "author": "Dan  Provost",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780986020902-L.jpg"
+      }
+    ]
+  },
+  "landfall": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754128415,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Landfall, a channel story",
+        "author": "Nevil Shute",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9406145-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "LANDFALL",
+        "author": "Shute,Nevil",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14892131-L.jpg"
+      }
+    ]
+  },
+  "legacy-of-ashes-the-history-of-the-cia": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754130059,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Legacy of Ashes: The History of the CIA",
+        "author": "Tim Weiner",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780385514453-L.jpg"
+      }
+    ]
+  },
+  "lincoln-in-the-bardo": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754131720,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Lincoln in the Bardo",
+        "author": "George Saunders",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780812995343-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Lincoln in the Bardo",
+        "author": "George Saunders",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7909378-L.jpg"
+      }
+    ]
+  },
+  "mba-in-a-day-what-you-would-learn-at-top": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754133313,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "MBA In A Day: What You Would Learn At Top-Tier Business Schools (If You Only Had The Time!)",
+        "author": "Steven Stralser",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780471680543-L.jpg"
+      }
+    ]
+  },
+  "man-s-search-for-meaning": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754136407,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Man's Search for Meaning",
+        "author": "Viktor E. Frankl",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780807014295-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Man's Search for Meaning adapted for Young Adults [adaptation]",
+        "author": "Viktor E. Frankl",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11203708-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Man's Search for Ultimate Meaning",
+        "author": "Viktor E. Frankl",
+        "coverUrl": "https://covers.openlibrary.org/b/id/465226-L.jpg"
+      }
+    ]
+  },
+  "mastery-the-keys-to-success-and-long-ter": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754138032,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Mastery: The Keys to Success and Long-Term Fulfillment",
+        "author": "George Leonard",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780452267565-L.jpg"
+      }
+    ]
+  },
+  "meditations-adapted-for-the-contemporary": {
+    "status": "missing",
+    "timestamp": 1786754424605,
+    "options": []
+  },
+  "mindfulness-in-plain-english": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754139762,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Mindfulness in plain English",
+        "author": "Henepola Gunaratana",
+        "coverUrl": "https://covers.openlibrary.org/b/id/4003663-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Mindfulness in plain English",
+        "author": "Henepola Gunaratana",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10701429-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Beyond mindfulness in plain English",
+        "author": "Henepola Gunaratana",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10437518-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Mindfulness in plain English",
+        "author": "Henepola Gunaratana",
+        "coverUrl": "https://covers.openlibrary.org/b/id/4003662-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Mindfulness in plain English",
+        "author": "Henepola Gunaratana Bhante",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8015969-L.jpg"
+      }
+    ]
+  },
+  "never-split-the-difference-negotiating-a": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754141156,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Never Split the Difference: Negotiating As If Your Life Depended On It",
+        "author": "Chris Voss",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062407801-L.jpg"
+      }
+    ]
+  },
+  "no-one-cares-what-you-had-for-lunch-100-": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754143174,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "No One Cares What You Had for Lunch: 100 Ideas for Your Blog",
+        "author": "Margaret Mason",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780321449726-L.jpg"
+      }
+    ]
+  },
+  "now-discover-your-strengths-the-revoluti": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754145190,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Now, Discover Your Strengths: The revolutionary Gallup program that shows you how to develop your unique talents and strengths",
+        "author": "Gallup",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780743201148-L.jpg"
+      }
+    ]
+  },
+  "one-day-everyone-will-have-always-been-a": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754147670,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "One Day, Everyone Will Have Always Been Against This",
+        "author": "Omar El Akkad",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780593804148-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "One Day, Everyone Will Have Always Been Against This",
+        "author": "Omar El Akkad",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14833469-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "One Day, Everyone Will Have Always Been Against This",
+        "author": "Omar El Akkad",
+        "coverUrl": "https://covers.openlibrary.org/b/id/15235812-L.jpg"
+      }
+    ]
+  },
+  "one-more-thing-stories-and-other-stories": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754149110,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "One More Thing: Stories and Other Stories",
+        "author": "B.J. Novak",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780385351843-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "One More Thing: Stories and Other Stories",
+        "author": "B. J. Novak",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8768779-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "One More Thing: Stories and Other Stories",
+        "author": "B. J. Novak",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8568101-L.jpg"
+      }
+    ]
+  },
+  "orbiting-the-giant-hairball-a-corporate-": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754150789,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Orbiting the Giant Hairball: A Corporate Fool's Guide to Surviving with Grace",
+        "author": "Gordon MacKenzie",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780670879830-L.jpg"
+      }
+    ]
+  },
+  "ordinary-people-extraordinary-wealth-the": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754152527,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Ordinary People, Extraordinary Wealth: The 8 Secrets of How 5,000 Ordinary Americans Became Successful Investors--and How You Can Too",
+        "author": "Ric Edelman",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062736864-L.jpg"
+      }
+    ]
+  },
+  "overheard-in-new-york-conversations-from": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754154763,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Overheard in New York: Conversations from the Streets, Stores, and Subways",
+        "author": "S. Morgan Friedman",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781596092013-L.jpg"
+      }
+    ]
+  },
+  "parable-of-the-talents-earthseed-2": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754156456,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Parable of the Talents (Earthseed, #2)",
+        "author": "Octavia E. Butler",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780446610384-L.jpg"
+      }
+    ]
+  },
+  "photoviz": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754158679,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Photoviz",
+        "author": "Nicholas Felton",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9783899556452-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Photoviz",
+        "author": "Nicholas Felton",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14805807-L.jpg"
+      }
+    ]
+  },
+  "piper-perish": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754160435,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Piper Perish",
+        "author": "Kayla Cagan",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14506860-L.jpg"
+      }
+    ]
+  },
+  "pirate-cinema": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754162001,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Pirate Cinema",
+        "author": "Cory Doctorow",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780765329080-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Pirate Cinema",
+        "author": "Cory Doctorow",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8891269-L.jpg"
+      }
+    ]
+  },
+  "polostan-bomb-light-1": {
+    "status": "missing",
+    "timestamp": 1786754434563,
+    "options": []
+  },
+  "porsche-911-964-enthusiast-s-companion-c": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754164193,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Porsche 911 (964) Enthusiast's Companion: Carrera 2, Carrera 4, and Turbo 1989-1994",
+        "author": "Adrian Streather",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780837602936-L.jpg"
+      }
+    ]
+  },
+  "postsecret-extraordinary-confessions-fro": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754166439,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "PostSecret: Extraordinary Confessions from Ordinary Lives (PostSecret)",
+        "author": "Frank Warren",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780060899196-L.jpg"
+      }
+    ]
+  },
+  "pragmatics-of-human-communication-a-stud": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754167904,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Pragmatics of Human Communication: A Study of Interactional Patterns, Pathologies and Paradoxes",
+        "author": "Paul Watzlawick",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780393010091-L.jpg"
+      }
+    ]
+  },
+  "ready-player-one-ready-player-one-1": {
+    "status": "missing",
+    "timestamp": 1786754437774,
+    "options": []
+  },
+  "rick-steves-best-of-europe": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754170849,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Rick Steves' Best of Europe",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781566918077-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves 2013 Best Of Europe",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7785752-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves' best of Europe 2015",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9808553-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves' Best of Europe 2008 (Rick Steves)",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/1906041-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves' Best of Europe 2012",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7927676-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves Best of Europe",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14678052-L.jpg"
+      }
+    ]
+  },
+  "rick-steves-europe-through-the-back-door": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754172165,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Rick Steves' Europe Through the Back Door",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781566918084-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves' Europe through the back door 2007",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/808567-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves' Europe Through the Back Door 2003",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/808392-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves Europe through the back door 2017",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/13095921-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves' Europe through the back door 2015",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9949502-L.jpg"
+      }
+    ]
+  },
+  "rick-steves-france-2007": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754173686,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Rick Steves' France 2007",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781566918114-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Rick Steves' France 2007",
+        "author": "Rick Steves",
+        "coverUrl": "https://covers.openlibrary.org/b/id/808569-L.jpg"
+      }
+    ]
+  },
+  "rising-strong-the-reckoning-the-rumble-t": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754175276,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Rising Strong: The Reckoning. The Rumble. The Revolution",
+        "author": "Brené Brown",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780812995824-L.jpg"
+      }
+    ]
+  },
+  "seveneves": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754179290,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Seveneves",
+        "author": "Neal Stephenson",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9295719-L.jpg"
+      }
+    ]
+  },
+  "shoe-dog-a-memoir-by-the-creator-of-nike": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754181485,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Shoe Dog: A Memoir by the Creator of Nike",
+        "author": "Phil Knight",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781501135910-L.jpg"
+      }
+    ]
+  },
+  "small-fry-a-memoir": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754182989,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Small Fry: A Memoir",
+        "author": "Lisa Brennan-Jobs",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780802128232-L.jpg"
+      }
+    ]
+  },
+  "snow-crash": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754184201,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Snow Crash",
+        "author": "Neal Stephenson",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780553380958-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Snow Crash",
+        "author": "Neal Stephenson",
+        "coverUrl": "https://covers.openlibrary.org/b/id/392508-L.jpg"
+      }
+    ]
+  },
+  "someone-comes-to-town-someone-leaves-tow": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754185584,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Someone Comes to Town, Someone Leaves Town",
+        "author": "Cory Doctorow",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780765312808-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Someone Comes to Town, Someone Leaves Town",
+        "author": "Cory Doctorow",
+        "coverUrl": "https://covers.openlibrary.org/b/id/524591-L.jpg"
+      }
+    ]
+  },
+  "sprint-how-to-solve-big-problems-and-tes": {
+    "status": "failed",
+    "timestamp": 1786754444594,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Sprint: How to Solve Big Problems and Test New Ideas in Just Five Days",
+        "author": "Jake Knapp",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781501121777-L.jpg"
+      }
+    ]
+  },
+  "steve-jobs": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754189371,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Steve Jobs",
+        "author": "Walter Isaacson",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781451648539-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Steve Jobs",
+        "author": "Walter Isaacson",
+        "coverUrl": "https://covers.openlibrary.org/b/id/12374726-L.jpg"
+      }
+    ]
+  },
+  "super-sad-true-love-story": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754190588,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Super sad true love story",
+        "author": "Gary Shteyngart",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6714054-L.jpg"
+      }
+    ]
+  },
+  "take-your-kids-to-europe-how-to-travel-s": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754193140,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Take Your Kids To Europe: How To Travel Safely (and Sanely) In Europe With Your Children",
+        "author": "Cynthia Harriman",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780762738922-L.jpg"
+      }
+    ]
+  },
+  "tenth-of-december": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754194637,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Tenth of December",
+        "author": "George Saunders",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8346437-L.jpg"
+      }
+    ]
+  },
+  "termination-shock": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754196221,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Termination Shock",
+        "author": "Neal Stephenson",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780063028050-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Termination Shock",
+        "author": "Neal Stephenson",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11412286-L.jpg"
+      }
+    ]
+  },
+  "the-4-hour-workweek": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754197818,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The 4-Hour Workweek",
+        "author": "Timothy Ferriss",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780307353139-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The 4-Hour Workweek",
+        "author": "Timothy Ferriss",
+        "coverUrl": "https://covers.openlibrary.org/b/id/539652-L.jpg"
+      }
+    ]
+  },
+  "the-accidental-superpower-the-next-gener": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754199342,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Accidental Superpower: The Next Generation of American Preeminence and the Coming Global Disorder",
+        "author": "Peter Zeihan",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781455583669-L.jpg"
+      }
+    ]
+  },
+  "the-age-of-the-platform-how-amazon-apple": {
+    "status": "failed",
+    "timestamp": 1786754450090,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Age of the Platform: How Amazon, Apple, Facebook, and Google Have Redefined Business",
+        "author": "Phil Simon",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780982930267-L.jpg"
+      }
+    ]
+  },
+  "the-baffled-parent-s-guide-to-coaching-y": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754203066,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Baffled Parent's Guide to Coaching Youth Soccer",
+        "author": "Bobby Clark",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780071346085-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The baffled parent's guide to coaching youth soccer",
+        "author": "Bobby Clark",
+        "coverUrl": "https://covers.openlibrary.org/b/id/56502-L.jpg"
+      }
+    ]
+  },
+  "the-beastie-boys-paul-s-boutique": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754204144,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Beastie Boys' Paul's Boutique, The",
+        "author": "Dan LeRoy",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11815972-L.jpg"
+      }
+    ]
+  },
+  "s1-the-beatles-anthology": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754205662,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Beatles Anthology",
+        "author": null,
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/0811826848-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Beatles anthology",
+        "author": "Beatles.",
+        "coverUrl": "https://covers.openlibrary.org/b/id/600335-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Beatles Anthology",
+        "author": "The Beatles",
+        "coverUrl": "https://covers.openlibrary.org/b/id/2356601-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The \"Beatles\" Anthology",
+        "author": "\"Beatles\"",
+        "coverUrl": "https://covers.openlibrary.org/b/id/888333-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Beatles Anthology",
+        "author": "The Beatles",
+        "coverUrl": "https://covers.openlibrary.org/b/id/964395-L.jpg"
+      }
+    ]
+  },
+  "the-checklist-manifesto-how-to-get-thing": {
+    "status": "failed",
+    "timestamp": 1786754453551,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Checklist Manifesto: How to Get Things Right",
+        "author": "Atul Gawande",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781429953382-L.jpg"
+      }
+    ]
+  },
+  "the-conscious-parent-transforming-oursel": {
+    "status": "failed",
+    "timestamp": 1786754455886,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Conscious Parent: Transforming Ourselves, Emowering Our Children",
+        "author": "Shefali Tsabary",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781897238592-L.jpg"
+      }
+    ]
+  },
+  "the-future-was-now-madmen-mavericks-and-": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754212608,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Future Was Now: Madmen, Mavericks, and the Epic Sci-Fi Summer of 1982",
+        "author": "Chris Nashawaty",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781250827050-L.jpg"
+      }
+    ]
+  },
+  "the-grown-up-s-guide-to-teenage-humans-h": {
+    "status": "failed",
+    "timestamp": 1786754458941,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Grown-Up's Guide to Teenage Humans: How to Decode Their Behavior, Develop Unshakable Trust, and Raise a Respectable Adult",
+        "author": "Josh Shipp",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062654083-L.jpg"
+      }
+    ]
+  },
+  "the-history-of-stand-up-from-mark-twain-": {
+    "status": "missing",
+    "timestamp": 1786754460082,
+    "options": []
+  },
+  "the-hitchhiker-s-guide-to-the-galaxy-the": {
+    "status": "missing",
+    "timestamp": 1786754461162,
+    "options": []
+  },
+  "the-house-of-wigs": {
+    "status": "missing",
+    "timestamp": 1786754462090,
+    "options": []
+  },
+  "the-information-diet-a-case-for-consciou": {
+    "status": "failed",
+    "timestamp": 1786754463223,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Information Diet: A Case for Conscious Consumption",
+        "author": "Clay A. Johnson",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781449321543-L.jpg"
+      }
+    ]
+  },
+  "the-martian": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754220301,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The Martian",
+        "author": "Andy Weir",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11447888-L.jpg"
+      }
+    ]
+  },
+  "the-martian-chronicles": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754221738,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Martian Chronicles",
+        "author": "Ray Bradbury",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780553278224-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Martian Chronicles",
+        "author": "Ray Bradbury",
+        "coverUrl": "https://covers.openlibrary.org/b/id/9346537-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "Works (Golden Apples of the Sun / Illustrated Man / Martian Chronicles)",
+        "author": "Ray Bradbury",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6717244-L.jpg"
+      }
+    ]
+  },
+  "the-mcgraw-hill-36-hour-course-in-financ": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754223489,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The McGraw-Hill 36-Hour Course in Finance for Non-Financial Managers",
+        "author": "Robert A. Cooke",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780071425469-L.jpg"
+      }
+    ]
+  },
+  "the-mindbody-prescription-healing-the-bo": {
+    "status": "missing",
+    "timestamp": 1786754465850,
+    "options": []
+  },
+  "the-minto-pyramid-principle-logic-in-wri": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754225480,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Minto Pyramid Principle: Logic in Writing, Thinking, & Problem Solving",
+        "author": "Barbara Minto",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780960191031-L.jpg"
+      }
+    ]
+  },
+  "the-name-of-this-band-is-r-e-m": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754226722,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Name of This Band Is R.E.M.",
+        "author": "Peter Ames Carlin",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780385546942-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Name of This Band is R.E.M.",
+        "author": "Peter Ames Carlin",
+        "coverUrl": "https://covers.openlibrary.org/b/id/14829351-L.jpg"
+      }
+    ]
+  },
+  "the-nickel-boys": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754227811,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The Nickel Boys",
+        "author": "Colson Whitehead",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8747820-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The Nickel Boys",
+        "author": "Colson Whitehead",
+        "coverUrl": "https://covers.openlibrary.org/b/id/15189533-L.jpg"
+      }
+    ]
+  },
+  "the-power-of-habit-why-we-do-what-we-do-": {
+    "status": "missing",
+    "timestamp": 1786754468139,
+    "options": []
+  },
+  "the-subtle-art-of-not-giving-a-f-ck-a-co": {
+    "status": "failed",
+    "timestamp": 1786754470114,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Subtle Art of Not Giving a F*ck: A Counterintuitive Approach to Living a Good Life",
+        "author": "Mark Manson",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9798804636129-L.jpg"
+      }
+    ]
+  },
+  "the-ten-faces-of-innovation-ideo-s-strat": {
+    "status": "missing",
+    "timestamp": 1786754471058,
+    "options": []
+  },
+  "the-tipping-point-how-little-things-can-": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754472122,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "The Tipping Point: How Little Things Can Make a Big Difference",
+        "author": "Malcolm Gladwell",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/0316346624-L.jpg"
+      }
+    ]
+  },
+  "the-world-without-us": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754232975,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "The World Without Us",
+        "author": "Alan Weisman",
+        "coverUrl": "https://covers.openlibrary.org/b/id/6981028-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "The World Without Us",
+        "author": "Alan Weisman",
+        "coverUrl": "https://covers.openlibrary.org/b/id/15142782-L.jpg"
+      }
+    ]
+  },
+  "these-days": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754233616,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "These Days",
+        "author": "Jack Cheng",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7266706-L.jpg"
+      }
+    ]
+  },
+  "this-fight-is-our-fight-the-battle-to-sa": {
+    "status": "missing",
+    "timestamp": 1786754473984,
+    "options": []
+  },
+  "trillion-dollar-coach-the-leadership-pla": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754236704,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Trillion Dollar Coach: The Leadership Playbook of Silicon Valley's Bill Campbell",
+        "author": "Eric Schmidt",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062839268-L.jpg"
+      }
+    ]
+  },
+  "twitter-wit-brilliance-in-140-characters": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754238181,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Twitter Wit: Brilliance in 140 Characters or Less – The Authorized Collection of Clever Celebrity Comedy",
+        "author": "Nick   Douglas",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780061897276-L.jpg"
+      }
+    ]
+  },
+  "unjournaling-daily-writing-exercises-tha": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754239609,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Unjournaling: Daily Writing Exercises That Are Not Personal, Not Introspective, Not Boring!",
+        "author": "Dawn DiPrince",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781877673702-L.jpg"
+      }
+    ]
+  },
+  "user-story-mapping-discover-the-whole-st": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754241385,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "User Story Mapping: Discover the Whole Story, Build the Right Product",
+        "author": "Jeff Patton",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781491904909-L.jpg"
+      }
+    ]
+  },
+  "van-gogh-the-life": {
+    "status": "missing",
+    "timestamp": 1786754476632,
+    "options": []
+  },
+  "vaporized-solid-strategies-for-success-i": {
+    "status": "failed",
+    "timestamp": 1786754477735,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Vaporized: Solid Strategies for Success in a Dematerialized World",
+        "author": "Robert Tercek",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781928055051-L.jpg"
+      }
+    ]
+  },
+  "wtf-what-s-the-future-and-why-it-s-up-to": {
+    "status": "failed",
+    "timestamp": 1786754479224,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "WTF?: What's the Future and Why It's Up to Us",
+        "author": "Tim O'Reilly",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780062565716-L.jpg"
+      }
+    ]
+  },
+  "walkaway": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754246580,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Walkaway",
+        "author": "Cory Doctorow",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8458597-L.jpg"
+      }
+    ]
+  },
+  "way-of-the-peaceful-warrior-a-book-that-": {
+    "status": "failed",
+    "timestamp": 1786754481351,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Way of the Peaceful Warrior: A Book That Changes Lives",
+        "author": "Dan Millman",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780982428504-L.jpg"
+      }
+    ]
+  },
+  "we-are-all-made-of-molecules": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754249212,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "We Are All Made of Molecules",
+        "author": "Susin Nielsen",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780553496888-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "We Are All Made of Molecules",
+        "author": "Susin Nielsen",
+        "coverUrl": "https://covers.openlibrary.org/b/id/8469819-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "We are all made of molecules",
+        "author": "Susin Nielsen",
+        "coverUrl": "https://covers.openlibrary.org/b/id/7383450-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "We Are All Made of Molecules",
+        "author": "Susin Nielsen",
+        "coverUrl": "https://covers.openlibrary.org/b/id/11741550-L.jpg"
+      },
+      {
+        "source": "openlibrary",
+        "title": "We are all made of molecules",
+        "author": "Susin Nielsen",
+        "coverUrl": "https://covers.openlibrary.org/b/id/10172547-L.jpg"
+      }
+    ]
+  },
+  "weapons-of-math-destruction-how-big-data": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754251593,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Weapons of Math Destruction: How Big Data Increases Inequality and Threatens Democracy",
+        "author": "Cathy O'Neil",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780553418811-L.jpg"
+      }
+    ]
+  },
+  "web-form-design-filling-in-the-blanks": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754254397,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Web Form Design: Filling in the Blanks",
+        "author": "Luke Wroblewski",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781933820248-L.jpg"
+      }
+    ]
+  },
+  "what-to-expect-when-you-re-expecting-rob": {
+    "status": "failed",
+    "timestamp": 1786754484728,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "What To Expect When You're Expecting Robots: The Future of Human-Robot Collaboration",
+        "author": "Laura  Major",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9781541699113-L.jpg"
+      }
+    ]
+  },
+  "whiplash-how-to-survive-our-faster-futur": {
+    "status": "missing",
+    "timestamp": 1786754485277,
+    "options": []
+  },
+  "who-let-the-blogs-out-a-hyperconnected-p": {
+    "status": "ok",
+    "source": "openlibrary-isbn",
+    "timestamp": 1786754258931,
+    "options": [
+      {
+        "source": "openlibrary-isbn",
+        "title": "Who Let the Blogs Out?: A Hyperconnected Peek at the World of Weblogs",
+        "author": "Biz Stone",
+        "coverUrl": "https://covers.openlibrary.org/b/isbn/9780312330002-L.jpg"
+      }
+    ]
+  },
+  "who-says-elephants-can-t-dance-leading-a": {
+    "status": "missing",
+    "timestamp": 1786754487000,
+    "options": []
+  },
+  "yesteryear": {
+    "status": "ok",
+    "source": "openlibrary",
+    "timestamp": 1786754260784,
+    "options": [
+      {
+        "source": "openlibrary",
+        "title": "Yesteryear",
+        "author": "Caro Claire Burke",
+        "coverUrl": "https://covers.openlibrary.org/b/id/15234864-L.jpg"
       }
     ]
   }
