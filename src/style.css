@@ -1299,3 +1299,40 @@ input.drawer-title:hover:not(:focus), input.drawer-author:hover:not(:focus),
 .toast-error {
   background: var(--accent);
 }
+
+/* Unprotected-deploy warning: hosted with no password set */
+.unprotected-banner {
+  background: var(--accent);
+  color: var(--paper);
+  border-bottom: var(--rule);
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.unprotected-banner strong {
+  font-family: var(--display);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--highlight);
+  color: var(--ink);
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.unprotected-fix {
+  opacity: 0.85;
+}
+
+.unprotected-fix code {
+  font-family: var(--mono);
+  background: var(--ink);
+  color: var(--highlight);
+  padding: 1px 5px;
+}

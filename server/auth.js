@@ -30,6 +30,16 @@ export function authRequired() {
   return !!process.env.BOOKSHELF_PASSWORD
 }
 
+// A hosted deploy is reachable by strangers, so an unset password there is a
+// misconfiguration rather than the deliberate no-login local setup.
+export function isHosted() {
+  return !!(process.env.VERCEL || process.env.SHELF_HOSTED)
+}
+
+export function isUnprotected() {
+  return isHosted() && !authRequired()
+}
+
 export function isWritable(req) {
   const password = process.env.BOOKSHELF_PASSWORD
   if (!password) return true

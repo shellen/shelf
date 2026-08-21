@@ -193,6 +193,7 @@ const state = {
   modalLoading: false,
   modalStatus: null,
   canLogin: false,
+  unprotected: false,
   loggedIn: false,
   loginOpen: false,
   loginError: null,
@@ -455,6 +456,7 @@ function render() {
   }
 
   document.querySelector('#app').innerHTML = `
+    ${renderUnprotectedBanner()}
     <div class="header">
       <div class="header-inner">
         <div class="header-row">
@@ -1017,6 +1019,19 @@ function renderSettingsModal() {
   `
 }
 
+// Shown only on a hosted deploy with no password configured: the shelf is
+// writable by anyone who finds the URL, which is never intentional.
+function renderUnprotectedBanner() {
+  if (!state.unprotected) return ''
+  return `
+    <div class="unprotected-banner" role="alert">
+      <strong>NO PASSWORD SET</strong>
+      <span>Anyone who finds this URL can add, edit, import, or delete everything on this shelf.</span>
+      <span class="unprotected-fix">Set <code>BOOKSHELF_PASSWORD</code> in your host's environment variables (Production scope) and redeploy.</span>
+    </div>
+  `
+}
+
 function renderLoginModal() {
   return `
     <div class="modal-backdrop" data-action="close-login">
@@ -1046,6 +1061,7 @@ async function refreshSession() {
     const res = await fetch('/api/session')
     if (!res.ok) return
     const s = await res.json()
+    state.unprotected = !!s.unprotected
     if (s.authRequired && !s.writable) {
       state.readOnly = true
       state.canLogin = true

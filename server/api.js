@@ -7,7 +7,7 @@ import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
 import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks, getSettings, saveSettings } from './db.js'
-import { authRequired, isWritable, verifyPassword, sessionCookie, clearedCookie } from './auth.js'
+import { authRequired, isWritable, verifyPassword, sessionCookie, clearedCookie, isUnprotected } from './auth.js'
 import { searchMedia } from './lookup.js'
 
 export const app = express()
@@ -27,7 +27,11 @@ app.use('/api', (req, res, next) => {
 
 // GET /api/session - Auth status
 app.get('/api/session', (req, res) => {
-  res.json({ authRequired: authRequired(), writable: isWritable(req) })
+  res.json({
+    authRequired: authRequired(),
+    writable: isWritable(req),
+    unprotected: isUnprotected()
+  })
 })
 
 // POST /api/login - Start a session

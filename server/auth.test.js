@@ -35,7 +35,7 @@ const post = (url, body, cookie) => fetch(`${base}${url}`, {
 describe('with BOOKSHELF_PASSWORD set', () => {
   it('reports auth in the session endpoint', async () => {
     const s = await (await fetch(`${base}/api/session`)).json()
-    expect(s).toEqual({ authRequired: true, writable: false })
+    expect(s).toEqual({ authRequired: true, writable: false, unprotected: false })
   })
 
   it('leaves reads public', async () => {
