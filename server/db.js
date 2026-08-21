@@ -7,6 +7,7 @@ import { createClient } from '@libsql/client'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
+import { isHosted } from './auth.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
@@ -254,6 +255,12 @@ export async function probeDatabase() {
     kind: process.env.TURSO_DATABASE_URL ? 'turso' : 'file',
     readable: false,
     writable: false
+  }
+
+  // A hosted shelf on a file database is always a misconfiguration: the file
+  // lives in the read-only deployment bundle, so it reads but never writes.
+  if (result.kind === 'file' && isHosted()) {
+    result.hint = 'TURSO_DATABASE_URL is not set, so this deploy is using a file database baked into the read-only bundle. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN, then redeploy.'
   }
 
   try {
