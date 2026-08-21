@@ -13,6 +13,7 @@
     "fetch-covers": "node scripts/fetch-covers.js",
     "add-book": "node scripts/add-book.js",
     "password": "node scripts/gen-password.js",
+    "setup": "node scripts/setup-vercel.js",
     "db:migrate": "node scripts/migrate-json.js"
   },
   "dependencies": {

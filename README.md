@@ -10,23 +10,72 @@ Name it yours — set *"Mary Steiner's Shelf"* in settings and it takes over the
 
 ## Deploy your own (free, no credit card)
 
-Shelf's hosted mode runs on **Vercel** (app + API) and **Turso** (database) — both free tiers, neither asks for a card.
+Shelf's hosted mode runs on **Vercel** (app + API) and **Turso** (database) —
+both free tiers, neither asks for a card.
 
-**1. Create the database** — sign up at [turso.tech](https://turso.tech), then:
+**Vercel's deploy button does not create the database.** It only collects
+environment-variable values, so a shelf deployed by button alone starts up
+read-only: it can read the empty schema baked into the build and cannot write a
+thing. Turso has to be provisioned separately. There are two honest ways to do
+that.
+
+### The one-command path (recommended)
+
+Install the two CLIs, point them at a project, and let setup do the rest:
+
+```bash
+npm i -g vercel && vercel login
+curl -sSfL https://get.tur.so/install.sh | bash && turso auth signup
+
+git clone https://github.com/shellen/shelf && cd shelf && npm install
+vercel link            # create or pick the Vercel project
+npm run setup          # everything below, in one go
+```
+
+`npm run setup` creates the Turso database, reads back its URL and token, asks
+for your sign-in email, generates a password, writes all four variables to
+Vercel's Production environment, and deploys. It prints the generated password
+once at the end — store it then, because nothing keeps a copy.
+
+```
+npm run setup -- --dry-run      # show what it would do, run nothing
+npm run setup -- --db my-books  # a different database name
+npm run setup -- --no-deploy    # set the variables, deploy later
+```
+
+Re-running it is safe: it reuses an existing database and replaces the
+variables rather than failing on them.
+
+### The button path
+
+Use this when you already have a Turso database and its two values to hand.
+Create them first:
 
 ```bash
 turso db create shelf
 turso db show shelf --url          # → TURSO_DATABASE_URL
 turso db tokens create shelf       # → TURSO_AUTH_TOKEN
+npm run password                   # → SHELF_PASSWORD
 ```
 
-**2. Deploy** — click, then paste the two Turso values and choose your sign-in email and password:
+Then click, and paste all four when prompted:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fshellen%2Fshelf&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,SHELF_OWNER_EMAIL,SHELF_PASSWORD&envDescription=Turso%20database%20URL%20and%20token%2C%20plus%20the%20email%20and%20password%20that%20unlock%20editing&project-name=shelf&repository-name=shelf)
 
-**3. Move in** — open your app, log in, and import your Goodreads library or start quick-adding titles.
+Miss the Turso pair and the deploy succeeds but the shelf cannot be written to.
 
-Anyone can browse your shelf; only you, signed in with your email and password, can change it. A hosted shelf with no credentials set is read-only — forgetting to configure sign-in leaves your shelf locked, never open. The schema bootstraps itself on first run — there is no step four.
+### Checking it worked
+
+Sign in, then open `/api/health` in the same browser:
+
+```json
+{"status":"ok","database":{"kind":"turso","readable":true,"writable":true}}
+```
+
+`"kind":"file"` means `TURSO_DATABASE_URL` never reached the deployment, and the
+probe says so in a `hint`. Anyone can browse your shelf; only you, signed in with
+your email and password, can change it. A hosted shelf with no credentials set is
+read-only — forgetting to configure sign-in leaves your shelf locked, never open.
 
 | Env var | What it does |
 |---|---|
@@ -35,19 +84,18 @@ Anyone can browse your shelf; only you, signed in with your email and password, 
 | `SHELF_OWNER_EMAIL` | The email you sign in with |
 | `SHELF_PASSWORD` | The password you sign in with |
 
-Both halves are needed to unlock editing. Set neither and a hosted shelf stays
-read-only; running locally, they are optional and the shelf is writable with no
-login. `BOOKSHELF_PASSWORD` is still read as a fallback for instances deployed
-under the older name.
+Both sign-in halves are needed to unlock editing. Set neither and a hosted shelf
+stays read-only; running locally, they are optional and the shelf is writable
+with no login. `BOOKSHELF_PASSWORD` is still read as a fallback for instances
+deployed under the older name.
 
-Setting them from the CLI instead of the dashboard:
+Setting them by hand instead:
 
 ```bash
 npm run password       # generates one, and prints the commands below filled in
 
-npm i -g vercel && vercel login && vercel link
-printf '%s' 'you@example.com'          | vercel env add SHELF_OWNER_EMAIL production
-printf '%s' 'the-generated-password'   | vercel env add SHELF_PASSWORD production
+printf '%s' 'you@example.com'        | vercel env add SHELF_OWNER_EMAIL production
+printf '%s' 'the-generated-password' | vercel env add SHELF_PASSWORD production
 vercel --prod          # env changes only take effect on a new deployment
 ```
 
