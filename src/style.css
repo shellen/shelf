@@ -49,6 +49,10 @@ body {
   padding: 0.6rem 1rem;
 }
 
+@media (max-width: 767px) {
+  .header-inner { padding: 0.5rem 0.6rem; }
+}
+
 .header-row {
   display: flex;
   flex-direction: column;
@@ -96,6 +100,29 @@ body {
   .header-controls {
     flex-wrap: nowrap;
     gap: 0.5rem;
+  }
+}
+
+/* Mobile header: search on its own row, selects share a row with the view
+   toggle, Reset hidden (the masthead is home), 16px inputs so iOS won't zoom */
+@media (max-width: 767px) {
+  .header-row { gap: 0.4rem; }
+
+  .header-controls [data-action="reset"] { display: none; }
+
+  .select-tag, .select-sort { flex: 1 1 30%; }
+
+  .search-input, .select, .form-input, .notes-input {
+    font-size: 16px;
+  }
+
+  .btn, .view-btn {
+    padding: 0.55rem 0.7rem;
+  }
+
+  .header-controls [data-action="import"],
+  .header-controls [data-action="add-book"] {
+    flex: 1 1 40%;
   }
 }
 
@@ -279,6 +306,7 @@ input, select, button, textarea {
   border-left: var(--rule);
 }
 
+@media (min-width: 500px) { .wall { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 640px) { .wall { grid-template-columns: repeat(4, 1fr); } }
 @media (min-width: 768px) { .wall { grid-template-columns: repeat(6, 1fr); } }
 @media (min-width: 1024px) { .wall { grid-template-columns: repeat(8, 1fr); } }
@@ -518,6 +546,42 @@ input, select, button, textarea {
   z-index: 41;
   display: flex;
   flex-direction: column;
+}
+
+/* Mobile drawer: full page, bigger touch targets */
+@media (max-width: 479px) {
+  .drawer-panel {
+    width: 100vw;
+    border-left: none;
+  }
+
+  .drawer-close {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.4rem;
+  }
+
+  .drawer-cover {
+    flex: none;
+    align-items: center;
+  }
+
+  .drawer-cover-img, .drawer-change-cover {
+    width: min(220px, 60vw);
+  }
+
+  .star-wrapper { font-size: 1.7rem; }
+
+  .drawer-link {
+    padding: 0.7rem 0.8rem;
+  }
+
+  .drawer-actions .btn {
+    padding: 0.7rem 0.9rem;
+  }
+
+  input.drawer-title { font-size: 1.3rem; }
+  input.drawer-author, .drawer-isbn, .drawer-tags-input { font-size: 16px; }
 }
 
 .drawer-header {
