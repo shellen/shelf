@@ -1,149 +1,107 @@
 # Shelf
 
-A simple, portable media shelf — books, audiobooks, movies, podcasts, and albums — with local SQLite storage that builds to a single HTML file. Name it yours ("Mary Steiner's Shelf") in Shelf Settings.
+**Your books, audiobooks, movies, podcasts, and albums — on one brutalist wall.**
 
-## Quick Start
+Shelf is a self-hosted media library with a print-zine soul: hard black rules, monospace metadata, one red accent, zero clutter. It runs three ways from one codebase — a local app backed by a plain SQLite file, a free hosted deployment anyone can launch in minutes, or a single portable HTML file you can open from a thumb drive.
+
+Name it yours — set *"Mary Steiner's Shelf"* in settings and it takes over the masthead, the browser tab, and every shared link.
+
+---
+
+## Deploy your own (free, no credit card)
+
+Shelf's hosted mode runs on **Vercel** (app + API) and **Turso** (database) — both free tiers, neither asks for a card.
+
+**1. Create the database** — sign up at [turso.tech](https://turso.tech), then:
 
 ```bash
-npm install
-npm run db:migrate   # Import existing books.json into SQLite
-npm run dev          # Dev server + API at localhost:5173
+turso db create shelf
+turso db show shelf --url          # → TURSO_DATABASE_URL
+turso db tokens create shelf       # → TURSO_AUTH_TOKEN
 ```
+
+**2. Deploy** — click, then paste the two Turso values and choose your edit password:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fshellen%2Fshelf&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,BOOKSHELF_PASSWORD&envDescription=Turso%20database%20URL%20and%20token%2C%20plus%20the%20password%20that%20unlocks%20editing&project-name=shelf&repository-name=shelf)
+
+**3. Move in** — open your app, log in, and import your Goodreads library or start quick-adding titles.
+
+Anyone can browse your shelf; only someone with the password can change it. The schema bootstraps itself on first run — there is no step four.
+
+| Env var | What it does |
+|---|---|
+| `TURSO_DATABASE_URL` | Your Turso database (`libsql://…`) |
+| `TURSO_AUTH_TOKEN` | Its access token |
+| `BOOKSHELF_PASSWORD` | Unlocks editing; leave unset for a no-login writable instance |
+
+### Other ways to run it
+
+- **Locally:** `npm install && npm run dev` — a plain SQLite file in `data/`, writable, no login, nothing to configure.
+- **As a single file:** `npm run build` produces `dist/index.html` — your entire library, covers embedded, read-only, working search/routes/keyboard — openable from disk or any static host.
 
 ## Features
 
-- **Five media types** - Books, audiobooks, movies, podcasts, and albums; medium tabs plus a sectioned landing page you configure (which media, what order) in Shelf Settings
-- **Cover wall view** - Visual grid of covers
-- **List view** - Sortable table with all book details (click column headers to sort)
-- **Search** - Filter by title, author, or tags
-- **Sort by anything** - Title, author, rating, date read, date added, pages, or year; re-select to flip direction
-- **Goodreads import** - Drop in a `goodreads_library_export.csv`; new books are added, existing ones get blanks filled
-- **Keyboard-first** - Full navigation without the mouse; press `?` for the shortcut list
-- **Shareable URLs** - Hash routes like `#/author/vonnegut`, `#/title/snow-crash`, `#/tags/cycling`, `#/isbn/9780441172719`; case-insensitive with fuzzy author/title matching, and they work in the standalone build too
-- **Add books** - In-app form with ISBN lookup
-- **Edit in place** - Click any field in the book drawer (title, author, tags, ISBN, notes, rating) and it autosaves on blur; Enter commits, Esc reverts
-- **Change covers** - Pick from Open Library, Google Books results
-- **SQLite storage** - All changes persist immediately
-- **Local cover caching** - Downloads covers once, embeds in final HTML
-- **Single file output** - One portable `index.html` file (read-only snapshot with covers embedded)
-
-## Host Your Own (free)
-
-Run a writable, password-protected bookshelf on Vercel + Turso — both free tiers, no credit card:
-
-1. **Database:** sign up at [turso.tech](https://turso.tech), then `turso db create bookshelf`. Grab the URL (`turso db show bookshelf --url`) and a token (`turso db tokens create bookshelf`).
-2. **Deploy:** click the button below (fork this repo first, or use your own clone URL). Set three env vars when prompted: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, and `BOOKSHELF_PASSWORD` (the password that unlocks editing).
-3. Open your app, hit **Log In**, and import your Goodreads CSV.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=REPLACE_WITH_YOUR_REPO_URL&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,BOOKSHELF_PASSWORD&envDescription=Turso%20database%20URL%2Ftoken%20and%20the%20password%20that%20unlocks%20editing)
-
-Anyone can browse a hosted shelf; only someone with the password can edit. Leave `BOOKSHELF_PASSWORD` unset (e.g. locally) and the app is writable with no login. Local dev keeps using a plain SQLite file — set `TURSO_DATABASE_URL` only where you want the hosted database.
-
-## Adding Media
-
-### Option 1: Add Media form
-1. Run `npm run dev`
-2. Open the avatar menu → **Add Media**
-3. Pick a medium; books take an ISBN lookup, everything else uses the built-in search
-4. Save - persists instantly
-
-### Option 1b: Quick add (List view)
-Type a title in the quick-add row, press Enter, repeat. Hit **Resolve N pending**
-when done - each title is looked up (author, year, cover, ISBN) and anything
-unmatched is kept exactly as you typed it.
-
-### Option 2: CLI Script
-```bash
-npm run add-book
-# Follow prompts to search by ISBN or title
-```
-
-### Option 3: Import from Goodreads
-1. On Goodreads: My Books → Tools → Import and Export → Export Library
-2. In the app, click **Import** (or press `i`) and drop the downloaded `goodreads_library_export.csv`
-3. Review the preview (new / updates / unparseable) and confirm
-
-Import merging is fill-in-blanks: books matched by ISBN or title+author keep everything they already have; only empty fields (rating, notes, dates, pages, year, ISBN) are filled from the export, and tags are unioned. Goodreads shelves (including `read` / `to-read` / `currently-reading`) become tags — and media-type tags (`audiobook`, `movies`, `vinyl`, `podcasts`, ...) automatically categorize the item's medium. Large exports upload in chunks, so hosted deployments handle full libraries.
-
-### Option 4: Edit books.json + migrate
-1. Add entries to `books.json`
-2. Run `npm run db:migrate` to sync to SQLite
+- **Five media types** — books, audiobooks, movies, podcasts, albums. Medium tabs, a sectioned landing page in the order you choose, and square album art treated with respect.
+- **Cover wall & list views** — dense gridded covers or a sortable table. Sort by title, author, rating, date read, date added, pages, or year; re-select to flip direction.
+- **Goodreads import** — drop in `goodreads_library_export.csv`. New items are added, existing ones get their blanks filled (never overwritten), tags are unioned, and media-type tags (`audiobook`, `vinyl`, `movies`, `podcasts`…) categorize items automatically. Large exports upload in chunks.
+- **Quick add** — in List view, type titles and press Enter to queue them; **Resolve** looks everything up at the end (author, year, cover, ISBN) and keeps anything unmatched exactly as you typed it.
+- **Lookup built in** — ISBN autofill for books via Open Library; movies, albums, podcasts, and audiobooks via Apple's keyless iTunes Search API.
+- **Edit in place** — click any field in an item's drawer and it autosaves on blur; Enter commits, Esc reverts. No forms, no save buttons.
+- **Keyboard-first** — navigate the whole app without a mouse; press `?` for the map.
+- **Shareable URLs with real link previews** — every author, title, tag, medium, and ISBN has a URL, and hosted deployments serve OpenGraph pages so links unfurl with cover art in Slack and social apps.
+- **No image hosting** — covers are linked from their sources at display time; your deployment stores metadata only.
 
 ## URLs
 
-Every view is linkable via hash routes (they work in dev, hosted, and the single-file build):
-
 | Route | Meaning |
 |-------|---------|
-| `#/title/<slug>` | A book by title; a single match opens it directly (this is the hash the app sets when you open a book) |
-| `#/author/<slug>` | All books by an author; partial names work (`#/author/vonnegut` finds Kurt Vonnegut Jr.) |
-| `#/tags/<slug>` | Tag filter |
-| `#/isbn/<isbn>` | A book by ISBN (dashes and case ignored) |
+| `#/title/snow-crash` | A title; a single match opens it directly |
+| `#/author/vonnegut` | An author — partial names resolve (`vonnegut` → Kurt Vonnegut Jr.) and canonicalize |
+| `#/tags/cycling` | A tag filter |
+| `#/medium/album` | Everything of one medium |
+| `#/isbn/9780441172719` | An exact item by ISBN (dashes and case ignored) |
 
-Matching is case-insensitive; word-subset slugs match (`made-stick` finds "Made to Stick"). Partial slugs that resolve to one author or book are rewritten to the full canonical URL, so variants converge on one shareable link. Ambiguous slugs show all matches.
+Matching is case-insensitive with word-subset fuzziness (`made-stick` finds "Made to Stick"). On hosted deployments the same routes exist as real paths (`/author/vonnegut`) for crawlers and link previews.
 
-## Keyboard Shortcuts
+## Keyboard
 
 | Key | Action |
 |-----|--------|
 | `/` | Focus search |
 | Arrows | Navigate the wall/list |
-| `Enter` | Open selected book |
-| `←` `→` (book open) | Previous / next book |
+| `Enter` | Open selection |
+| `←` `→` (item open) | Previous / next |
 | `Esc` | Close panels, then clear search |
 | `v` | Toggle Covers / List |
 | `s` | Cycle sort field |
-| `a` | Add book |
-| `e` | Edit selected book |
-| `i` | Import from Goodreads |
+| `a` | Add media |
+| `e` | Edit selection |
+| `i` | Import |
 | `1`–`9` | Toggle Nth tag filter |
-| `?` | Show shortcut help |
+| `?` | Shortcut help |
 
-## Scripts
+## Covers, legally
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start dev server + API (changes save instantly) |
-| `npm run build` | Fetch covers + build single HTML |
-| `npm run build:quick` | Build without fetching covers |
-| `npm run fetch-covers` | Download covers from Open Library |
-| `npm run add-book` | Interactive CLI to add a book |
-| `npm run db:init` | Create fresh SQLite database |
-| `npm run db:migrate` | Import books.json into SQLite |
-| `npm test` | Run the test suite |
+Shelf never copies cover images to your server. Art resolves at display time:
 
-## Architecture
+1. The item's saved cover URL — picked from the built-in search, supplied by iTunes lookup, or **an image URL you pasted yourself** for hard-to-find art (linked, never stored)
+2. A local cache in `public/covers/` (dev and single-file builds only)
+3. [Open Library's cover service](https://openlibrary.org/dev/docs/api/covers) by ISBN
+4. A generated placeholder in the house style
 
-```
-bookshelf/
-├── data/
-│   └── bookshelf.db     # SQLite database (auto-created)
-├── public/
-│   └── covers/          # Cached cover images
-├── server/
-│   ├── api.js           # Express API server (port 3001)
-│   └── db.js            # Database helpers
-├── src/
-│   ├── main.js          # Frontend app
-│   └── style.css        # Styles
-├── scripts/
-│   ├── fetch-covers.js  # Download covers
-│   ├── add-book.js      # CLI for adding books
-│   ├── init-db.js       # Create database
-│   └── migrate-json.js  # Import from books.json
-└── books.json           # Legacy data (for migration)
-```
+Book metadata and covers come from [Open Library](https://openlibrary.org); movie, album, podcast, and audiobook metadata and artwork from Apple's [iTunes Search API](https://performance-partners.apple.com/search-api). `npm run fetch-covers` caches book covers locally for offline single-file builds.
 
-## Book Data Format
+## Data model
 
 ```json
 {
   "id": "flow",
   "title": "Flow",
   "author": "Mihaly Csikszentmihalyi",
+  "medium": "book",
   "tags": ["psychology", "creativity"],
   "isbn": "9780061339202",
-  "coverUrl": "https://...",
+  "coverUrl": "https://…",
   "rating": 4.5,
   "notes": "…",
   "dateRead": "2024-07-04",
@@ -153,60 +111,19 @@ bookshelf/
 }
 ```
 
-- `id` - Unique identifier (a title slug; ids created before the shelf field was retired keep their old `s1-` style prefixes)
-- `isbn` - Optional, but helps with cover accuracy + links
-- `tags` - Array of lowercase tags for filtering
-- `coverUrl` - Custom cover URL (from cover picker)
-- `rating`, `notes` - Editable in the book drawer
-- `dateRead`, `dateAdded`, `pages`, `year` - Populated by Goodreads import; used for sorting
+`author` holds the creator for every medium (director, artist, host); ids are title slugs. The API is a small REST surface (`/api/books`, `/api/import`, `/api/lookup`, `/api/settings`, `/api/session`) with public reads and cookie-authed writes.
 
-## Cover Images
+## Stack
 
-Hosted shelves store **no image files at all** - covers are linked from their
-origins at display time, in this order:
+Vanilla JavaScript front end (no framework, one render loop), Express, and [libSQL](https://github.com/tursodatabase/libsql) — a local `file:` database in dev and Turso in production, through the same client. Vite builds it; `vite-plugin-singlefile` produces the portable snapshot; ~130 Vitest tests cover the merge logic, auth, routes, OpenGraph pages, and the UI.
 
-1. The item's saved cover URL (picked covers, iTunes artwork, or a URL you pasted)
-2. The local `public/covers/` cache (dev and single-file builds)
-3. **Open Library's ISBN cover service** for books
-4. A generated placeholder
+## Development
 
-The cover picker searches Open Library and Google Books, and also accepts a
-pasted image URL for hard-to-find art - the URL is linked, never copied.
-Cover imagery is served by [Open Library](https://openlibrary.org) and Apple's
-iTunes Search API; movie/album/podcast metadata comes from Apple's catalog.
-
-Run `npm run fetch-covers` to cache book covers locally for offline single-file
-builds; cached covers are embedded as base64 in that build.
-
-## Sharing & OpenGraph
-
-Every hash route has a crawler-friendly path twin on hosted deployments:
-`/title/snow-crash`, `/author/vonnegut`, `/tags/cycling`, `/isbn/...`,
-`/medium/album`. Those pages carry OpenGraph tags (title, creator, year,
-cover image, your shelf name) and bounce human visitors into the app - so
-links pasted into Slack/socials unfurl properly.
-
-## API Endpoints
-
-When running `npm run dev`, an API server runs at `localhost:3001`:
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/books` | List all books |
-| GET | `/api/books/:id` | Get single book |
-| POST | `/api/books` | Create new book |
-| PUT | `/api/books/:id` | Update book |
-| PATCH | `/api/books/:id/cover` | Update just the cover |
-| DELETE | `/api/books/:id` | Delete book |
-| GET | `/api/tags` | List all unique tags |
-
-## Output
-
-After `npm run build`, find your bookshelf at:
-```
-dist/index.html
+```bash
+npm install
+npm run dev        # app + API at localhost:5173
+npm test           # the whole suite
+npm run build      # fetch covers, then build the single-file snapshot
 ```
 
-This single file contains everything - HTML, CSS, JS, and cover images. Open it directly in any browser or host anywhere. The book list and cached covers are embedded at build time straight from the SQLite database.
-
-**Note:** The built HTML file is read-only (no API server). It's a snapshot of your bookshelf at build time; editing controls are hidden automatically.
+The design is deliberate brutalism: if it looks like a xeroxed zine taped to a record-shop wall, it's working as intended.
