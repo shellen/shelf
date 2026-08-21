@@ -12,7 +12,8 @@ let server, base, tmpDir
 beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'bookshelf-auth-'))
   process.env.BOOKSHELF_DB = path.join(tmpDir, 'auth.db')
-  process.env.BOOKSHELF_PASSWORD = 'spice-flow'
+  process.env.SHELF_OWNER_EMAIL = 'shellen@gmail.com'
+  process.env.SHELF_PASSWORD = 'spice-flow'
   vi.resetModules()
   const { app } = await import('./api.js')
   server = app.listen(0)
@@ -22,7 +23,8 @@ beforeAll(async () => {
 afterAll(() => {
   server?.close()
   delete process.env.BOOKSHELF_DB
-  delete process.env.BOOKSHELF_PASSWORD
+  delete process.env.SHELF_OWNER_EMAIL
+  delete process.env.SHELF_PASSWORD
   fs.rmSync(tmpDir, { recursive: true, force: true })
 })
 
@@ -32,7 +34,7 @@ const post = (url, body, cookie) => fetch(`${base}${url}`, {
   body: JSON.stringify(body)
 })
 
-describe('with BOOKSHELF_PASSWORD set', () => {
+describe('with owner credentials set', () => {
   it('reports auth in the session endpoint', async () => {
     const s = await (await fetch(`${base}/api/session`)).json()
     expect(s).toEqual({ authRequired: true, writable: false, unprotected: false })
@@ -46,12 +48,21 @@ describe('with BOOKSHELF_PASSWORD set', () => {
     expect((await post('/api/books', { title: 'Nope' })).status).toBe(401)
   })
 
+  it('rejects a wrong email', async () => {
+    expect((await post('/api/login', { email: 'nobody@example.com', password: 'spice-flow' })).status).toBe(401)
+  })
+
+  it('accepts the owner email in any case', async () => {
+    const r = await post('/api/login', { email: '  SHELLEN@Gmail.com ', password: 'spice-flow' })
+    expect(r.status).toBe(200)
+  })
+
   it('rejects a wrong password', async () => {
-    expect((await post('/api/login', { password: 'wrong' })).status).toBe(401)
+    expect((await post('/api/login', { email: 'shellen@gmail.com', password: 'wrong' })).status).toBe(401)
   })
 
   it('logs in, writes with the cookie, and logs out', async () => {
-    const login = await post('/api/login', { password: 'spice-flow' })
+    const login = await post('/api/login', { email: 'shellen@gmail.com', password: 'spice-flow' })
     expect(login.status).toBe(200)
     const setCookie = login.headers.get('set-cookie')
     expect(setCookie).toContain('bookshelf_session=')
@@ -84,7 +95,7 @@ describe('with BOOKSHELF_PASSWORD set', () => {
     })
     expect(denied.status).toBe(401)
 
-    const login = await post('/api/login', { password: 'spice-flow' })
+    const login = await post('/api/login', { email: 'shellen@gmail.com', password: 'spice-flow' })
     const cookie = login.headers.get('set-cookie').split(';')[0]
     const saved = await fetch(`${base}/api/settings`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json', Cookie: cookie },

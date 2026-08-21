@@ -128,9 +128,12 @@ export async function getBook(id) {
   return { ...rowToBook(rs.rows[0]), tags }
 }
 
-// Writes one book (row + tags) through the given executor (client or transaction)
-async function writeBook(ex, b) {
-  await ex.execute({
+// Statements that write one book (row + tags). Returned rather than executed so
+// callers can hand them to db.batch, which is atomic on every libSQL protocol --
+// interactive transactions need a stateful connection and fail over plain HTTP.
+function bookStatements(b) {
+  const stmts = []
+  stmts.push({
     sql: `INSERT OR REPLACE INTO books (id, title, author, isbn, cover_url, rating, notes, date_read, date_added, pages, year, medium, updated_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
     args: [
@@ -148,23 +151,17 @@ async function writeBook(ex, b) {
       MEDIA_KEYS.includes(b.medium) ? b.medium : 'book'
     ]
   })
-  await ex.execute({ sql: 'DELETE FROM book_tags WHERE book_id = ?', args: [b.id] })
+  stmts.push({ sql: 'DELETE FROM book_tags WHERE book_id = ?', args: [b.id] })
   for (const tag of (b.tags || [])) {
-    await ex.execute({ sql: 'INSERT OR IGNORE INTO book_tags (book_id, tag) VALUES (?, ?)', args: [b.id, tag] })
+    stmts.push({ sql: 'INSERT OR IGNORE INTO book_tags (book_id, tag) VALUES (?, ?)', args: [b.id, tag] })
   }
+  return stmts
 }
 
 // Helper: create or update book
 export async function saveBook(book) {
   await ensureSchema()
-  const tx = await db.transaction('write')
-  try {
-    await writeBook(tx, book)
-    await tx.commit()
-  } catch (e) {
-    await tx.rollback()
-    throw e
-  }
+  await db.batch(bookStatements(book), 'write')
   return getBook(book.id)
 }
 
@@ -233,48 +230,43 @@ export async function importBooks(entries, { dryRun = false } = {}) {
   const byKey = new Map(existing.map(b => [normKey(b.title) + '|' + normKey(b.author), b]))
   const takenIds = new Set(existing.map(b => b.id))
 
-  const tx = dryRun ? null : await db.transaction('write')
-  try {
-    let added = 0, filled = 0, skipped = 0
+  const pending = []
+  let added = 0, filled = 0, skipped = 0
 
-    for (const entry of entries) {
-      const match = (entry.isbn && byIsbn.get(String(entry.isbn)))
-        || byKey.get(normKey(entry.title) + '|' + normKey(entry.author))
+  for (const entry of entries) {
+    const match = (entry.isbn && byIsbn.get(String(entry.isbn)))
+      || byKey.get(normKey(entry.title) + '|' + normKey(entry.author))
 
-      if (!match) {
-        if (!entry.title) throw new Error('import row missing title')
-        const book = { ...entry, id: nextFreeId(entry.title, takenIds) }
-        if (!book.medium) book.medium = mediumFromTags(entry.tags)
-        takenIds.add(book.id)
-        if (tx) await writeBook(tx, book)
-        byKey.set(normKey(book.title) + '|' + normKey(book.author), book)
-        if (book.isbn) byIsbn.set(String(book.isbn), book)
-        added++
-        continue
-      }
-
-      const updates = {}
-      for (const f of FILLABLE) {
-        const empty = match[f] === null || match[f] === undefined || match[f] === ''
-        if (empty && entry[f] !== null && entry[f] !== undefined) updates[f] = entry[f]
-      }
-      const tags = Array.from(new Set([...(match.tags || []), ...(entry.tags || [])]))
-      const tagsChanged = tags.length !== (match.tags || []).length
-
-      if (Object.keys(updates).length || tagsChanged) {
-        if (tx) await writeBook(tx, { ...match, ...updates, tags })
-        filled++
-      } else {
-        skipped++
-      }
+    if (!match) {
+      if (!entry.title) throw new Error('import row missing title')
+      const book = { ...entry, id: nextFreeId(entry.title, takenIds) }
+      if (!book.medium) book.medium = mediumFromTags(entry.tags)
+      takenIds.add(book.id)
+      pending.push(...bookStatements(book))
+      byKey.set(normKey(book.title) + '|' + normKey(book.author), book)
+      if (book.isbn) byIsbn.set(String(book.isbn), book)
+      added++
+      continue
     }
 
-    if (tx) await tx.commit()
-    return { added, filled, skipped }
-  } catch (e) {
-    if (tx) await tx.rollback()
-    throw e
+    const updates = {}
+    for (const f of FILLABLE) {
+      const empty = match[f] === null || match[f] === undefined || match[f] === ''
+      if (empty && entry[f] !== null && entry[f] !== undefined) updates[f] = entry[f]
+    }
+    const tags = Array.from(new Set([...(match.tags || []), ...(entry.tags || [])]))
+    const tagsChanged = tags.length !== (match.tags || []).length
+
+    if (Object.keys(updates).length || tagsChanged) {
+      pending.push(...bookStatements({ ...match, ...updates, tags }))
+      filled++
+    } else {
+      skipped++
+    }
   }
+
+  if (!dryRun && pending.length) await db.batch(pending, 'write')
+  return { added, filled, skipped }
 }
 
 // Helper: set a book's ISBN

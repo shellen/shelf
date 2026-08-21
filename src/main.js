@@ -1019,15 +1019,16 @@ function renderSettingsModal() {
   `
 }
 
-// Shown only on a hosted deploy with no password configured: the shelf is
-// writable by anyone who finds the URL, which is never intentional.
+// Shown on a hosted shelf whose owner has not configured sign-in. Writes are
+// already refused server-side, so this is a status notice rather than a warning,
+// and it stays useless to a reader without access to the host.
 function renderUnprotectedBanner() {
   if (!state.unprotected) return ''
   return `
-    <div class="unprotected-banner" role="alert">
-      <strong>NO PASSWORD SET</strong>
-      <span>Anyone who finds this URL can add, edit, import, or delete everything on this shelf.</span>
-      <span class="unprotected-fix">Set <code>BOOKSHELF_PASSWORD</code> in your host's environment variables (Production scope) and redeploy.</span>
+    <div class="setup-banner" role="status">
+      <strong>Read-only</strong>
+      <span>The owner of this shelf hasn't set up sign-in yet, so nothing here can be added, edited, or deleted.</span>
+      <span class="setup-banner-owner">If this is your shelf, the README explains how to finish setup on your host.</span>
     </div>
   `
 }
@@ -1042,6 +1043,10 @@ function renderLoginModal() {
         </div>
         ${state.loginError ? `<div class="status error">${esc(state.loginError)}</div>` : ''}
         <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="login-email" autocomplete="username" inputmode="email">
+          </div>
           <div class="form-group">
             <label class="form-label">Password</label>
             <input type="password" class="form-input" id="login-password" autocomplete="current-password">
@@ -1062,15 +1067,11 @@ async function refreshSession() {
     if (!res.ok) return
     const s = await res.json()
     state.unprotected = !!s.unprotected
-    if (s.authRequired && !s.writable) {
-      state.readOnly = true
-      state.canLogin = true
-      state.loggedIn = false
-    } else if (s.authRequired && s.writable) {
-      state.readOnly = false
-      state.canLogin = false
-      state.loggedIn = true
-    }
+    // Derived from `writable` alone: a shelf can also be read-only because its
+    // owner never configured sign-in, and there is nothing to log into then.
+    state.readOnly = !s.writable
+    state.canLogin = s.authRequired && !s.writable
+    state.loggedIn = s.authRequired && s.writable
   } catch (e) {
     // No session endpoint (static build) - the readOnly fallback already applies
   }
@@ -1247,6 +1248,7 @@ function attachEventListeners() {
     state.loginOpen = true
     state.loginError = null
     render()
+    document.getElementById('login-email')?.focus()
   })
 
   document.querySelectorAll('[data-action="close-login"]').forEach(el => {
@@ -1259,14 +1261,16 @@ function attachEventListeners() {
   })
 
   const submitLogin = async () => {
+    const email = document.getElementById('login-email')?.value || ''
     const password = document.getElementById('login-password')?.value || ''
     try {
       const res = await fetch('/api/login', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ email, password })
       })
       if (!res.ok) {
-        state.loginError = 'Wrong password'
+        const body = await res.json().catch(() => ({}))
+        state.loginError = body.error || 'Wrong email or password'
         render()
         return
       }
@@ -1282,9 +1286,11 @@ function attachEventListeners() {
   }
 
   document.querySelector('[data-action="submit-login"]')?.addEventListener('click', submitLogin)
-  document.getElementById('login-password')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); submitLogin() }
-  })
+  for (const id of ['login-email', 'login-password']) {
+    document.getElementById(id)?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); submitLogin() }
+    })
+  }
 
   document.querySelector('.header [data-action="logout"]')?.addEventListener('click', async () => {
     try {

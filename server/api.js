@@ -7,7 +7,7 @@ import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
 import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks, getSettings, saveSettings } from './db.js'
-import { authRequired, isWritable, verifyPassword, sessionCookie, clearedCookie, isUnprotected } from './auth.js'
+import { authRequired, isWritable, verifyCredentials, sessionCookie, clearedCookie, isUnprotected } from './auth.js'
 import { searchMedia } from './lookup.js'
 
 export const app = express()
@@ -18,10 +18,17 @@ app.use(cors())
 // Large limit: a full library export with reviews exceeds the 100kb default
 app.use(express.json({ limit: '10mb' }))
 
-// Reads are public; writes need a session when a password is configured
+// Reads are public. Writes need a signed-in session; on a hosted shelf with no
+// credentials configured they are refused outright rather than left open.
 app.use('/api', (req, res, next) => {
   if (req.method === 'GET' || req.path === '/login' || req.path === '/logout') return next()
-  if (!isWritable(req)) return res.status(401).json({ error: 'Login required' })
+  if (!isWritable(req)) {
+    return res.status(401).json({
+      error: isUnprotected()
+        ? 'This shelf is read-only until its owner finishes setting up sign-in.'
+        : 'Login required'
+    })
+  }
   next()
 })
 
@@ -36,9 +43,12 @@ app.get('/api/session', (req, res) => {
 
 // POST /api/login - Start a session
 app.post('/api/login', (req, res) => {
-  if (!authRequired()) return res.json({ ok: true })
-  if (!verifyPassword(String(req.body?.password || ''))) {
-    return res.status(401).json({ error: 'Wrong password' })
+  if (!authRequired()) {
+    return res.status(503).json({ error: 'This shelf has no sign-in configured yet.' })
+  }
+  // One message for both halves: which half was wrong is not the caller's business.
+  if (!verifyCredentials(req.body?.email, String(req.body?.password || ''))) {
+    return res.status(401).json({ error: 'Wrong email or password' })
   }
   res.setHeader('Set-Cookie', sessionCookie(req))
   res.json({ ok: true })
