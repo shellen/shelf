@@ -8,7 +8,7 @@ import cors from 'cors'
 import { fileURLToPath } from 'url'
 import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks, getSettings, saveSettings } from './db.js'
 import { authRequired, isWritable, verifyPassword, sessionCookie, clearedCookie } from './auth.js'
-import { searchItunes } from './lookup.js'
+import { searchMedia } from './lookup.js'
 
 export const app = express()
 const PORT = process.env.PORT || 3001
@@ -186,7 +186,7 @@ app.get('/api/lookup', async (req, res) => {
   try {
     const { medium, q } = req.query
     if (!q) return res.status(400).json({ error: 'q is required' })
-    const results = await searchItunes(String(medium), String(q))
+    const results = await searchMedia(String(medium), String(q))
     if (results === null) return res.status(400).json({ error: 'Unknown medium' })
     res.json({ results })
   } catch (e) {

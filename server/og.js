@@ -15,7 +15,7 @@ function coverFor(book) {
   return null
 }
 
-export function buildOgPage(path, books, origin) {
+export function buildOgPage(path, books, origin, siteName = 'Shelf') {
   const route = parseRoute('#' + path)
   if (!route) return null
   const resolved = resolveRoute(route, books)
@@ -40,7 +40,7 @@ export function buildOgPage(path, books, origin) {
       ? [...new Set(resolved.books.map(b => b.author))].join(', ')
       : route.kind === 'medium' ? `${MEDIA_LABELS[route.slug] || route.slug}s`
       : `${route.kind}: ${route.slug}`
-    title = `${label} — Shelf`
+    title = `${label} — ${siteName}`
     description = `${count} title${count === 1 ? '' : 's'} on this shelf`
     image = coverFor(resolved.books[0])
   }
@@ -56,7 +56,7 @@ export function buildOgPage(path, books, origin) {
 ${image ? `<meta property="og:image" content="${esc(image)}">` : ''}
 <meta property="og:type" content="website">
 <meta property="og:url" content="${esc(url)}">
-<meta property="og:site_name" content="Shelf">
+<meta property="og:site_name" content="${esc(siteName)}">
 <meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}">
 <script>location.replace('/${hash}')</script>
 <meta http-equiv="refresh" content="0;url=/${hash}">

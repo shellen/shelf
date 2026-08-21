@@ -33,7 +33,16 @@ async function loadApp(books = BOOKS, { session, settings } = {}) {
       return { ok: true, json: async () => ({ ...settingsState }) }
     }
     if (u.includes('/api/lookup')) {
+      const q = decodeURIComponent(u.match(/q=([^&]*)/)?.[1] || '').toLowerCase()
+      if (q.includes('mystery')) return { ok: true, json: async () => ({ results: [] }) }
+      if (q.includes('snow')) {
+        return { ok: true, json: async () => ({ results: [{ title: 'Snow Crash', author: 'Neal Stephenson', year: 1992, isbn: '9780553380958', coverUrl: 'https://covers.example/snow.jpg' }] }) }
+      }
       return { ok: true, json: async () => ({ results: [{ title: 'Abbey Road', author: 'The Beatles', year: 1969, coverUrl: 'https://art.example/abbey600.jpg' }] }) }
+    }
+    if (u.endsWith('/api/books') && opts.method === 'POST') {
+      const body = JSON.parse(opts.body)
+      return { ok: true, status: 201, json: async () => ({ tags: [], ...body, id: body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') }) }
     }
     if (u.endsWith('/api/login') && opts.method === 'POST') {
       if (JSON.parse(opts.body).password === 'sekrit') {
@@ -48,6 +57,11 @@ async function loadApp(books = BOOKS, { session, settings } = {}) {
     }
     if (u.endsWith('/api/books') && (!opts.method || opts.method === 'GET')) {
       return { ok: true, json: async () => ({ books: books.map(b => ({ ...b, tags: [...b.tags] })) }) }
+    }
+    const coverMatch = u.match(/\/api\/books\/([^/]+)\/cover$/)
+    if (coverMatch && opts.method === 'PATCH') {
+      const existing = books.find(b => b.id === coverMatch[1])
+      return { ok: true, json: async () => ({ ...existing, coverUrl: JSON.parse(opts.body).coverUrl }) }
     }
     const idMatch = u.match(/\/api\/books\/([^/]+)$/)
     if (idMatch && opts.method === 'PUT') {
@@ -296,6 +310,117 @@ describe('shelf media', () => {
     })
     const put = fetch.mock.calls.find(([u, o]) => String(u).endsWith('/api/settings') && o?.method === 'PUT')
     expect(JSON.parse(put[1].body).landing).not.toContain('book')
+  })
+})
+
+describe('cover picker manual URL', () => {
+  it('saves a pasted image URL as the cover', async () => {
+    await loadApp()
+    document.querySelector('[data-id="s2-dune"]').click()
+    document.querySelector('[data-action="open-cover-picker"]').click()
+
+    await vi.waitFor(() => {
+      if (!document.getElementById('cover-url-input')) throw new Error('picker not open')
+    })
+    document.getElementById('cover-url-input').value = 'https://example.com/my-rare-cover.jpg'
+    document.querySelector('[data-action="use-cover-url"]').click()
+
+    await vi.waitFor(() => {
+      if (document.querySelector('.cover-picker-panel')) throw new Error('picker open')
+    })
+    const patch = fetch.mock.calls.find(([u, o]) => String(u).includes('/cover') && o?.method === 'PATCH')
+    expect(JSON.parse(patch[1].body).coverUrl).toBe('https://example.com/my-rare-cover.jpg')
+  })
+})
+
+describe('shelf identity', () => {
+  it('shows a configured shelf name in the masthead and document title', async () => {
+    await loadApp(BOOKS, { settings: { landing: ['book'], shelfName: "Mary Steiner's Shelf" } })
+    expect(document.querySelector('.header-title h1').textContent).toBe("Mary Steiner's Shelf")
+    expect(document.title).toBe("Mary Steiner's Shelf")
+  })
+
+  it('tucks input actions behind the avatar menu', async () => {
+    await loadApp()
+    const avatar = document.querySelector('[data-action="avatar-menu"]')
+    expect(avatar).not.toBeNull()
+    expect(avatar.textContent.trim()).toBe('S')
+    expect(document.querySelector('.avatar-dropdown.open')).toBeNull()
+    avatar.click()
+    expect(document.querySelector('.avatar-dropdown.open')).not.toBeNull()
+    const items = [...document.querySelectorAll('.avatar-dropdown button')].map(b => b.textContent.trim())
+    expect(items).toContain('Add Media')
+    expect(items).toContain('Import')
+    expect(items).toContain('Shelf Settings')
+  })
+
+  it('saves the shelf name from Shelf Settings', async () => {
+    await loadApp()
+    document.querySelector('[data-action="shelf-settings"]').click()
+    document.getElementById('settings-name').value = "Jason's Shelf"
+    document.querySelector('[data-action="save-settings"]').click()
+
+    await vi.waitFor(() => {
+      if (document.querySelector('.modal-panel')) throw new Error('modal open')
+    })
+    const put = fetch.mock.calls.find(([u, o]) => String(u).endsWith('/api/settings') && o?.method === 'PUT')
+    expect(JSON.parse(put[1].body).shelfName).toBe("Jason's Shelf")
+    expect(document.querySelector('.header-title h1').textContent).toBe("Jason's Shelf")
+  })
+})
+
+describe('quick add', () => {
+  beforeEach(() => loadApp())
+
+  const enter = (input, title) => {
+    input.value = title
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+  }
+
+  it('appends pending items from the list-view quick row without re-rendering', async () => {
+    document.querySelector('[data-view="list"]').click()
+    const input = document.querySelector('[data-action="quick-add"]')
+    enter(input, 'Snow Crash')
+    enter(input, 'Mystery Item')
+
+    expect(document.querySelectorAll('.quick-pending').length).toBe(2)
+    expect(document.querySelector('[data-action="resolve-quick"]').textContent).toContain('2')
+    expect(document.querySelector('[data-action="quick-add"]')).toBe(input)
+    expect(input.value).toBe('')
+  })
+
+  it('resolves pending items via lookup and keeps misses as typed', async () => {
+    document.querySelector('[data-view="list"]').click()
+    const input = document.querySelector('[data-action="quick-add"]')
+    enter(input, 'Snow Crash')
+    enter(input, 'Mystery Item')
+    document.querySelector('[data-action="resolve-quick"]').click()
+
+    await vi.waitFor(() => {
+      if (document.querySelector('.quick-pending')) throw new Error('still pending')
+    })
+    const posts = fetch.mock.calls.filter(([u, o]) => String(u).endsWith('/api/books') && o?.method === 'POST')
+    expect(posts).toHaveLength(2)
+    const bodies = posts.map(([, o]) => JSON.parse(o.body))
+    expect(bodies[0].author).toBe('Neal Stephenson')
+    expect(bodies[0].isbn).toBe('9780553380958')
+    expect(bodies[1].title).toBe('Mystery Item')
+    expect(bodies[1].author).toBeUndefined()
+  })
+})
+
+describe('chunked import', () => {
+  it('sends large imports in chunks and sums the preview', async () => {
+    await loadApp()
+    document.querySelector('[data-action="import"]').click()
+    const rows = Array.from({ length: 600 }, (_, i) => `Book ${i},Author ${i}`).join('\n')
+    await window.__loadImportText('Title,Author\n' + rows)
+
+    const dryRuns = fetch.mock.calls.filter(([u, o]) =>
+      String(u).endsWith('/api/import') && o?.method === 'POST' && JSON.parse(o.body).dryRun)
+    expect(dryRuns).toHaveLength(3)
+    expect(JSON.parse(dryRuns[0][1].body).books).toHaveLength(250)
+    expect(document.querySelector('.import-preview').textContent).toContain('3 new')
   })
 })
 

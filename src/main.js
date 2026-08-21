@@ -182,9 +182,11 @@ const state = {
   sortDir: 'asc',
   selectedIndex: -1,
   route: null,
-  settings: { landing: MEDIA.map(m => m.key) },
+  settings: { landing: MEDIA.map(m => m.key), shelfName: '' },
   settingsOpen: false,
+  menuOpen: false,
   lookupPick: null,
+  quickQueue: [],
   drawerOpen: false,
   selected: null,
   modalOpen: false,
@@ -457,7 +459,7 @@ function render() {
       <div class="header-inner">
         <div class="header-row">
           <div class="header-title">
-            <h1><button data-action="home" title="Back to the full shelf">Shelf</button></h1>
+            <h1><button data-action="home" title="Back to the full shelf">${esc(state.settings.shelfName || 'Shelf')}</button></h1>
           </div>
           <div class="header-controls">
             <div class="search-wrap">
@@ -476,11 +478,17 @@ function render() {
               <button class="view-btn ${state.view === 'list' ? 'active' : ''}" data-action="view" data-view="list">List</button>
             </div>
             <button class="btn" data-action="reset">Reset</button>
-            ${state.readOnly ? '' : '<button class="btn" data-action="import">Import</button>'}
-            ${state.readOnly ? '' : '<button class="btn btn-primary" data-action="add-book">+ Add Book</button>'}
-            ${state.readOnly ? '' : '<button class="btn" data-action="shelf-settings" title="Shelf settings">⚙</button>'}
             ${state.canLogin && state.readOnly ? '<button class="btn" data-action="login">Log In</button>' : ''}
-            ${state.loggedIn ? '<button class="btn" data-action="logout">Log Out</button>' : ''}
+            ${state.readOnly ? '' : `
+            <div class="avatar-wrap">
+              <button class="avatar" data-action="avatar-menu" title="Shelf actions">${esc((state.settings.shelfName || 'Shelf')[0].toUpperCase())}</button>
+              <div class="avatar-dropdown ${state.menuOpen ? 'open' : ''}">
+                <button data-action="add-book">Add Media</button>
+                <button data-action="import">Import</button>
+                <button data-action="shelf-settings">Shelf Settings</button>
+                ${state.loggedIn ? '<button data-action="logout">Log Out</button>' : ''}
+              </div>
+            </div>`}
           </div>
         </div>
       </div>
@@ -636,7 +644,35 @@ function renderListView(books) {
             </div>
           </div>
         `).join('')}
+        ${renderQuickAdd()}
       </div>
+    </div>
+  `
+}
+
+function activeMedium() {
+  return state.route?.kind === 'medium' ? state.route.slug : 'book'
+}
+
+function quickPendingRow(q) {
+  return `
+    <div class="list-row quick-pending">
+      <div class="list-title">${esc(q.title)}</div>
+      <div class="list-author">—</div>
+      <div class="list-rating"></div>
+      <div class="list-year"></div>
+      <div class="list-tags"><span class="list-tag">pending ${esc(q.medium)}</span></div>
+    </div>
+  `
+}
+
+function renderQuickAdd() {
+  if (state.readOnly) return ''
+  return `
+    ${state.quickQueue.map(quickPendingRow).join('')}
+    <div class="quick-add">
+      <input class="quick-add-input" data-action="quick-add" placeholder="Quick add a ${esc(activeMedium())} title, press Enter">
+      <button class="btn btn-primary ${state.quickQueue.length ? '' : 'hidden'}" data-action="resolve-quick">Resolve ${state.quickQueue.length} pending</button>
     </div>
   `
 }
@@ -770,6 +806,10 @@ function renderCoverPicker() {
             </div>
           `}
         </div>
+        <div class="cover-url-row">
+          <input type="url" class="form-input" id="cover-url-input" placeholder="Or paste an image URL (linked, never stored)">
+          <button class="btn" data-action="use-cover-url">Use URL</button>
+        </div>
         <div class="modal-actions">
           <button class="btn" data-action="close-cover-picker">Cancel</button>
           <button class="btn" data-action="refresh-covers" ${state.coverLoading ? 'disabled' : ''}>
@@ -786,7 +826,7 @@ function renderModal() {
     <div class="modal-backdrop" data-action="close-modal">
       <div class="modal-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
-          <h2>Add Book</h2>
+          <h2>Add Media</h2>
           <button class="drawer-close" data-action="close-modal">&times;</button>
         </div>
         ${state.modalStatus ? `<div class="status ${state.modalStatus.type}">${esc(state.modalStatus.message)}</div>` : ''}
@@ -954,6 +994,11 @@ function renderSettingsModal() {
           <button class="drawer-close" data-action="close-settings">&times;</button>
         </div>
         <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Shelf Name</label>
+            <input type="text" class="form-input" id="settings-name" placeholder="Mary Steiner's Shelf" value="${esc(state.settings.shelfName)}" maxlength="60">
+            <div class="form-hint">Shown in the masthead and on shared pages. Leave blank for plain "Shelf".</div>
+          </div>
           <p class="form-hint">Which media appear on the landing page, and in what order.</p>
           ${ordered.map(key => `
             <div class="settings-row" data-medium="${key}">
@@ -1024,8 +1069,8 @@ function renderHelpOverlay() {
     ['Esc', 'close panels; then clear search'],
     ['v', 'toggle Covers / List'],
     ['s', 'cycle sort field'],
-    ['a', 'add a book'],
-    ['e', 'edit selected book'],
+    ['a', 'add media'],
+    ['e', 'edit selected item'],
     ['i', 'import from Goodreads'],
     ['1–9', 'toggle Nth tag filter'],
     ['?', 'this help'],
@@ -1073,17 +1118,32 @@ function renderImportModal() {
   `
 }
 
+// Chunked so large libraries clear serverless request-size limits
+const IMPORT_CHUNK = 250
+
+async function postImportChunks(books, dryRun) {
+  const totals = { added: 0, filled: 0, skipped: 0 }
+  for (let i = 0; i < books.length; i += IMPORT_CHUNK) {
+    const res = await fetch('/api/import', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ books: books.slice(i, i + IMPORT_CHUNK), dryRun })
+    })
+    if (!res.ok) throw new Error('Import failed')
+    const counts = await res.json()
+    totals.added += counts.added
+    totals.filled += counts.filled
+    totals.skipped += counts.skipped
+  }
+  return totals
+}
+
 async function loadImportText(text) {
   const { books, failed } = parseGoodreadsCsv(text)
   state.importBooks = books
   state.importFailed = failed
   state.importLoading = false
   try {
-    const res = await fetch('/api/import', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ books, dryRun: true })
-    })
-    state.importPreview = res.ok ? await res.json() : null
+    state.importPreview = await postImportChunks(books, true)
   } catch (e) {
     state.importPreview = null
   }
@@ -1155,6 +1215,16 @@ function attachEventListeners() {
     state.importOpen = true
     render()
   })
+
+  // Avatar menu
+  document.querySelector('[data-action="avatar-menu"]')?.addEventListener('click', () => {
+    state.menuOpen = !state.menuOpen
+    render()
+  })
+  // Any dropdown item click closes the menu (capture phase runs before the item's handler)
+  document.querySelector('.avatar-dropdown')?.addEventListener('click', () => {
+    state.menuOpen = false
+  }, true)
 
   // Login / logout
   document.querySelector('.header [data-action="login"]')?.addEventListener('click', () => {
@@ -1251,12 +1321,7 @@ function attachEventListeners() {
   document.querySelector('[data-action="confirm-import"]')?.addEventListener('click', async () => {
     if (!state.importBooks.length) return
     try {
-      const res = await fetch('/api/import', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ books: state.importBooks })
-      })
-      if (!res.ok) throw new Error('Import failed')
-      const counts = await res.json()
+      const counts = await postImportChunks(state.importBooks, false)
       state.books = await api.getBooks()
       closeImport()
       if (parseRoute(location.hash)) applyHash()
@@ -1355,11 +1420,15 @@ function attachEventListeners() {
     try {
       const res = await fetch('/api/settings', {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ landing: state.settings.landing })
+        body: JSON.stringify({
+          landing: state.settings.landing,
+          shelfName: document.getElementById('settings-name')?.value.trim() ?? state.settings.shelfName
+        })
       })
       if (!res.ok) throw new Error('Save failed')
       state.settings = await res.json()
       state.settingsOpen = false
+      document.title = state.settings.shelfName || 'Shelf'
       render()
       showToast('Settings saved')
     } catch (e) {
@@ -1406,6 +1475,58 @@ function attachEventListeners() {
     } catch (e) {
       box.innerHTML = '<span class="form-hint">Lookup failed.</span>'
     }
+  })
+
+  // Quick add: Enter appends a pending item without re-rendering (the input keeps focus)
+  document.querySelector('[data-action="quick-add"]')?.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    const input = e.target
+    const title = input.value.trim()
+    if (!title) return
+    const item = { title, medium: activeMedium() }
+    state.quickQueue.push(item)
+    input.value = ''
+    const quickBar = input.closest('.quick-add')
+    quickBar.insertAdjacentHTML('beforebegin', quickPendingRow(item))
+    const btn = quickBar.querySelector('[data-action="resolve-quick"]')
+    btn.classList.remove('hidden')
+    btn.textContent = `Resolve ${state.quickQueue.length} pending`
+  })
+
+  document.querySelector('[data-action="resolve-quick"]')?.addEventListener('click', async () => {
+    const queue = [...state.quickQueue]
+    if (!queue.length) return
+    let added = 0
+    let misses = 0
+    for (const q of queue) {
+      let payload = { title: q.title, medium: q.medium, tags: [] }
+      try {
+        const res = await fetch(`/api/lookup?medium=${encodeURIComponent(q.medium)}&q=${encodeURIComponent(q.title)}`)
+        const best = res.ok ? (await res.json()).results[0] : null
+        if (best) {
+          payload = {
+            title: best.title, author: best.author || undefined, isbn: best.isbn || undefined,
+            year: best.year || undefined, coverUrl: best.coverUrl || undefined,
+            medium: q.medium, tags: []
+          }
+        } else {
+          misses++
+        }
+      } catch (e) {
+        misses++
+      }
+      try {
+        const created = await api.createBook(payload)
+        state.books.push(created)
+        added++
+      } catch (e) {
+        console.error('Quick add failed:', e)
+      }
+    }
+    state.quickQueue = []
+    render()
+    showToast(`Added ${added}${misses ? ` · ${misses} unmatched (kept as typed)` : ''}`)
   })
 
   // Inline field editing - save on blur, Enter commits, Escape reverts
@@ -1550,6 +1671,24 @@ function attachEventListeners() {
       state.coverOptions = []
       render()
     })
+  })
+
+  // Manually linked cover URL
+  document.querySelector('[data-action="use-cover-url"]')?.addEventListener('click', async () => {
+    const url = document.getElementById('cover-url-input')?.value.trim()
+    if (!url || !state.selected) return
+    const bookId = state.selected.id
+    state.coverPickerOpen = false
+    state.coverOptions = []
+    render()
+    try {
+      const updatedBook = await api.updateCover(bookId, url)
+      syncBookState(updatedBook)
+      render()
+      showToast('Cover linked')
+    } catch (e) {
+      showToast('Failed to save cover: ' + e.message, 'error')
+    }
   })
 
   // Refresh covers
@@ -1821,7 +1960,8 @@ async function init() {
     await refreshSession()
     try {
       const res = await fetch('/api/settings')
-      if (res.ok) state.settings = await res.json()
+      if (res.ok) state.settings = { ...state.settings, ...(await res.json()) }
+      if (state.settings.shelfName) document.title = state.settings.shelfName
     } catch (e) {
       // No settings endpoint (static build) - defaults apply
     }

@@ -40,4 +40,9 @@ describe('buildOgPage', () => {
   it('returns null for unknown routes', () => {
     expect(buildOgPage('/nope/whatever', BOOKS, 'https://shelf.example')).toBeNull()
   })
+
+  it('uses a configured shelf name as the site name', () => {
+    const html = buildOgPage('/author/vonnegut', BOOKS, 'https://shelf.example', "Mary Steiner's Shelf")
+    expect(html).toContain('Mary Steiner&#39;s Shelf')
+  })
 })

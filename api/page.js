@@ -1,5 +1,5 @@
 // ABOUTME: Vercel function serving OpenGraph pages for path-style share URLs.
-import { getAllBooks } from '../server/db.js'
+import { getAllBooks, getSettings } from '../server/db.js'
 import { buildOgPage } from '../server/og.js'
 
 export default async function handler(req, res) {
@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     const path = decodeURIComponent(new URL(req.url, 'http://x').pathname)
     const proto = req.headers['x-forwarded-proto'] || 'https'
     const host = req.headers['x-forwarded-host'] || req.headers.host || ''
-    const html = buildOgPage(path, await getAllBooks(), `${proto}://${host}`)
+    const html = buildOgPage(path, await getAllBooks(), `${proto}://${host}`, (await getSettings()).shelfName || 'Shelf')
     if (!html) {
       res.statusCode = 302
       res.setHeader('Location', '/')

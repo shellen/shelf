@@ -166,8 +166,10 @@ describe('settings', () => {
   it('returns defaults when unset and round-trips values', async () => {
     const { getSettings, saveSettings } = await loadDb()
     expect((await getSettings()).landing).toEqual(['book', 'audiobook', 'movie', 'podcast', 'album'])
-    await saveSettings({ landing: ['album', 'book'] })
+    expect((await getSettings()).shelfName).toBe('')
+    await saveSettings({ landing: ['album', 'book'], shelfName: "Mary Steiner's Shelf" })
     expect((await getSettings()).landing).toEqual(['album', 'book'])
+    expect((await getSettings()).shelfName).toBe("Mary Steiner's Shelf")
   })
 
   it('ignores unknown media keys on save', async () => {

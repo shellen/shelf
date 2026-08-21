@@ -1,6 +1,6 @@
-# Bookshelf
+# Shelf
 
-A simple, portable bookshelf app with local SQLite storage that builds to a single HTML file.
+A simple, portable media shelf — books, audiobooks, movies, podcasts, and albums — with local SQLite storage that builds to a single HTML file. Name it yours ("Mary Steiner's Shelf") in Shelf Settings.
 
 ## Quick Start
 
@@ -12,7 +12,8 @@ npm run dev          # Dev server + API at localhost:5173
 
 ## Features
 
-- **Cover wall view** - Visual grid of book covers
+- **Five media types** - Books, audiobooks, movies, podcasts, and albums; medium tabs plus a sectioned landing page you configure (which media, what order) in Shelf Settings
+- **Cover wall view** - Visual grid of covers
 - **List view** - Sortable table with all book details (click column headers to sort)
 - **Search** - Filter by title, author, or tags
 - **Sort by anything** - Title, author, rating, date read, date added, pages, or year; re-select to flip direction
@@ -38,13 +39,18 @@ Run a writable, password-protected bookshelf on Vercel + Turso — both free tie
 
 Anyone can browse a hosted shelf; only someone with the password can edit. Leave `BOOKSHELF_PASSWORD` unset (e.g. locally) and the app is writable with no login. Local dev keeps using a plain SQLite file — set `TURSO_DATABASE_URL` only where you want the hosted database.
 
-## Adding Books
+## Adding Media
 
-### Option 1: In-App Form
+### Option 1: Add Media form
 1. Run `npm run dev`
-2. Click "+ Add Book"
-3. Enter ISBN (auto-fills title/author) or enter manually
-4. Click "Add Book" - saves instantly to SQLite
+2. Open the avatar menu → **Add Media**
+3. Pick a medium; books take an ISBN lookup, everything else uses the built-in search
+4. Save - persists instantly
+
+### Option 1b: Quick add (List view)
+Type a title in the quick-add row, press Enter, repeat. Hit **Resolve N pending**
+when done - each title is looked up (author, year, cover, ISBN) and anything
+unmatched is kept exactly as you typed it.
 
 ### Option 2: CLI Script
 ```bash
@@ -57,7 +63,7 @@ npm run add-book
 2. In the app, click **Import** (or press `i`) and drop the downloaded `goodreads_library_export.csv`
 3. Review the preview (new / updates / unparseable) and confirm
 
-Import merging is fill-in-blanks: books matched by ISBN or title+author keep everything they already have; only empty fields (rating, notes, dates, pages, year, ISBN) are filled from the export, and tags are unioned. Goodreads shelves (including `read` / `to-read` / `currently-reading`) become tags.
+Import merging is fill-in-blanks: books matched by ISBN or title+author keep everything they already have; only empty fields (rating, notes, dates, pages, year, ISBN) are filled from the export, and tags are unioned. Goodreads shelves (including `read` / `to-read` / `currently-reading`) become tags — and media-type tags (`audiobook`, `movies`, `vinyl`, `podcasts`, ...) automatically categorize the item's medium. Large exports upload in chunks, so hosted deployments handle full libraries.
 
 ### Option 4: Edit books.json + migrate
 1. Add entries to `books.json`
@@ -156,13 +162,29 @@ bookshelf/
 
 ## Cover Images
 
-Covers are fetched from multiple sources and cached in `public/covers/`:
+Hosted shelves store **no image files at all** - covers are linked from their
+origins at display time, in this order:
 
-1. **Open Library** - Primary source, searched by title/author
-2. **Google Books** - Fallback option
-3. **ISBN lookup** - Direct URL if ISBN is known
+1. The item's saved cover URL (picked covers, iTunes artwork, or a URL you pasted)
+2. The local `public/covers/` cache (dev and single-file builds)
+3. **Open Library's ISBN cover service** for books
+4. A generated placeholder
 
-Run `npm run fetch-covers` to download covers for all books in the database. Cached covers are embedded as base64 in the final HTML build; books with a custom cover URL keep that URL.
+The cover picker searches Open Library and Google Books, and also accepts a
+pasted image URL for hard-to-find art - the URL is linked, never copied.
+Cover imagery is served by [Open Library](https://openlibrary.org) and Apple's
+iTunes Search API; movie/album/podcast metadata comes from Apple's catalog.
+
+Run `npm run fetch-covers` to cache book covers locally for offline single-file
+builds; cached covers are embedded as base64 in that build.
+
+## Sharing & OpenGraph
+
+Every hash route has a crawler-friendly path twin on hosted deployments:
+`/title/snow-crash`, `/author/vonnegut`, `/tags/cycling`, `/isbn/...`,
+`/medium/album`. Those pages carry OpenGraph tags (title, creator, year,
+cover image, your shelf name) and bounce human visitors into the app - so
+links pasted into Slack/socials unfurl properly.
 
 ## API Endpoints
 

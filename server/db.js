@@ -289,21 +289,33 @@ export async function updateBookIsbn(id, isbn) {
 
 export const MEDIA_KEYS = ['book', 'audiobook', 'movie', 'podcast', 'album']
 
-// Helper: instance settings (landing = ordered media sections on the landing page)
+// Helper: instance settings (landing = ordered media sections on the landing
+// page; shelfName = the display title, e.g. "Mary Steiner's Shelf")
 export async function getSettings() {
   await ensureSchema()
-  const rs = await db.execute({ sql: 'SELECT value FROM settings WHERE key = ?', args: ['landing'] })
-  if (!rs.rows.length) return { landing: [...MEDIA_KEYS] }
-  return { landing: JSON.parse(rs.rows[0].value) }
+  const rs = await db.execute(`SELECT key, value FROM settings WHERE key IN ('landing', 'shelfName')`)
+  const stored = Object.fromEntries(rs.rows.map(r => [r.key, r.value]))
+  return {
+    landing: stored.landing ? JSON.parse(stored.landing) : [...MEDIA_KEYS],
+    shelfName: stored.shelfName || ''
+  }
 }
 
 export async function saveSettings(settings) {
   await ensureSchema()
-  const landing = (settings.landing || []).filter(m => MEDIA_KEYS.includes(m))
-  await db.execute({
-    sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)',
-    args: ['landing', JSON.stringify(landing)]
-  })
+  if (settings.landing !== undefined) {
+    const landing = (settings.landing || []).filter(m => MEDIA_KEYS.includes(m))
+    await db.execute({
+      sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)',
+      args: ['landing', JSON.stringify(landing)]
+    })
+  }
+  if (settings.shelfName !== undefined) {
+    await db.execute({
+      sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)',
+      args: ['shelfName', String(settings.shelfName).slice(0, 60)]
+    })
+  }
   return getSettings()
 }
 

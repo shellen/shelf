@@ -2,7 +2,7 @@
 // ABOUTME: Tests for iTunes Search API query building and result mapping.
 
 import { describe, it, expect } from 'vitest'
-import { itunesUrl, mapItunesResults } from './lookup.js'
+import { itunesUrl, mapItunesResults, mapOpenLibraryResults } from './lookup.js'
 
 describe('itunesUrl', () => {
   it('builds per-medium queries', () => {
@@ -15,6 +15,24 @@ describe('itunesUrl', () => {
 
   it('rejects unknown media', () => {
     expect(itunesUrl('vhs', 'Dune')).toBeNull()
+  })
+})
+
+describe('mapOpenLibraryResults', () => {
+  it('maps book docs with author, year, isbn, and cover', () => {
+    const [r] = mapOpenLibraryResults([{
+      title: 'Dune', author_name: ['Frank Herbert'], first_publish_year: 1965,
+      cover_i: 12345, isbn: ['9780441172719', '0441172717']
+    }])
+    expect(r).toEqual({
+      title: 'Dune', author: 'Frank Herbert', year: 1965,
+      isbn: '9780441172719',
+      coverUrl: 'https://covers.openlibrary.org/b/id/12345-L.jpg'
+    })
+  })
+
+  it('skips docs without titles', () => {
+    expect(mapOpenLibraryResults([{ author_name: ['X'] }])).toEqual([])
   })
 })
 
