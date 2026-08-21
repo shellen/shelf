@@ -26,6 +26,18 @@ npm run dev          # Dev server + API at localhost:5173
 - **Local cover caching** - Downloads covers once, embeds in final HTML
 - **Single file output** - One portable `index.html` file (read-only snapshot with covers embedded)
 
+## Host Your Own (free)
+
+Run a writable, password-protected bookshelf on Vercel + Turso — both free tiers, no credit card:
+
+1. **Database:** sign up at [turso.tech](https://turso.tech), then `turso db create bookshelf`. Grab the URL (`turso db show bookshelf --url`) and a token (`turso db tokens create bookshelf`).
+2. **Deploy:** click the button below (fork this repo first, or use your own clone URL). Set three env vars when prompted: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, and `BOOKSHELF_PASSWORD` (the password that unlocks editing).
+3. Open your app, hit **Log In**, and import your Goodreads CSV.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=REPLACE_WITH_YOUR_REPO_URL&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,BOOKSHELF_PASSWORD&envDescription=Turso%20database%20URL%2Ftoken%20and%20the%20password%20that%20unlocks%20editing)
+
+Anyone can browse a hosted shelf; only someone with the password can edit. Leave `BOOKSHELF_PASSWORD` unset (e.g. locally) and the app is writable with no login. Local dev keeps using a plain SQLite file — set `TURSO_DATABASE_URL` only where you want the hosted database.
+
 ## Adding Books
 
 ### Option 1: In-App Form

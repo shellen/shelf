@@ -9,11 +9,26 @@ const BOOKS = [
   { id: 's2-design-of-everyday-things', title: 'The Design of Everyday Things', author: 'Don Norman', tags: ['design'], isbn: null, coverUrl: null, rating: 4, notes: null, dateRead: null, dateAdded: null, pages: null, year: null },
 ]
 
-async function loadApp(books = BOOKS) {
+async function loadApp(books = BOOKS, { session } = {}) {
   window.location.hash = ''
   document.body.innerHTML = '<div id="app"></div>'
+  const sessionState = session || { authRequired: false, writable: true }
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const u = String(url)
+    if (u.endsWith('/api/session')) {
+      return { ok: true, json: async () => ({ ...sessionState }) }
+    }
+    if (u.endsWith('/api/login') && opts.method === 'POST') {
+      if (JSON.parse(opts.body).password === 'sekrit') {
+        sessionState.writable = true
+        return { ok: true, json: async () => ({ ok: true }) }
+      }
+      return { ok: false, status: 401, json: async () => ({ error: 'Wrong password' }) }
+    }
+    if (u.endsWith('/api/logout') && opts.method === 'POST') {
+      sessionState.writable = false
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
     if (u.endsWith('/api/books') && (!opts.method || opts.method === 'GET')) {
       return { ok: true, json: async () => ({ books: books.map(b => ({ ...b, tags: [...b.tags] })) }) }
     }
@@ -184,6 +199,46 @@ describe('inline editing', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'e', bubbles: true }))
     expect(document.activeElement?.dataset.field).toBe('title')
+  })
+})
+
+describe('login flow', () => {
+  it('locked session hides editing and offers Log In', async () => {
+    await loadApp(BOOKS, { session: { authRequired: true, writable: false } })
+    expect(document.querySelector('[data-action="add-book"]')).toBeNull()
+    expect(document.querySelector('[data-action="login"]')).not.toBeNull()
+  })
+
+  it('logging in unlocks editing and offers Log Out', async () => {
+    await loadApp(BOOKS, { session: { authRequired: true, writable: false } })
+    document.querySelector('[data-action="login"]').click()
+    document.getElementById('login-password').value = 'sekrit'
+    document.querySelector('[data-action="submit-login"]').click()
+
+    await vi.waitFor(() => {
+      if (!document.querySelector('[data-action="add-book"]')) throw new Error('still locked')
+    })
+    expect(document.querySelector('[data-action="login"]')).toBeNull()
+    expect(document.querySelector('[data-action="logout"]')).not.toBeNull()
+  })
+
+  it('shows an error for a wrong password', async () => {
+    await loadApp(BOOKS, { session: { authRequired: true, writable: false } })
+    document.querySelector('[data-action="login"]').click()
+    document.getElementById('login-password').value = 'nope'
+    document.querySelector('[data-action="submit-login"]').click()
+
+    await vi.waitFor(() => {
+      if (!document.querySelector('.status.error')) throw new Error('no error yet')
+    })
+    expect(document.querySelector('[data-action="add-book"]')).toBeNull()
+  })
+
+  it('writable session without password shows no auth buttons', async () => {
+    await loadApp()
+    expect(document.querySelector('[data-action="login"]')).toBeNull()
+    expect(document.querySelector('[data-action="logout"]')).toBeNull()
+    expect(document.querySelector('[data-action="add-book"]')).not.toBeNull()
   })
 })
 

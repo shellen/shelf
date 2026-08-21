@@ -175,6 +175,10 @@ const state = {
   modalOpen: false,
   modalLoading: false,
   modalStatus: null,
+  canLogin: false,
+  loggedIn: false,
+  loginOpen: false,
+  loginError: null,
   helpOpen: false,
   importOpen: false,
   importBooks: [],
@@ -438,6 +442,8 @@ function render() {
             <button class="btn" data-action="reset">Reset</button>
             ${state.readOnly ? '' : '<button class="btn" data-action="import">Import</button>'}
             ${state.readOnly ? '' : '<button class="btn btn-primary" data-action="add-book">+ Add Book</button>'}
+            ${state.canLogin && state.readOnly ? '<button class="btn" data-action="login">Log In</button>' : ''}
+            ${state.loggedIn ? '<button class="btn" data-action="logout">Log Out</button>' : ''}
           </div>
         </div>
       </div>
@@ -448,6 +454,7 @@ function render() {
     ${state.drawerOpen ? renderDrawer() : ''}
     ${state.modalOpen ? renderModal() : ''}
     ${state.importOpen ? renderImportModal() : ''}
+    ${state.loginOpen ? renderLoginModal() : ''}
     ${state.coverPickerOpen ? renderCoverPicker() : ''}
     ${state.confirmOpen ? renderConfirmDialog() : ''}
     ${state.helpOpen ? renderHelpOverlay() : ''}
@@ -851,6 +858,49 @@ if (window.__bookshelfHashchange) window.removeEventListener('hashchange', windo
 window.__bookshelfHashchange = applyHash
 window.addEventListener('hashchange', applyHash)
 
+function renderLoginModal() {
+  return `
+    <div class="modal-backdrop" data-action="close-login">
+      <div class="modal-panel" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Log In</h2>
+          <button class="drawer-close" data-action="close-login">&times;</button>
+        </div>
+        ${state.loginError ? `<div class="status error">${esc(state.loginError)}</div>` : ''}
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="login-password" autocomplete="current-password">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" data-action="close-login">Cancel</button>
+          <button class="btn btn-primary" data-action="submit-login">Log In</button>
+        </div>
+      </div>
+    </div>
+  `
+}
+
+async function refreshSession() {
+  try {
+    const res = await fetch('/api/session')
+    if (!res.ok) return
+    const s = await res.json()
+    if (s.authRequired && !s.writable) {
+      state.readOnly = true
+      state.canLogin = true
+      state.loggedIn = false
+    } else if (s.authRequired && s.writable) {
+      state.readOnly = false
+      state.canLogin = false
+      state.loggedIn = true
+    }
+  } catch (e) {
+    // No session endpoint (static build) - the readOnly fallback already applies
+  }
+}
+
 function renderHelpOverlay() {
   const rows = [
     ['/', 'focus search'],
@@ -989,6 +1039,61 @@ function attachEventListeners() {
   document.querySelector('.header [data-action="import"]')?.addEventListener('click', () => {
     state.importOpen = true
     render()
+  })
+
+  // Login / logout
+  document.querySelector('.header [data-action="login"]')?.addEventListener('click', () => {
+    state.loginOpen = true
+    state.loginError = null
+    render()
+  })
+
+  document.querySelectorAll('[data-action="close-login"]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (el.classList.contains('modal-backdrop') && e.target !== el) return
+      state.loginOpen = false
+      state.loginError = null
+      render()
+    })
+  })
+
+  const submitLogin = async () => {
+    const password = document.getElementById('login-password')?.value || ''
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      })
+      if (!res.ok) {
+        state.loginError = 'Wrong password'
+        render()
+        return
+      }
+      await refreshSession()
+      state.loginOpen = false
+      state.loginError = null
+      render()
+      showToast('Logged in')
+    } catch (e) {
+      state.loginError = 'Login failed'
+      render()
+    }
+  }
+
+  document.querySelector('[data-action="submit-login"]')?.addEventListener('click', submitLogin)
+  document.getElementById('login-password')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); submitLogin() }
+  })
+
+  document.querySelector('.header [data-action="logout"]')?.addEventListener('click', async () => {
+    try {
+      await fetch('/api/logout', { method: 'POST' })
+    } catch (e) { /* session cookie may linger; the UI still locks */ }
+    state.loggedIn = false
+    state.readOnly = true
+    state.canLogin = true
+    render()
+    showToast('Logged out')
   })
 
   // Help overlay: close on backdrop click
@@ -1367,6 +1472,7 @@ function onKeydown(e) {
     if (state.helpOpen) { state.helpOpen = false; render(); return }
     if (state.coverPickerOpen) { state.coverPickerOpen = false; state.coverOptions = []; render(); return }
     if (state.modalOpen) { state.modalOpen = false; state.modalStatus = null; render(); return }
+    if (state.loginOpen) { state.loginOpen = false; state.loginError = null; render(); return }
     if (state.importOpen) { closeImport(); return }
     if (state.drawerOpen) { closeDrawer(); return }
     if (state.route) { state.route = null; clearHash(); render(); return }
@@ -1374,7 +1480,7 @@ function onKeydown(e) {
     return
   }
   if (typing) return
-  if (state.confirmOpen || state.modalOpen || state.coverPickerOpen || state.importOpen || state.helpOpen) return
+  if (state.confirmOpen || state.modalOpen || state.coverPickerOpen || state.importOpen || state.helpOpen || state.loginOpen) return
 
   const filtered = getFilteredSorted()
   if (e.key === '/') {
@@ -1472,6 +1578,7 @@ async function init() {
     }
   }
   state.loading = false
+  if (!state.readOnly && !state.error) await refreshSession()
   if (parseRoute(location.hash)) applyHash()
   else render()
 }
