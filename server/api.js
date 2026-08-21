@@ -7,18 +7,48 @@ import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
 import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks } from './db.js'
+import { authRequired, isWritable, verifyPassword, sessionCookie, clearedCookie } from './auth.js'
 
 export const app = express()
 const PORT = 3001
 
+app.set('trust proxy', 1)
 app.use(cors())
 // Large limit: a full library export with reviews exceeds the 100kb default
 app.use(express.json({ limit: '10mb' }))
 
+// Reads are public; writes need a session when a password is configured
+app.use('/api', (req, res, next) => {
+  if (req.method === 'GET' || req.path === '/login' || req.path === '/logout') return next()
+  if (!isWritable(req)) return res.status(401).json({ error: 'Login required' })
+  next()
+})
+
+// GET /api/session - Auth status
+app.get('/api/session', (req, res) => {
+  res.json({ authRequired: authRequired(), writable: isWritable(req) })
+})
+
+// POST /api/login - Start a session
+app.post('/api/login', (req, res) => {
+  if (!authRequired()) return res.json({ ok: true })
+  if (!verifyPassword(String(req.body?.password || ''))) {
+    return res.status(401).json({ error: 'Wrong password' })
+  }
+  res.setHeader('Set-Cookie', sessionCookie(req))
+  res.json({ ok: true })
+})
+
+// POST /api/logout - End the session
+app.post('/api/logout', (req, res) => {
+  res.setHeader('Set-Cookie', clearedCookie())
+  res.json({ ok: true })
+})
+
 // GET /api/books - List all books
-app.get('/api/books', (req, res) => {
+app.get('/api/books', async (req, res) => {
   try {
-    const books = getAllBooks()
+    const books = await getAllBooks()
     res.json({ books })
   } catch (e) {
     console.error('Error fetching books:', e)
@@ -27,9 +57,9 @@ app.get('/api/books', (req, res) => {
 })
 
 // GET /api/books/:id - Get single book
-app.get('/api/books/:id', (req, res) => {
+app.get('/api/books/:id', async (req, res) => {
   try {
-    const book = getBook(req.params.id)
+    const book = await getBook(req.params.id)
     if (!book) {
       return res.status(404).json({ error: 'Book not found' })
     }
@@ -41,7 +71,7 @@ app.get('/api/books/:id', (req, res) => {
 })
 
 // POST /api/books - Create new book
-app.post('/api/books', (req, res) => {
+app.post('/api/books', async (req, res) => {
   try {
     const { title, author, tags, isbn, coverUrl } = req.body
 
@@ -49,7 +79,7 @@ app.post('/api/books', (req, res) => {
       return res.status(400).json({ error: 'Title is required' })
     }
 
-    const book = saveBook({ id: generateBookId(title), title, author, tags: tags || [], isbn, coverUrl })
+    const book = await saveBook({ id: await generateBookId(title), title, author, tags: tags || [], isbn, coverUrl })
     res.status(201).json(book)
   } catch (e) {
     console.error('Error creating book:', e)
@@ -58,14 +88,14 @@ app.post('/api/books', (req, res) => {
 })
 
 // PUT /api/books/:id - Update book
-app.put('/api/books/:id', (req, res) => {
+app.put('/api/books/:id', async (req, res) => {
   try {
-    const existing = getBook(req.params.id)
+    const existing = await getBook(req.params.id)
     if (!existing) {
       return res.status(404).json({ error: 'Book not found' })
     }
 
-    const book = saveBook({ ...existing, ...req.body, id: req.params.id })
+    const book = await saveBook({ ...existing, ...req.body, id: req.params.id })
     res.json(book)
   } catch (e) {
     console.error('Error updating book:', e)
@@ -74,16 +104,16 @@ app.put('/api/books/:id', (req, res) => {
 })
 
 // PATCH /api/books/:id/cover - Update just the cover
-app.patch('/api/books/:id/cover', (req, res) => {
+app.patch('/api/books/:id/cover', async (req, res) => {
   try {
     const { coverUrl } = req.body
 
-    const success = updateBookCover(req.params.id, coverUrl)
+    const success = await updateBookCover(req.params.id, coverUrl)
     if (!success) {
       return res.status(404).json({ error: 'Book not found' })
     }
 
-    const book = getBook(req.params.id)
+    const book = await getBook(req.params.id)
     res.json(book)
   } catch (e) {
     console.error('Error updating cover:', e)
@@ -92,9 +122,9 @@ app.patch('/api/books/:id/cover', (req, res) => {
 })
 
 // DELETE /api/books/:id - Delete book
-app.delete('/api/books/:id', (req, res) => {
+app.delete('/api/books/:id', async (req, res) => {
   try {
-    const success = deleteBook(req.params.id)
+    const success = await deleteBook(req.params.id)
     if (!success) {
       return res.status(404).json({ error: 'Book not found' })
     }
@@ -106,9 +136,9 @@ app.delete('/api/books/:id', (req, res) => {
 })
 
 // GET /api/tags - Get all unique tags
-app.get('/api/tags', (req, res) => {
+app.get('/api/tags', async (req, res) => {
   try {
-    const tags = getAllTags()
+    const tags = await getAllTags()
     res.json({ tags })
   } catch (e) {
     console.error('Error fetching tags:', e)
@@ -117,13 +147,13 @@ app.get('/api/tags', (req, res) => {
 })
 
 // POST /api/import - bulk import with fill-in-blanks merging
-app.post('/api/import', (req, res) => {
+app.post('/api/import', async (req, res) => {
   try {
     const { books, dryRun } = req.body
     if (!Array.isArray(books)) {
       return res.status(400).json({ error: 'books array is required' })
     }
-    res.json(importBooks(books, { dryRun: !!dryRun }))
+    res.json(await importBooks(books, { dryRun: !!dryRun }))
   } catch (e) {
     console.error('Error importing books:', e)
     res.status(500).json({ error: 'Failed to import books' })

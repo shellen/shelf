@@ -12,11 +12,10 @@
     "test:watch": "vitest",
     "fetch-covers": "node scripts/fetch-covers.js",
     "add-book": "node scripts/add-book.js",
-    "db:init": "node scripts/init-db.js",
     "db:migrate": "node scripts/migrate-json.js"
   },
   "dependencies": {
-    "better-sqlite3": "^11.7.0",
+    "@libsql/client": "^0.17.4",
     "cors": "^2.8.5",
     "express": "^4.21.2"
   },

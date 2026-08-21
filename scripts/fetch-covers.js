@@ -222,7 +222,7 @@ async function fetchCover(book, cache) {
       // If we found an ISBN and the book doesn't have one, save it
       if (option.isbn && !book.isbn) {
         book.isbn = option.isbn
-        updateBookIsbn(book.id, option.isbn)
+        await updateBookIsbn(book.id, option.isbn)
       }
       break
     } catch (e) {
@@ -259,7 +259,7 @@ async function main() {
 
   await ensureDir(COVERS_DIR)
 
-  let books = getAllBooks()
+  let books = await getAllBooks()
   const cache = await loadCache()
 
   // Filter to specific book if ID provided

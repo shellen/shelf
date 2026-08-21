@@ -27,7 +27,7 @@ function bookshelfData() {
       if (!isBuild) return 'export default null'
 
       const { getAllBooks } = await import('./server/db.js')
-      const books = getAllBooks().map(book => {
+      const books = (await getAllBooks()).map(book => {
         if (book.coverUrl) return book
         const coverPath = path.join(ROOT, 'public', 'covers', `${book.id}.jpg`)
         if (!fs.existsSync(coverPath)) return book
