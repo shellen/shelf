@@ -72,4 +72,24 @@ describe('with BOOKSHELF_PASSWORD set', () => {
     const res = await post('/api/books', { title: 'Forged' }, 'bookshelf_session=deadbeef')
     expect(res.status).toBe(401)
   })
+
+  it('settings read publicly but write only with a session', async () => {
+    const read = await fetch(`${base}/api/settings`)
+    expect(read.status).toBe(200)
+    expect((await read.json()).landing).toContain('book')
+
+    const denied = await fetch(`${base}/api/settings`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ landing: ['album'] })
+    })
+    expect(denied.status).toBe(401)
+
+    const login = await post('/api/login', { password: 'spice-flow' })
+    const cookie = login.headers.get('set-cookie').split(';')[0]
+    const saved = await fetch(`${base}/api/settings`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Cookie: cookie },
+      body: JSON.stringify({ landing: ['album', 'book'] })
+    })
+    expect((await saved.json()).landing).toEqual(['album', 'book'])
+  })
 })

@@ -129,6 +129,37 @@ describe('importBooks', () => {
   })
 })
 
+describe('medium', () => {
+  it('defaults to book and round-trips other values', async () => {
+    const { saveBook, getBook } = await loadDb()
+    await saveBook({ id: 'dune', title: 'Dune', tags: [] })
+    expect((await getBook('dune')).medium).toBe('book')
+    await saveBook({ id: 'abbey-road', title: 'Abbey Road', medium: 'album', tags: [] })
+    expect((await getBook('abbey-road')).medium).toBe('album')
+  })
+
+  it('imports default to book', async () => {
+    const { importBooks, getAllBooks } = await loadDb()
+    await importBooks([{ title: 'Dune', author: 'Frank Herbert', isbn: null, rating: null, notes: null, tags: [], dateRead: null, dateAdded: null, pages: null, year: null }])
+    expect((await getAllBooks())[0].medium).toBe('book')
+  })
+})
+
+describe('settings', () => {
+  it('returns defaults when unset and round-trips values', async () => {
+    const { getSettings, saveSettings } = await loadDb()
+    expect((await getSettings()).landing).toEqual(['book', 'audiobook', 'movie', 'podcast', 'album'])
+    await saveSettings({ landing: ['album', 'book'] })
+    expect((await getSettings()).landing).toEqual(['album', 'book'])
+  })
+
+  it('ignores unknown media keys on save', async () => {
+    const { getSettings, saveSettings } = await loadDb()
+    await saveSettings({ landing: ['album', 'vhs', 'book'] })
+    expect((await getSettings()).landing).toEqual(['album', 'book'])
+  })
+})
+
 describe('updateBookIsbn', () => {
   it('sets the isbn on a book that has none', async () => {
     const { saveBook, getBook, updateBookIsbn } = await loadDb()

@@ -6,8 +6,9 @@
 import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
-import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks } from './db.js'
+import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks, getSettings, saveSettings } from './db.js'
 import { authRequired, isWritable, verifyPassword, sessionCookie, clearedCookie } from './auth.js'
+import { searchItunes } from './lookup.js'
 
 export const app = express()
 const PORT = process.env.PORT || 3001
@@ -157,6 +158,40 @@ app.post('/api/import', async (req, res) => {
   } catch (e) {
     console.error('Error importing books:', e)
     res.status(500).json({ error: 'Failed to import books' })
+  }
+})
+
+// GET /api/settings - Instance settings (public read)
+app.get('/api/settings', async (req, res) => {
+  try {
+    res.json(await getSettings())
+  } catch (e) {
+    console.error('Error fetching settings:', e)
+    res.status(500).json({ error: 'Failed to fetch settings' })
+  }
+})
+
+// PUT /api/settings - Update instance settings (guarded by the auth middleware)
+app.put('/api/settings', async (req, res) => {
+  try {
+    res.json(await saveSettings(req.body || {}))
+  } catch (e) {
+    console.error('Error saving settings:', e)
+    res.status(500).json({ error: 'Failed to save settings' })
+  }
+})
+
+// GET /api/lookup?medium=&q= - iTunes metadata search for non-book media
+app.get('/api/lookup', async (req, res) => {
+  try {
+    const { medium, q } = req.query
+    if (!q) return res.status(400).json({ error: 'q is required' })
+    const results = await searchItunes(String(medium), String(q))
+    if (results === null) return res.status(400).json({ error: 'Unknown medium' })
+    res.json({ results })
+  } catch (e) {
+    console.error('Error looking up media:', e)
+    res.status(500).json({ error: 'Lookup failed' })
   }
 })
 

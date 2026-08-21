@@ -46,8 +46,15 @@ async function migrate() {
       date_added TEXT,
       pages INTEGER,
       year INTEGER,
+      medium TEXT NOT NULL DEFAULT 'book',
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
     )
   `)
   await db.execute(`
@@ -71,7 +78,7 @@ async function migrate() {
   } catch (e) {
     if (!/no such column/.test(e.message)) throw e
   }
-  for (const col of ['rating REAL', 'notes TEXT', 'date_read TEXT', 'date_added TEXT', 'pages INTEGER', 'year INTEGER']) {
+  for (const col of ['rating REAL', 'notes TEXT', 'date_read TEXT', 'date_added TEXT', 'pages INTEGER', 'year INTEGER', `medium TEXT NOT NULL DEFAULT 'book'`]) {
     try {
       await db.execute(`ALTER TABLE books ADD COLUMN ${col}`)
     } catch (e) {
@@ -80,7 +87,7 @@ async function migrate() {
   }
 }
 
-const BOOK_COLUMNS = `id, title, author, isbn, cover_url, rating, notes, date_read, date_added, pages, year`
+const BOOK_COLUMNS = `id, title, author, isbn, cover_url, rating, notes, date_read, date_added, pages, year, medium`
 
 function rowToBook(r) {
   return {
@@ -94,7 +101,8 @@ function rowToBook(r) {
     dateRead: r.date_read,
     dateAdded: r.date_added,
     pages: r.pages,
-    year: r.year
+    year: r.year,
+    medium: r.medium
   }
 }
 
@@ -123,8 +131,8 @@ export async function getBook(id) {
 // Writes one book (row + tags) through the given executor (client or transaction)
 async function writeBook(ex, b) {
   await ex.execute({
-    sql: `INSERT OR REPLACE INTO books (id, title, author, isbn, cover_url, rating, notes, date_read, date_added, pages, year, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+    sql: `INSERT OR REPLACE INTO books (id, title, author, isbn, cover_url, rating, notes, date_read, date_added, pages, year, medium, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
     args: [
       b.id,
       b.title,
@@ -136,7 +144,8 @@ async function writeBook(ex, b) {
       b.dateRead || null,
       b.dateAdded || null,
       b.pages || null,
-      b.year || null
+      b.year || null,
+      MEDIA_KEYS.includes(b.medium) ? b.medium : 'book'
     ]
   })
   await ex.execute({ sql: 'DELETE FROM book_tags WHERE book_id = ?', args: [b.id] })
@@ -259,6 +268,26 @@ export async function updateBookIsbn(id, isbn) {
     args: [isbn, id]
   })
   return rs.rowsAffected > 0
+}
+
+export const MEDIA_KEYS = ['book', 'audiobook', 'movie', 'podcast', 'album']
+
+// Helper: instance settings (landing = ordered media sections on the landing page)
+export async function getSettings() {
+  await ensureSchema()
+  const rs = await db.execute({ sql: 'SELECT value FROM settings WHERE key = ?', args: ['landing'] })
+  if (!rs.rows.length) return { landing: [...MEDIA_KEYS] }
+  return { landing: JSON.parse(rs.rows[0].value) }
+}
+
+export async function saveSettings(settings) {
+  await ensureSchema()
+  const landing = (settings.landing || []).filter(m => MEDIA_KEYS.includes(m))
+  await db.execute({
+    sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)',
+    args: ['landing', JSON.stringify(landing)]
+  })
+  return getSettings()
 }
 
 // Helper: get all tags
