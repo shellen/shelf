@@ -10,6 +10,7 @@ const BOOKS = [
 ]
 
 async function loadApp(books = BOOKS) {
+  window.location.hash = ''
   document.body.innerHTML = '<div id="app"></div>'
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const u = String(url)
@@ -183,6 +184,79 @@ describe('inline editing', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'e', bubbles: true }))
     expect(document.activeElement?.dataset.field).toBe('title')
+  })
+})
+
+describe('hash routes', () => {
+  const goTo = (hash) => {
+    window.location.hash = hash
+    window.dispatchEvent(new Event('hashchange'))
+  }
+
+  it('filters the wall by author route with fuzzy matching', async () => {
+    await loadApp()
+    goTo('#/author/herbert')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1)
+    expect(document.querySelector('.cover-title').textContent).toBe('Dune')
+    expect(document.querySelector('.status-bar').textContent).toContain('author')
+    expect(window.location.hash).toBe('#/author/frank-herbert') // canonicalized
+  })
+
+  it('applies a route present at load time', async () => {
+    window.location.hash = '#/tags/design'
+    document.body.innerHTML = '<div id="app"></div>'
+    vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
+      if (String(url).endsWith('/api/books') && (!opts.method || opts.method === 'GET')) {
+        return { ok: true, json: async () => ({ books: BOOKS.map(b => ({ ...b, tags: [...b.tags] })) }) }
+      }
+      throw new Error('unexpected fetch: ' + url)
+    }))
+    vi.resetModules()
+    await import('./main.js')
+    await vi.waitFor(() => {
+      if (!document.querySelector('.header')) throw new Error('app not rendered yet')
+    })
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1)
+    expect(document.querySelector('.cover-title').textContent).toBe('The Design of Everyday Things')
+  })
+
+  it('opens the drawer for a single-title route', async () => {
+    await loadApp()
+    goTo('#/title/dune')
+    expect(document.querySelector('.drawer-title').value).toBe('Dune')
+  })
+
+  it('sets a book hash when opening from the wall and clears it on close', async () => {
+    await loadApp()
+    document.querySelector('[data-id="s2-dune"]').click()
+    expect(window.location.hash).toBe('#/title/dune')
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    expect(window.location.hash).toBe('')
+  })
+
+  it('routes tag filters through the hash', async () => {
+    await loadApp()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: '1', bubbles: true }))
+    expect(window.location.hash).toBe('#/tags/design')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1)
+  })
+
+  it('replaces a tag filter when navigating to an author route', async () => {
+    await loadApp()
+    goTo('#/tags/design')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1)
+    goTo('#/author/herbert')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1)
+    expect(document.querySelector('.cover-title').textContent).toBe('Dune')
+    expect(document.querySelector('.status-bar').textContent).not.toContain('tag:')
+  })
+
+  it('clears the route filter on reset', async () => {
+    await loadApp()
+    goTo('#/author/herbert')
+    document.querySelector('.header [data-action="reset"]').click()
+    expect(document.querySelectorAll('.cover-tile').length).toBe(3)
+    expect(window.location.hash).toBe('')
   })
 })
 

@@ -604,6 +604,22 @@ input.drawer-title:hover:not(:focus), input.drawer-author:hover:not(:focus),
   margin-top: 0.25rem;
 }
 
+.drawer-author-link {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.drawer-author-link:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .drawer-tags-input {
   margin-top: 0.5rem;
   font-family: var(--mono);

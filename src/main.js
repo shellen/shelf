@@ -1,6 +1,7 @@
 import './style.css'
 import embeddedBooks from 'virtual:bookshelf-data'
 import { parseGoodreadsCsv } from './goodreads.js'
+import { parseRoute, resolveRoute, slugify } from './routes.js'
 
 // Escape data for safe interpolation into HTML templates (element and attribute contexts)
 function esc(s) {
@@ -168,6 +169,7 @@ const state = {
   sortBy: 'title',
   sortDir: 'asc',
   selectedIndex: -1,
+  route: null,
   drawerOpen: false,
   selected: null,
   modalOpen: false,
@@ -202,6 +204,7 @@ function getFilteredSorted() {
   const tag = state.tag
 
   let out = state.books.filter(b => {
+    if (state.route && !state.route.ids.has(b.id)) return false
     if (tag && !(b.tags || []).includes(tag)) return false
     if (!q) return true
     const hay = [b.title || '', b.author || '', ...(b.tags || [])].join(' ').toLowerCase()
@@ -473,6 +476,7 @@ function renderStatusBar(filtered) {
     <div class="status-bar">
       ${shown === total ? `${total} BOOKS` : `${shown}/${total} BOOKS`}
       / SORTED BY ${esc(opt.label.toUpperCase())} ${state.sortDir === 'asc' ? '↑' : '↓'}
+      ${state.route ? ` / ${esc(state.route.kind)}: "${esc(state.route.slug)}"` : ''}
       ${state.q ? ` / q: "${esc(state.q)}"` : ''}
       ${state.tag ? ` / tag: ${esc(state.tag)}` : ''}
     </div>
@@ -585,6 +589,7 @@ function renderDrawer() {
           <div class="drawer-details">
             <input class="drawer-title" data-field="title" value="${esc(b.title)}" data-original="${esc(b.title)}" placeholder="Title" ${state.readOnly ? 'readonly' : ''}>
             <input class="drawer-author" data-field="author" value="${esc(b.author)}" data-original="${esc(b.author)}" placeholder="Author" ${state.readOnly ? 'readonly' : ''}>
+            ${b.author ? `<button class="drawer-author-link" data-action="author-route">More by this author &rarr;</button>` : ''}
             <div class="drawer-rating">
               ${[1,2,3,4,5].map(star => {
                 const halfValue = star - 0.5
@@ -737,23 +742,114 @@ function renderModal() {
   `
 }
 
+function clearHash() {
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search)
+}
+
 function resetFilters() {
   state.q = ''
   state.tag = ''
   state.sortBy = 'title'
   state.sortDir = 'asc'
   state.selectedIndex = -1
+  state.route = null
+  clearHash()
   render()
+}
+
+// The hash a book is shareable at: its title slug when unambiguous, else its ISBN
+function bookHash(book) {
+  const titleHash = `#/title/${slugify(book.title)}`
+  const parsed = parseRoute(titleHash)
+  if (parsed && resolveRoute(parsed, state.books).open?.id === book.id) return titleHash
+  if (book.isbn) return `#/isbn/${String(book.isbn).replace(/[^0-9Xx]/g, '').toUpperCase()}`
+  return null
 }
 
 function openBook(id) {
   const book = state.books.find(b => b.id === id)
-  if (book) {
-    state.selected = book
-    state.drawerOpen = true
+  if (!book) return
+  state.selected = book
+  state.drawerOpen = true
+  const target = bookHash(book)
+  if (target && location.hash !== target) {
+    history.replaceState(null, '', target)
+  }
+  render()
+}
+
+function setTagRoute(tag) {
+  if (tag) {
+    history.replaceState(null, '', `#/tags/${slugify(tag)}`)
+    state.tag = tag
+    state.selectedIndex = -1
+    render()
+  } else {
+    clearHash()
+    state.tag = ''
+    state.selectedIndex = -1
     render()
   }
 }
+
+function closeDrawer() {
+  state.drawerOpen = false
+  state.selected = null
+  const route = parseRoute(location.hash)
+  if (route && (route.kind === 'title' || route.kind === 'isbn')) clearHash()
+  render()
+}
+
+// Apply the current location.hash to app state
+function applyHash() {
+  const route = parseRoute(location.hash)
+  if (!route) {
+    state.route = null
+    if (state.drawerOpen) {
+      state.drawerOpen = false
+      state.selected = null
+    }
+    render()
+    return
+  }
+
+  const resolved = resolveRoute(route, state.books)
+  if (resolved.canonical && location.hash !== resolved.canonical) {
+    history.replaceState(null, '', resolved.canonical)
+  }
+
+  if (route.kind === 'tags' && resolved.tag) {
+    state.route = null
+    state.tag = resolved.tag
+    state.selectedIndex = -1
+    render()
+    return
+  }
+
+  if (resolved.open) {
+    state.route = null
+    state.selected = state.books.find(b => b.id === resolved.open.id) || null
+    state.drawerOpen = !!state.selected
+    render()
+    return
+  }
+
+  // Navigating to a route is a fresh view: stale tag/search filters would
+  // silently intersect with it and show misleading empty results.
+  state.route = { kind: route.kind, slug: route.slug, ids: new Set(resolved.books.map(b => b.id)) }
+  state.tag = ''
+  state.q = ''
+  state.drawerOpen = false
+  state.selected = null
+  state.selectedIndex = -1
+  render()
+}
+
+// Single hashchange listener; the window guard keeps test module
+// reloads and Vite HMR from stacking handlers.
+if (window.__bookshelfHashchange) window.removeEventListener('hashchange', window.__bookshelfHashchange)
+window.__bookshelfHashchange = applyHash
+window.addEventListener('hashchange', applyHash)
 
 function renderHelpOverlay() {
   const rows = [
@@ -856,9 +952,7 @@ function attachEventListeners() {
 
   // Tag select
   document.querySelector('[data-action="tag"]')?.addEventListener('change', e => {
-    state.tag = e.target.value
-    state.selectedIndex = -1
-    render()
+    setTagRoute(e.target.value)
   })
 
   // Sort select
@@ -938,6 +1032,7 @@ function attachEventListeners() {
       const counts = await res.json()
       state.books = await api.getBooks()
       closeImport()
+      if (parseRoute(location.hash)) applyHash()
       showToast(`Imported: ${counts.added} added, ${counts.filled} filled, ${counts.skipped} skipped`)
     } catch (e) {
       console.error('Import failed:', e)
@@ -970,11 +1065,7 @@ function attachEventListeners() {
 
   // Close drawer
   document.querySelectorAll('[data-action="close-drawer"]').forEach(el => {
-    el.addEventListener('click', () => {
-      state.drawerOpen = false
-      state.selected = null
-      render()
-    })
+    el.addEventListener('click', closeDrawer)
   })
 
   // Inline field editing - save on blur, Enter commits, Escape reverts
@@ -990,6 +1081,13 @@ function attachEventListeners() {
         el.blur()
       }
     })
+  })
+
+  // Author route from the drawer
+  document.querySelector('[data-action="author-route"]')?.addEventListener('click', () => {
+    if (!state.selected?.author) return
+    history.replaceState(null, '', `#/author/${slugify(state.selected.author)}`)
+    applyHash()
   })
 
   // Delete book
@@ -1263,7 +1361,8 @@ function onKeydown(e) {
     if (state.coverPickerOpen) { state.coverPickerOpen = false; state.coverOptions = []; render(); return }
     if (state.modalOpen) { state.modalOpen = false; state.modalStatus = null; render(); return }
     if (state.importOpen) { closeImport(); return }
-    if (state.drawerOpen) { state.drawerOpen = false; state.selected = null; render(); return }
+    if (state.drawerOpen) { closeDrawer(); return }
+    if (state.route) { state.route = null; clearHash(); render(); return }
     if (state.q) { state.q = ''; document.querySelector('[data-action="search"]')?.blur(); render() }
     return
   }
@@ -1342,9 +1441,7 @@ function onKeydown(e) {
   if (/^[1-9]$/.test(e.key)) {
     const tag = getAllTags()[Number(e.key) - 1]
     if (!tag) return
-    state.tag = state.tag === tag ? '' : tag
-    state.selectedIndex = -1
-    render()
+    setTagRoute(state.tag === tag ? '' : tag)
   }
 }
 
@@ -1368,7 +1465,8 @@ async function init() {
     }
   }
   state.loading = false
-  render()
+  if (parseRoute(location.hash)) applyHash()
+  else render()
 }
 
 init()

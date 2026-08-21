@@ -18,6 +18,7 @@ npm run dev          # Dev server + API at localhost:5173
 - **Sort by anything** - Title, author, rating, date read, date added, pages, or year; re-select to flip direction
 - **Goodreads import** - Drop in a `goodreads_library_export.csv`; new books are added, existing ones get blanks filled
 - **Keyboard-first** - Full navigation without the mouse; press `?` for the shortcut list
+- **Shareable URLs** - Hash routes like `#/author/vonnegut`, `#/title/snow-crash`, `#/tags/cycling`, `#/isbn/9780441172719`; case-insensitive with fuzzy author/title matching, and they work in the standalone build too
 - **Add books** - In-app form with ISBN lookup
 - **Edit in place** - Click any field in the book drawer (title, author, tags, ISBN, notes, rating) and it autosaves on blur; Enter commits, Esc reverts
 - **Change covers** - Pick from Open Library, Google Books results
@@ -49,6 +50,19 @@ Import merging is fill-in-blanks: books matched by ISBN or title+author keep eve
 ### Option 4: Edit books.json + migrate
 1. Add entries to `books.json`
 2. Run `npm run db:migrate` to sync to SQLite
+
+## URLs
+
+Every view is linkable via hash routes (they work in dev, hosted, and the single-file build):
+
+| Route | Meaning |
+|-------|---------|
+| `#/title/<slug>` | A book by title; a single match opens it directly (this is the hash the app sets when you open a book) |
+| `#/author/<slug>` | All books by an author; partial names work (`#/author/vonnegut` finds Kurt Vonnegut Jr.) |
+| `#/tags/<slug>` | Tag filter |
+| `#/isbn/<isbn>` | A book by ISBN (dashes and case ignored) |
+
+Matching is case-insensitive; word-subset slugs match (`made-stick` finds "Made to Stick"). Partial slugs that resolve to one author or book are rewritten to the full canonical URL, so variants converge on one shareable link. Ambiguous slugs show all matches.
 
 ## Keyboard Shortcuts
 
