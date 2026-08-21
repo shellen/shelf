@@ -75,6 +75,16 @@ body {
   color: var(--accent);
 }
 
+.header-title h1 button {
+  all: unset;
+  cursor: pointer;
+}
+
+.header-title h1 button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .header-controls {
   display: flex;
   flex-wrap: wrap;

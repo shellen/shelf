@@ -417,7 +417,7 @@ function render() {
       <div class="header-inner">
         <div class="header-row">
           <div class="header-title">
-            <h1>Bookshelf</h1>
+            <h1><button data-action="home" title="Back to the full shelf">Bookshelf</button></h1>
           </div>
           <div class="header-controls">
             <div class="search-wrap">
@@ -970,6 +970,13 @@ function attachEventListeners() {
 
   // Reset
   document.querySelector('.header [data-action="reset"]')?.addEventListener('click', resetFilters)
+
+  // Masthead goes home: clear route, filters, and any open panels
+  document.querySelector('[data-action="home"]')?.addEventListener('click', () => {
+    state.drawerOpen = false
+    state.selected = null
+    resetFilters()
+  })
 
   // Add book button
   document.querySelector('[data-action="add-book"]')?.addEventListener('click', () => {

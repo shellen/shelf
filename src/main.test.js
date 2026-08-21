@@ -251,6 +251,20 @@ describe('hash routes', () => {
     expect(document.querySelector('.status-bar').textContent).not.toContain('tag:')
   })
 
+  it('clicking the Bookshelf masthead goes home', async () => {
+    await loadApp()
+    goTo('#/author/herbert')
+    const input = document.querySelector('[data-action="search"]')
+    input.value = 'dune'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+
+    document.querySelector('[data-action="home"]').click()
+
+    expect(window.location.hash).toBe('')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(3)
+    expect(document.querySelector('[data-action="search"]').value).toBe('')
+  })
+
   it('clears the route filter on reset', async () => {
     await loadApp()
     goTo('#/author/herbert')
