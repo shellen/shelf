@@ -43,11 +43,18 @@ under the older name.
 Setting them from the CLI instead of the dashboard:
 
 ```bash
+npm run password       # generates one, and prints the commands below filled in
+
 npm i -g vercel && vercel login && vercel link
-printf 'you@example.com' | vercel env add SHELF_OWNER_EMAIL production
-printf 'a-long-random-password' | vercel env add SHELF_PASSWORD production
+printf '%s' 'you@example.com'          | vercel env add SHELF_OWNER_EMAIL production
+printf '%s' 'the-generated-password'   | vercel env add SHELF_PASSWORD production
 vercel --prod          # env changes only take effect on a new deployment
 ```
+
+`npm run password` gives you 32 unambiguous characters — about 188 bits, no
+glyphs you could misread and none your shell will mangle. `-- --length 48` for
+more, `-- --quiet` to print the bare password for piping. Use `printf` rather
+than `echo`, which appends a newline that becomes part of the password.
 
 ### Other ways to run it
 

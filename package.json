@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "fetch-covers": "node scripts/fetch-covers.js",
     "add-book": "node scripts/add-book.js",
+    "password": "node scripts/gen-password.js",
     "db:migrate": "node scripts/migrate-json.js"
   },
   "dependencies": {
