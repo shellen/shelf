@@ -42,6 +42,7 @@ function bookshelfData() {
 export default defineConfig({
   plugins: [bookshelfData(), viteSingleFile()],
   server: {
+    port: Number(process.env.PORT) || 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

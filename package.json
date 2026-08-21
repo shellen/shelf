@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"node server/api.js\" \"vite\"",
+    "dev": "concurrently \"PORT=3001 node server/api.js\" \"vite\"",
     "build": "npm run fetch-covers && vite build",
     "build:quick": "vite build",
     "preview": "vite preview",
