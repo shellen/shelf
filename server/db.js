@@ -222,6 +222,64 @@ function mediumFromTags(tags) {
   return 'book'
 }
 
+// A whole library's statements exceed what one request may carry, so they go out
+// in size-bounded batches. Book notes hold full review text, which makes payload
+// size a better guide than statement count. Each batch is atomic; an import that
+// fails partway can be re-run, since importing is convergent -- rows already
+// written match on the next pass and are filled or skipped rather than doubled.
+const MAX_BATCH_BYTES = 400_000
+const MAX_BATCH_STATEMENTS = 500
+
+async function writeInBatches(statements) {
+  let batch = []
+  let bytes = 0
+  for (const stmt of statements) {
+    const size = stmt.sql.length + JSON.stringify(stmt.args ?? []).length
+    if (batch.length && (bytes + size > MAX_BATCH_BYTES || batch.length >= MAX_BATCH_STATEMENTS)) {
+      await db.batch(batch, 'write')
+      batch = []
+      bytes = 0
+    }
+    batch.push(stmt)
+    bytes += size
+  }
+  if (batch.length) await db.batch(batch, 'write')
+}
+
+// Reports what the database will actually let us do. Reads and writes are
+// checked separately because they fail independently: a read-only token, an
+// expired one, or a missing database each look fine until something writes.
+export async function probeDatabase() {
+  const result = {
+    kind: process.env.TURSO_DATABASE_URL ? 'turso' : 'file',
+    readable: false,
+    writable: false
+  }
+
+  try {
+    await ensureSchema()
+    await db.execute('SELECT 1')
+    result.readable = true
+  } catch (e) {
+    result.error = e.message
+    return result
+  }
+
+  // Writes and removes its own row, so probing leaves the shelf as it found it.
+  try {
+    await db.batch([
+      { sql: `INSERT INTO settings (key, value) VALUES ('_probe', '1')
+              ON CONFLICT(key) DO UPDATE SET value = '1'`, args: [] },
+      { sql: `DELETE FROM settings WHERE key = '_probe'`, args: [] }
+    ], 'write')
+    result.writable = true
+  } catch (e) {
+    result.error = e.message
+  }
+
+  return result
+}
+
 // Helper: bulk import with fill-in-blanks merging. Returns {added, filled, skipped}.
 export async function importBooks(entries, { dryRun = false } = {}) {
   await ensureSchema()
@@ -265,7 +323,7 @@ export async function importBooks(entries, { dryRun = false } = {}) {
     }
   }
 
-  if (!dryRun && pending.length) await db.batch(pending, 'write')
+  if (!dryRun && pending.length) await writeInBatches(pending)
   return { added, filled, skipped }
 }
 

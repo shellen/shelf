@@ -6,7 +6,7 @@
 import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
-import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks, getSettings, saveSettings } from './db.js'
+import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks, getSettings, saveSettings, probeDatabase } from './db.js'
 import { authRequired, isWritable, verifyCredentials, sessionCookie, clearedCookie, isUnprotected } from './auth.js'
 import { searchMedia } from './lookup.js'
 
@@ -98,7 +98,7 @@ app.post('/api/books', async (req, res) => {
     res.status(201).json(book)
   } catch (e) {
     console.error('Error creating book:', e)
-    res.status(500).json({ error: 'Failed to create book' })
+    res.status(500).json({ error: `Failed to create book: ${e.message}` })
   }
 })
 
@@ -171,7 +171,9 @@ app.post('/api/import', async (req, res) => {
     res.json(await importBooks(books, { dryRun: !!dryRun }))
   } catch (e) {
     console.error('Error importing books:', e)
-    res.status(500).json({ error: 'Failed to import books' })
+    // Importing is owner-only, so the real reason goes back to the one person
+    // entitled to see it rather than only into the host's logs.
+    res.status(500).json({ error: `Failed to import books: ${e.message}` })
   }
 })
 
@@ -210,8 +212,12 @@ app.get('/api/lookup', async (req, res) => {
 })
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
+app.get('/api/health', async (req, res) => {
+  const health = { status: 'ok', timestamp: new Date().toISOString() }
+  // The database probe writes, so it is owner-only: it is a diagnostic for
+  // whoever can already edit, not something a passer-by can set running.
+  if (isWritable(req)) health.database = await probeDatabase()
+  res.json(health)
 })
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

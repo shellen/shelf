@@ -1145,7 +1145,10 @@ async function postImportChunks(books, dryRun) {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ books: books.slice(i, i + IMPORT_CHUNK), dryRun })
     })
-    if (!res.ok) throw new Error('Import failed')
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error || `Import failed (${res.status})`)
+    }
     const counts = await res.json()
     totals.added += counts.added
     totals.filled += counts.filled
