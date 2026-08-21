@@ -209,6 +209,22 @@ const normKey = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, '').r
 const FILLABLE = ['isbn', 'rating', 'notes', 'dateRead', 'dateAdded', 'pages', 'year']
 // (author is intentionally not fillable: it's part of the match key)
 
+// Tag names that reveal what an imported item actually is
+const MEDIA_TAG_HINTS = {
+  audiobook: 'audiobook', audiobooks: 'audiobook', audible: 'audiobook',
+  podcast: 'podcast', podcasts: 'podcast',
+  movie: 'movie', movies: 'movie', film: 'movie', films: 'movie',
+  album: 'album', albums: 'album', vinyl: 'album', records: 'album', music: 'album'
+}
+
+function mediumFromTags(tags) {
+  for (const tag of (tags || [])) {
+    const hit = MEDIA_TAG_HINTS[String(tag).toLowerCase()]
+    if (hit) return hit
+  }
+  return 'book'
+}
+
 // Helper: bulk import with fill-in-blanks merging. Returns {added, filled, skipped}.
 export async function importBooks(entries, { dryRun = false } = {}) {
   await ensureSchema()
@@ -228,6 +244,7 @@ export async function importBooks(entries, { dryRun = false } = {}) {
       if (!match) {
         if (!entry.title) throw new Error('import row missing title')
         const book = { ...entry, id: nextFreeId(entry.title, takenIds) }
+        if (!book.medium) book.medium = mediumFromTags(entry.tags)
         takenIds.add(book.id)
         if (tx) await writeBook(tx, book)
         byKey.set(normKey(book.title) + '|' + normKey(book.author), book)

@@ -147,6 +147,18 @@ async function saveField(el) {
   }
 }
 
+const MEDIA = [
+  { key: 'book', label: 'Books', creator: 'Author' },
+  { key: 'audiobook', label: 'Audiobooks', creator: 'Author' },
+  { key: 'movie', label: 'Movies', creator: 'Director' },
+  { key: 'podcast', label: 'Podcasts', creator: 'Host' },
+  { key: 'album', label: 'Albums', creator: 'Artist' },
+]
+
+const mediumOf = b => b.medium || 'book'
+const mediaLabel = key => MEDIA.find(m => m.key === key)?.label || key
+const creatorLabel = key => MEDIA.find(m => m.key === key)?.creator || 'Author'
+
 const SORT_OPTIONS = [
   { key: 'title', label: 'Title', dir: 'asc', value: b => (b.title || '').toLowerCase() },
   { key: 'author', label: 'Author', dir: 'asc', value: b => (b.author || '').toLowerCase() || null },
@@ -170,6 +182,9 @@ const state = {
   sortDir: 'asc',
   selectedIndex: -1,
   route: null,
+  settings: { landing: MEDIA.map(m => m.key) },
+  settingsOpen: false,
+  lookupPick: null,
   drawerOpen: false,
   selected: null,
   modalOpen: false,
@@ -228,6 +243,15 @@ function getFilteredSorted() {
     return (a.title || '').localeCompare(b.title || '')
   })
 
+  // The landing page shows only configured media, grouped in the configured
+  // order (stable sort preserves the inner ordering) so keyboard navigation
+  // walks the page in visual order. Medium tabs bypass this via routes.
+  if (isLanding()) {
+    const rank = new Map(landingMedia().map((k, i) => [k, i]))
+    out = out.filter(b => rank.has(mediumOf(b)))
+    out.sort((a, b) => rank.get(mediumOf(a)) - rank.get(mediumOf(b)))
+  }
+
   return out
 }
 
@@ -244,16 +268,28 @@ function setSort(key) {
   render()
 }
 
-// Cover URL - check book's saved coverUrl first, then try local cached
-function getCoverUrl(book) {
-  // 1. Saved custom cover URL in book data
-  if (book.coverUrl) {
-    // Add cache-buster if not already present to avoid stale images
-    const url = new URL(book.coverUrl, window.location.origin)
-    return url.href
-  }
-  // 2. Try locally cached cover image (will use onerror fallback if missing)
-  return getLocalCoverPath(book.id)
+// Cover resolution: a candidate chain walked by window.__nextCover on image
+// errors. No bytes are stored by the app - stored URL, local cache, then the
+// Open Library ISBN cover service, then the generated placeholder.
+function coverCandidates(book) {
+  const list = []
+  if (book.coverUrl) list.push(book.coverUrl)
+  list.push(getLocalCoverPath(book.id))
+  if (book.isbn) list.push(`https://covers.openlibrary.org/b/isbn/${String(book.isbn).replace(/[^0-9Xx]/g, '')}-L.jpg?default=false`)
+  list.push(generatePlaceholder(book))
+  return list
+}
+
+window.__nextCover = (img) => {
+  const rest = (img.dataset.fallbacks || '').split('\n').filter(Boolean)
+  if (!rest.length) return
+  img.src = rest.shift()
+  img.dataset.fallbacks = rest.join('\n')
+}
+
+function coverImgAttrs(book) {
+  const cands = coverCandidates(book)
+  return `src="${esc(cands[0])}" data-fallbacks="${esc(cands.slice(1).join('\n'))}" onerror="window.__nextCover(this)"`
 }
 
 function generatePlaceholder(book) {
@@ -421,7 +457,7 @@ function render() {
       <div class="header-inner">
         <div class="header-row">
           <div class="header-title">
-            <h1><button data-action="home" title="Back to the full shelf">Bookshelf</button></h1>
+            <h1><button data-action="home" title="Back to the full shelf">Shelf</button></h1>
           </div>
           <div class="header-controls">
             <div class="search-wrap">
@@ -442,6 +478,7 @@ function render() {
             <button class="btn" data-action="reset">Reset</button>
             ${state.readOnly ? '' : '<button class="btn" data-action="import">Import</button>'}
             ${state.readOnly ? '' : '<button class="btn btn-primary" data-action="add-book">+ Add Book</button>'}
+            ${state.readOnly ? '' : '<button class="btn" data-action="shelf-settings" title="Shelf settings">⚙</button>'}
             ${state.canLogin && state.readOnly ? '<button class="btn" data-action="login">Log In</button>' : ''}
             ${state.loggedIn ? '<button class="btn" data-action="logout">Log Out</button>' : ''}
           </div>
@@ -449,12 +486,14 @@ function render() {
       </div>
     </div>
 
+    ${renderMediaTabs()}
     <div id="results">${renderResults(filtered)}</div>
     ${renderStatusBar(filtered)}
     ${state.drawerOpen ? renderDrawer() : ''}
     ${state.modalOpen ? renderModal() : ''}
     ${state.importOpen ? renderImportModal() : ''}
     ${state.loginOpen ? renderLoginModal() : ''}
+    ${state.settingsOpen ? renderSettingsModal() : ''}
     ${state.coverPickerOpen ? renderCoverPicker() : ''}
     ${state.confirmOpen ? renderConfirmDialog() : ''}
     ${state.helpOpen ? renderHelpOverlay() : ''}
@@ -463,15 +502,51 @@ function render() {
   attachEventListeners()
 }
 
+function landingMedia() {
+  const present = new Set(state.books.map(mediumOf))
+  return (state.settings.landing || []).filter(k => present.has(k))
+}
+
+function isLanding() {
+  return state.view === 'covers' && !state.q.trim() && !state.tag && !state.route
+}
+
+function renderMediaTabs() {
+  const present = MEDIA.filter(m => state.books.some(b => mediumOf(b) === m.key))
+  if (present.length < 2) return ''
+  const active = state.route?.kind === 'medium' ? state.route.slug : ''
+  return `
+    <div class="media-tabs">
+      <button class="media-tab ${active === '' ? 'active' : ''}" data-medium="">All</button>
+      ${present.map(m => `<button class="media-tab ${active === m.key ? 'active' : ''}" data-medium="${m.key}">${m.label}</button>`).join('')}
+    </div>
+  `
+}
+
+function renderSections(filtered) {
+  return landingMedia().map(key => {
+    const items = filtered.filter(b => mediumOf(b) === key)
+    if (!items.length) return ''
+    const offset = filtered.indexOf(items[0])
+    return `
+      <div class="media-section">
+        <h2 class="media-heading"><button data-medium-link="${key}">${mediaLabel(key)} <span class="media-count">${items.length}</span></button></h2>
+        ${renderCoversView(items, offset)}
+      </div>
+    `
+  }).join('')
+}
+
 function renderResults(filtered) {
   if (!filtered.length && state.books.length) {
     return `
       <div class="empty-state">
-        <p>No books match your filters.</p>
+        <p>Nothing matches your filters.</p>
         <button class="btn" data-action="reset">Clear filters</button>
       </div>
     `
   }
+  if (isLanding() && landingMedia().length > 1) return renderSections(filtered)
   return state.view === 'covers' ? renderCoversView(filtered) : renderListView(filtered)
 }
 
@@ -516,15 +591,13 @@ function renderConfirmDialog() {
   `
 }
 
-function renderCoversView(books) {
+function renderCoversView(books, offset = 0) {
   return `
     <div class="wall">
       ${books.map((b, i) => `
-        <div class="cover-tile ${i === state.selectedIndex ? 'kb-selected' : ''}" data-action="open-book" data-id="${esc(b.id)}" tabindex="0" role="button" aria-label="${esc(b.title)}${b.author ? ` by ${esc(b.author)}` : ''}">
+        <div class="cover-tile medium-${esc(mediumOf(b))} ${offset + i === state.selectedIndex ? 'kb-selected' : ''}" data-action="open-book" data-id="${esc(b.id)}" tabindex="0" role="button" aria-label="${esc(b.title)}${b.author ? ` by ${esc(b.author)}` : ''}">
           <div class="cover-aspect" style="background-image:url('${generatePlaceholder(b).replace(/'/g, "\\'")}')">
-            <img class="cover-img" src="${esc(getCoverUrl(b))}" alt="Cover for ${esc(b.title)}" loading="lazy"
-                 onerror="this.onerror=null; this.src='${generatePlaceholder(b).replace(/'/g, "\\'")}'"
-            >
+            <img class="cover-img" ${coverImgAttrs(b)} alt="Cover for ${esc(b.title)}" loading="lazy">
           </div>
           <div class="cover-overlay">
             <div class="cover-info">
@@ -572,22 +645,19 @@ function renderDrawer() {
   const b = state.selected
   if (!b) return ''
 
-  const coverUrl = getCoverUrl(b)
   const rating = b.rating || 0
 
   return `
     <div class="drawer-backdrop" data-action="close-drawer"></div>
     <div class="drawer-panel">
       <div class="drawer-header">
-        <h2>Book</h2>
+        <h2>${esc(mediaLabel(mediumOf(b)).slice(0, -1))}</h2>
         <button class="drawer-close" data-action="close-drawer">&times;</button>
       </div>
       <div class="drawer-content">
         <div class="drawer-book">
           <div class="drawer-cover">
-            <img class="drawer-cover-img" src="${esc(coverUrl)}" alt="Cover for ${esc(b.title)}"
-                 onerror="this.onerror=null; this.src='${generatePlaceholder(b).replace(/'/g, "\\'")}'"
-            >
+            <img class="drawer-cover-img" ${coverImgAttrs(b)} alt="Cover for ${esc(b.title)}">
             ${state.readOnly ? '' : `
             <button class="btn drawer-change-cover" data-action="open-cover-picker" ${state.savingCover ? 'disabled' : ''}>
               ${state.savingCover ? '<span class="loading"></span>' : 'Change Cover'}
@@ -595,7 +665,11 @@ function renderDrawer() {
           </div>
           <div class="drawer-details">
             <input class="drawer-title" data-field="title" value="${esc(b.title)}" data-original="${esc(b.title)}" placeholder="Title" ${state.readOnly ? 'readonly' : ''}>
-            <input class="drawer-author" data-field="author" value="${esc(b.author)}" data-original="${esc(b.author)}" placeholder="Author" ${state.readOnly ? 'readonly' : ''}>
+            <input class="drawer-author" data-field="author" value="${esc(b.author)}" data-original="${esc(b.author)}" placeholder="${esc(creatorLabel(mediumOf(b)))}" ${state.readOnly ? 'readonly' : ''}>
+            ${state.readOnly ? '' : `
+            <select class="drawer-medium" data-field="medium" data-original="${esc(mediumOf(b))}">
+              ${MEDIA.map(m => `<option value="${m.key}" ${mediumOf(b) === m.key ? 'selected' : ''}>${esc(m.label.slice(0, -1))}</option>`).join('')}
+            </select>`}
             ${b.author ? `<button class="drawer-author-link" data-action="author-route">More by this author &rarr;</button>` : ''}
             <div class="drawer-rating">
               ${[1,2,3,4,5].map(star => {
@@ -718,6 +792,12 @@ function renderModal() {
         ${state.modalStatus ? `<div class="status ${state.modalStatus.type}">${esc(state.modalStatus.message)}</div>` : ''}
         <div class="modal-body">
           <div class="form-group">
+            <label class="form-label">Medium</label>
+            <select class="form-input" id="add-medium">
+              ${MEDIA.map(m => `<option value="${m.key}">${esc(m.label.slice(0, -1))}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group isbn-group">
             <label class="form-label">ISBN (optional)</label>
             <input type="text" class="form-input" id="add-isbn" placeholder="9780143127741">
             <div class="form-hint">Enter ISBN to auto-fill title & author</div>
@@ -726,8 +806,9 @@ function renderModal() {
             <label class="form-label">Title</label>
             <input type="text" class="form-input" id="add-title" placeholder="The Design of Everyday Things">
           </div>
+          <div class="lookup-results"></div>
           <div class="form-group">
-            <label class="form-label">Author</label>
+            <label class="form-label" id="add-author-label">Author</label>
             <input type="text" class="form-input" id="add-author" placeholder="Don Norman">
           </div>
           <div class="form-group">
@@ -740,8 +821,11 @@ function renderModal() {
           <button class="btn" data-action="lookup-isbn" ${state.modalLoading ? 'disabled' : ''}>
             ${state.modalLoading ? '<span class="loading"></span>' : ''}Lookup ISBN
           </button>
+          <button class="btn hidden" data-action="lookup-media" ${state.modalLoading ? 'disabled' : ''}>
+            ${state.modalLoading ? '<span class="loading"></span>' : ''}Lookup
+          </button>
           <button class="btn btn-primary" data-action="save-book" ${state.modalLoading ? 'disabled' : ''}>
-            ${state.modalLoading ? '<span class="loading"></span>' : 'Add Book'}
+            ${state.modalLoading ? '<span class="loading"></span>' : 'Add'}
           </button>
         </div>
       </div>
@@ -811,6 +895,7 @@ function closeDrawer() {
 function applyHash() {
   const route = parseRoute(location.hash)
   if (!route) {
+    if (!state.route && !state.drawerOpen) return // nothing to change; skip the re-render
     state.route = null
     if (state.drawerOpen) {
       state.drawerOpen = false
@@ -857,6 +942,35 @@ function applyHash() {
 if (window.__bookshelfHashchange) window.removeEventListener('hashchange', window.__bookshelfHashchange)
 window.__bookshelfHashchange = applyHash
 window.addEventListener('hashchange', applyHash)
+
+function renderSettingsModal() {
+  const landing = state.settings.landing || []
+  const ordered = [...landing, ...MEDIA.map(m => m.key).filter(k => !landing.includes(k))]
+  return `
+    <div class="modal-backdrop" data-action="close-settings">
+      <div class="modal-panel" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Shelf Settings</h2>
+          <button class="drawer-close" data-action="close-settings">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="form-hint">Which media appear on the landing page, and in what order.</p>
+          ${ordered.map(key => `
+            <div class="settings-row" data-medium="${key}">
+              <button class="btn settings-toggle" data-action="toggle-medium">${landing.includes(key) ? '☑' : '☐'} ${esc(mediaLabel(key))}</button>
+              <button class="btn" data-action="medium-up" ${landing.includes(key) ? '' : 'disabled'}>↑</button>
+              <button class="btn" data-action="medium-down" ${landing.includes(key) ? '' : 'disabled'}>↓</button>
+            </div>
+          `).join('')}
+        </div>
+        <div class="modal-actions">
+          <button class="btn" data-action="close-settings">Cancel</button>
+          <button class="btn btn-primary" data-action="save-settings">Save</button>
+        </div>
+      </div>
+    </div>
+  `
+}
 
 function renderLoginModal() {
   return `
@@ -1032,6 +1146,7 @@ function attachEventListeners() {
   document.querySelector('[data-action="add-book"]')?.addEventListener('click', () => {
     state.modalOpen = true
     state.modalStatus = null
+    state.lookupPick = null
     render()
   })
 
@@ -1180,8 +1295,125 @@ function attachEventListeners() {
     el.addEventListener('click', closeDrawer)
   })
 
+  // Media tabs and section heading links
+  document.querySelectorAll('.media-tab').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.dataset.medium
+      if (key) {
+        history.replaceState(null, '', `#/medium/${key}`)
+        applyHash()
+      } else {
+        state.route = null
+        clearHash()
+        render()
+      }
+    })
+  })
+  document.querySelectorAll('[data-medium-link]').forEach(el => {
+    el.addEventListener('click', () => {
+      history.replaceState(null, '', `#/medium/${el.dataset.mediumLink}`)
+      applyHash()
+    })
+  })
+
+  // Shelf settings modal
+  document.querySelector('[data-action="shelf-settings"]')?.addEventListener('click', () => {
+    state.settingsOpen = true
+    render()
+  })
+  document.querySelectorAll('[data-action="close-settings"]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (el.classList.contains('modal-backdrop') && e.target !== el) return
+      state.settingsOpen = false
+      render()
+    })
+  })
+  document.querySelectorAll('[data-action="toggle-medium"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.closest('.settings-row').dataset.medium
+      const landing = state.settings.landing || []
+      state.settings.landing = landing.includes(key) ? landing.filter(k => k !== key) : [...landing, key]
+      render()
+    })
+  })
+  const moveMedium = (key, delta) => {
+    const landing = [...(state.settings.landing || [])]
+    const i = landing.indexOf(key)
+    const j = i + delta
+    if (i < 0 || j < 0 || j >= landing.length) return
+    ;[landing[i], landing[j]] = [landing[j], landing[i]]
+    state.settings.landing = landing
+    render()
+  }
+  document.querySelectorAll('[data-action="medium-up"]').forEach(el => {
+    el.addEventListener('click', () => moveMedium(el.closest('.settings-row').dataset.medium, -1))
+  })
+  document.querySelectorAll('[data-action="medium-down"]').forEach(el => {
+    el.addEventListener('click', () => moveMedium(el.closest('.settings-row').dataset.medium, 1))
+  })
+  document.querySelector('[data-action="save-settings"]')?.addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ landing: state.settings.landing })
+      })
+      if (!res.ok) throw new Error('Save failed')
+      state.settings = await res.json()
+      state.settingsOpen = false
+      render()
+      showToast('Settings saved')
+    } catch (e) {
+      showToast('Failed to save settings', 'error')
+    }
+  })
+
+  // Add modal: medium switching + iTunes lookup
+  document.getElementById('add-medium')?.addEventListener('change', e => {
+    const isBook = e.target.value === 'book'
+    document.querySelector('.isbn-group')?.classList.toggle('hidden', !isBook)
+    document.querySelector('[data-action="lookup-isbn"]')?.classList.toggle('hidden', !isBook)
+    document.querySelector('[data-action="lookup-media"]')?.classList.toggle('hidden', isBook)
+    const label = document.getElementById('add-author-label')
+    if (label) label.textContent = creatorLabel(e.target.value)
+  })
+
+  document.querySelector('[data-action="lookup-media"]')?.addEventListener('click', async () => {
+    const medium = document.getElementById('add-medium')?.value
+    const q = document.getElementById('add-title')?.value.trim()
+    const box = document.querySelector('.lookup-results')
+    if (!q || !box) return
+    box.innerHTML = '<span class="loading"></span>'
+    try {
+      const res = await fetch(`/api/lookup?medium=${encodeURIComponent(medium)}&q=${encodeURIComponent(q)}`)
+      if (!res.ok) throw new Error('Lookup failed')
+      const { results } = await res.json()
+      if (!results.length) {
+        box.innerHTML = '<span class="form-hint">No matches found.</span>'
+        return
+      }
+      box.innerHTML = results.slice(0, 5).map((r, i) =>
+        `<button class="lookup-result" data-i="${i}">${esc(r.title)}${r.author ? ` — ${esc(r.author)}` : ''}${r.year ? ` (${esc(r.year)})` : ''}</button>`
+      ).join('')
+      box.querySelectorAll('.lookup-result').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const pick = results[Number(btn.dataset.i)]
+          document.getElementById('add-title').value = pick.title
+          document.getElementById('add-author').value = pick.author || ''
+          state.lookupPick = pick
+          box.innerHTML = ''
+        })
+      })
+    } catch (e) {
+      box.innerHTML = '<span class="form-hint">Lookup failed.</span>'
+    }
+  })
+
   // Inline field editing - save on blur, Enter commits, Escape reverts
   document.querySelectorAll('.drawer-panel [data-field]').forEach(el => {
+    if (el.tagName === 'SELECT') {
+      el.addEventListener('change', () => saveField(el))
+      return
+    }
     el.addEventListener('blur', () => saveField(el))
     el.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
@@ -1439,8 +1671,14 @@ function attachEventListeners() {
     state.modalStatus = null
     render()
 
+    const medium = document.getElementById('add-medium')?.value || 'book'
+    const pick = state.lookupPick
+
     try {
-      const newBook = await api.createBook({ title, author, tags, isbn })
+      const newBook = await api.createBook({
+        title, author, tags, isbn, medium,
+        ...(pick && pick.title === title ? { year: pick.year, coverUrl: pick.coverUrl } : {})
+      })
       state.books.push(newBook)
 
       state.modalOpen = false
@@ -1473,6 +1711,7 @@ function onKeydown(e) {
     if (state.coverPickerOpen) { state.coverPickerOpen = false; state.coverOptions = []; render(); return }
     if (state.modalOpen) { state.modalOpen = false; state.modalStatus = null; render(); return }
     if (state.loginOpen) { state.loginOpen = false; state.loginError = null; render(); return }
+    if (state.settingsOpen) { state.settingsOpen = false; render(); return }
     if (state.importOpen) { closeImport(); return }
     if (state.drawerOpen) { closeDrawer(); return }
     if (state.route) { state.route = null; clearHash(); render(); return }
@@ -1480,7 +1719,7 @@ function onKeydown(e) {
     return
   }
   if (typing) return
-  if (state.confirmOpen || state.modalOpen || state.coverPickerOpen || state.importOpen || state.helpOpen || state.loginOpen) return
+  if (state.confirmOpen || state.modalOpen || state.coverPickerOpen || state.importOpen || state.helpOpen || state.loginOpen || state.settingsOpen) return
 
   const filtered = getFilteredSorted()
   if (e.key === '/') {
@@ -1578,7 +1817,15 @@ async function init() {
     }
   }
   state.loading = false
-  if (!state.readOnly && !state.error) await refreshSession()
+  if (!state.readOnly && !state.error) {
+    await refreshSession()
+    try {
+      const res = await fetch('/api/settings')
+      if (res.ok) state.settings = await res.json()
+    } catch (e) {
+      // No settings endpoint (static build) - defaults apply
+    }
+  }
   if (parseRoute(location.hash)) applyHash()
   else render()
 }

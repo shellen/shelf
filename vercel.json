@@ -3,6 +3,7 @@
   "buildCommand": "vite build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/(title|author|tag|tags|isbn|medium)/(.*)", "destination": "/api/page" }
   ]
 }

@@ -4,19 +4,36 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 const BOOKS = [
-  { id: 's1-flow', title: 'Flow', author: 'Mihaly Csikszentmihalyi', tags: ['psychology'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null },
-  { id: 's2-dune', title: 'Dune', author: 'Frank Herbert', tags: ['sci-fi'], isbn: null, coverUrl: null, rating: 5, notes: null, dateRead: null, dateAdded: null, pages: 412, year: 1965 },
-  { id: 's2-design-of-everyday-things', title: 'The Design of Everyday Things', author: 'Don Norman', tags: ['design'], isbn: null, coverUrl: null, rating: 4, notes: null, dateRead: null, dateAdded: null, pages: null, year: null },
+  { id: 's1-flow', title: 'Flow', author: 'Mihaly Csikszentmihalyi', tags: ['psychology'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null, medium: 'book' },
+  { id: 's2-dune', title: 'Dune', author: 'Frank Herbert', tags: ['sci-fi'], isbn: null, coverUrl: null, rating: 5, notes: null, dateRead: null, dateAdded: null, pages: 412, year: 1965, medium: 'book' },
+  { id: 's2-design-of-everyday-things', title: 'The Design of Everyday Things', author: 'Don Norman', tags: ['design'], isbn: null, coverUrl: null, rating: 4, notes: null, dateRead: null, dateAdded: null, pages: null, year: null, medium: 'book' },
 ]
 
-async function loadApp(books = BOOKS, { session } = {}) {
+const MIXED = [
+  ...BOOKS,
+  { id: 'abbey-road', title: 'Abbey Road', author: 'The Beatles', tags: [], isbn: null, coverUrl: 'https://art.example/abbey.jpg', rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: 1969, medium: 'album' },
+  { id: 'radiolab', title: 'Radiolab', author: 'WNYC', tags: [], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null, medium: 'podcast' },
+]
+
+async function loadApp(books = BOOKS, { session, settings } = {}) {
   window.location.hash = ''
   document.body.innerHTML = '<div id="app"></div>'
   const sessionState = session || { authRequired: false, writable: true }
+  const settingsState = settings || { landing: ['book', 'audiobook', 'movie', 'podcast', 'album'] }
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const u = String(url)
     if (u.endsWith('/api/session')) {
       return { ok: true, json: async () => ({ ...sessionState }) }
+    }
+    if (u.endsWith('/api/settings') && (!opts.method || opts.method === 'GET')) {
+      return { ok: true, json: async () => ({ ...settingsState }) }
+    }
+    if (u.endsWith('/api/settings') && opts.method === 'PUT') {
+      Object.assign(settingsState, JSON.parse(opts.body))
+      return { ok: true, json: async () => ({ ...settingsState }) }
+    }
+    if (u.includes('/api/lookup')) {
+      return { ok: true, json: async () => ({ results: [{ title: 'Abbey Road', author: 'The Beatles', year: 1969, coverUrl: 'https://art.example/abbey600.jpg' }] }) }
     }
     if (u.endsWith('/api/login') && opts.method === 'POST') {
       if (JSON.parse(opts.body).password === 'sekrit') {
@@ -48,6 +65,8 @@ async function loadApp(books = BOOKS, { session } = {}) {
   await vi.waitFor(() => {
     if (!document.querySelector('.header')) throw new Error('app not rendered yet')
   })
+  // Flush happy-dom's queued hashchange task from the hash reset above
+  await new Promise(r => setTimeout(r, 0))
 }
 
 function typeInSearch(chars) {
@@ -199,6 +218,84 @@ describe('inline editing', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'e', bubbles: true }))
     expect(document.activeElement?.dataset.field).toBe('title')
+  })
+})
+
+describe('shelf media', () => {
+  it('renames the masthead to Shelf', async () => {
+    await loadApp()
+    expect(document.querySelector('.header-title h1').textContent).toBe('Shelf')
+  })
+
+  it('renders medium tabs for present media and filters through them', async () => {
+    await loadApp(MIXED)
+    const tabs = [...document.querySelectorAll('.media-tab')].map(t => t.textContent.trim())
+    expect(tabs[0]).toBe('All')
+    expect(tabs.join(' ')).toContain('Books')
+    expect(tabs.join(' ')).toContain('Albums')
+    expect(tabs.join(' ')).not.toContain('Movies') // none present
+
+    document.querySelector('.media-tab[data-medium="album"]').click()
+    window.dispatchEvent(new Event('hashchange'))
+    expect(window.location.hash).toBe('#/medium/album')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1)
+    expect(document.querySelector('.cover-title').textContent).toBe('Abbey Road')
+  })
+
+  it('renders landing sections in the configured order', async () => {
+    await loadApp(MIXED, { settings: { landing: ['podcast', 'book', 'album'] } })
+    const headings = [...document.querySelectorAll('.media-heading')].map(h => h.textContent.trim())
+    expect(headings[0]).toContain('Podcasts')
+    expect(headings[1]).toContain('Books')
+    expect(headings[2]).toContain('Albums')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(5)
+  })
+
+  it('skips sections for media hidden from the landing config', async () => {
+    await loadApp(MIXED, { settings: { landing: ['book'] } })
+    const headings = [...document.querySelectorAll('.media-heading')]
+    expect(headings).toHaveLength(0) // single visible medium renders as a flat wall
+    expect(document.querySelectorAll('.cover-tile').length).toBe(3)
+  })
+
+  it('adds an album via iTunes lookup', async () => {
+    await loadApp(MIXED)
+    document.querySelector('[data-action="add-book"]').click()
+    document.getElementById('add-medium').value = 'album'
+    document.getElementById('add-medium').dispatchEvent(new Event('change', { bubbles: true }))
+    document.getElementById('add-title').value = 'abbey road'
+    document.querySelector('[data-action="lookup-media"]').click()
+
+    await vi.waitFor(() => {
+      if (!document.querySelector('.lookup-result')) throw new Error('no results yet')
+    })
+    document.querySelector('.lookup-result').click()
+    expect(document.getElementById('add-title').value).toBe('Abbey Road')
+    expect(document.getElementById('add-author').value).toBe('The Beatles')
+  })
+
+  it('walks the cover fallback chain: local, then Open Library ISBN, then placeholder', async () => {
+    const withIsbn = [{ ...BOOKS[1], isbn: '9780441172719' }]
+    await loadApp(withIsbn)
+    const img = document.querySelector('.cover-img')
+    expect(img.getAttribute('src')).toBe('/covers/s2-dune.jpg')
+    window.__nextCover(img)
+    expect(img.getAttribute('src')).toContain('covers.openlibrary.org/b/isbn/9780441172719')
+    window.__nextCover(img)
+    expect(img.getAttribute('src')).toContain('data:image/svg+xml')
+  })
+
+  it('saves landing settings from the Shelf Settings modal', async () => {
+    await loadApp(MIXED)
+    document.querySelector('[data-action="shelf-settings"]').click()
+    document.querySelector('.settings-row[data-medium="book"] [data-action="toggle-medium"]').click()
+    document.querySelector('[data-action="save-settings"]').click()
+
+    await vi.waitFor(() => {
+      if (document.querySelector('.modal-panel')) throw new Error('modal open')
+    })
+    const put = fetch.mock.calls.find(([u, o]) => String(u).endsWith('/api/settings') && o?.method === 'PUT')
+    expect(JSON.parse(put[1].body).landing).not.toContain('book')
   })
 })
 
@@ -359,7 +456,7 @@ describe('empty results', () => {
     typeInSearch('zzzzz')
 
     expect(document.querySelector('.empty-state')).not.toBeNull()
-    expect(document.querySelector('.empty-state').textContent).toContain('No books match')
+    expect(document.querySelector('.empty-state').textContent).toContain('Nothing matches')
   })
 })
 

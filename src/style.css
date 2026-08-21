@@ -267,6 +267,115 @@ input, select, button, textarea {
   color: var(--paper);
 }
 
+/* ---------- Media tabs & sections ---------- */
+
+.media-tabs {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  border-top: var(--rule-thin);
+}
+
+.media-tab {
+  border: none;
+  border-right: var(--rule-thin);
+  background: var(--paper);
+  padding: 0.35rem 0.8rem;
+  font-weight: 900;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.media-tab:hover { background: var(--highlight); }
+
+.media-tab.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.media-section { margin-bottom: 0.2rem; }
+
+.media-heading {
+  max-width: 1600px;
+  margin: 0 auto;
+  border-bottom: var(--rule);
+}
+
+.media-heading button {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  padding: 0.5rem 1rem 0.2rem;
+  font-weight: 900;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.media-heading button:hover { color: var(--accent); }
+
+.media-count {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 400;
+  vertical-align: 0.15em;
+  margin-left: 0.3rem;
+}
+
+/* Square art (albums, podcasts) letterboxed in the standard cell */
+.cover-tile.medium-album .cover-img,
+.cover-tile.medium-podcast .cover-img {
+  object-fit: contain;
+  background: var(--ink);
+}
+
+/* ---------- Lookup results (add modal) ---------- */
+
+.lookup-results { margin-bottom: 0.8rem; }
+
+.lookup-result {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: var(--rule-thin);
+  border-bottom: none;
+  background: var(--paper);
+  padding: 0.4rem 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.lookup-result:last-child { border-bottom: var(--rule-thin); }
+
+.lookup-result:hover { background: var(--highlight); }
+
+/* ---------- Settings modal ---------- */
+
+.settings-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.settings-toggle { flex: 1; text-align: left; }
+
+/* ---------- Drawer medium select ---------- */
+
+.drawer-medium {
+  margin-top: 0.35rem;
+  border: var(--rule-thin);
+  background: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
 /* ---------- Loading / error ---------- */
 
 .loading-screen, .error-screen {

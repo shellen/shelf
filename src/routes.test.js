@@ -93,6 +93,21 @@ describe('resolveRoute: tags', () => {
   })
 })
 
+describe('resolveRoute: medium', () => {
+  const withMedia = BOOKS.map(b => ({ ...b, medium: b.id === 'dune' ? 'movie' : 'book' }))
+
+  it('parses and filters by medium', () => {
+    expect(parseRoute('#/medium/Movie')).toEqual({ kind: 'medium', slug: 'movie' })
+    const r = resolveRoute({ kind: 'medium', slug: 'movie' }, withMedia)
+    expect(r.books.map(b => b.id)).toEqual(['dune'])
+    expect(r.canonical).toBe('#/medium/movie')
+  })
+
+  it('returns nothing for unknown media', () => {
+    expect(resolveRoute({ kind: 'medium', slug: 'vhs' }, withMedia).books).toEqual([])
+  })
+})
+
 describe('resolveRoute: isbn', () => {
   it('opens the exact isbn', () => {
     const r = resolveRoute({ kind: 'isbn', slug: '9780385333849' }, BOOKS)

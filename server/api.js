@@ -74,13 +74,13 @@ app.get('/api/books/:id', async (req, res) => {
 // POST /api/books - Create new book
 app.post('/api/books', async (req, res) => {
   try {
-    const { title, author, tags, isbn, coverUrl } = req.body
+    const { title, author, tags, isbn, coverUrl, medium, year } = req.body
 
     if (!title) {
       return res.status(400).json({ error: 'Title is required' })
     }
 
-    const book = await saveBook({ id: await generateBookId(title), title, author, tags: tags || [], isbn, coverUrl })
+    const book = await saveBook({ id: await generateBookId(title), title, author, tags: tags || [], isbn, coverUrl, medium, year })
     res.status(201).json(book)
   } catch (e) {
     console.error('Error creating book:', e)

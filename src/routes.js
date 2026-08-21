@@ -10,7 +10,7 @@ const isSubset = (a, b) => a.every(t => b.includes(t))
 const cleanIsbn = v => String(v ?? '').replace(/[^0-9Xx]/g, '').toUpperCase()
 
 export function parseRoute(hash) {
-  const m = String(hash || '').match(/^#\/(title|author|tags?|isbn)\/(.+)$/i)
+  const m = String(hash || '').match(/^#\/(title|author|tags?|isbn|medium)\/(.+)$/i)
   if (!m) return null
   const kind = m[1].toLowerCase() === 'tag' ? 'tags' : m[1].toLowerCase()
   const raw = decodeURIComponent(m[2])
@@ -36,6 +36,13 @@ export function resolveRoute(route, books) {
       canonical: `#/tags/${slugify(tag)}`,
       tag
     }
+  }
+
+  if (kind === 'medium') {
+    const matches = books.filter(b => (b.medium || 'book') === slug)
+    return matches.length
+      ? { books: matches, open: null, canonical: `#/medium/${slug}` }
+      : none
   }
 
   if (kind === 'author') {

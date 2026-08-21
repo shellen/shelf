@@ -22,6 +22,19 @@ afterAll(() => {
   fs.rmSync(tmpDir, { recursive: true, force: true })
 })
 
+describe('POST /api/books media', () => {
+  it('passes medium and year through', async () => {
+    const res = await fetch(`${base}/api/books`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Abbey Road', author: 'The Beatles', medium: 'album', year: 1969, coverUrl: 'https://art/x.jpg' })
+    })
+    expect(res.status).toBe(201)
+    const book = await res.json()
+    expect(book.medium).toBe('album')
+    expect(book.year).toBe(1969)
+  })
+})
+
 describe('POST /api/import', () => {
   const dune = { title: 'Dune', author: 'Frank Herbert', isbn: '9780441172719', rating: 5, notes: null, tags: ['sci-fi'], dateRead: null, dateAdded: null, pages: 412, year: 1965 }
 
@@ -33,7 +46,7 @@ describe('POST /api/import', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ added: 1, filled: 0, skipped: 0 })
     const list = await (await fetch(`${base}/api/books`)).json()
-    expect(list.books.map(b => b.title)).toEqual(['Dune'])
+    expect(list.books.map(b => b.title)).toContain('Dune')
   })
 
   it('rejects a payload without a books array', async () => {

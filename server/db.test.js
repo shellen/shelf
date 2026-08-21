@@ -143,6 +143,23 @@ describe('medium', () => {
     await importBooks([{ title: 'Dune', author: 'Frank Herbert', isbn: null, rating: null, notes: null, tags: [], dateRead: null, dateAdded: null, pages: null, year: null }])
     expect((await getAllBooks())[0].medium).toBe('book')
   })
+
+  it('auto-categorizes imports by media tags', async () => {
+    const { importBooks, getBook } = await loadDb()
+    const base = { author: null, isbn: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null }
+    await importBooks([
+      { ...base, title: 'Project Hail Mary', tags: ['audiobook', 'sci-fi'] },
+      { ...base, title: 'Serial', tags: ['podcasts'] },
+      { ...base, title: 'Dune Part Two', tags: ['movies', 'sci-fi'] },
+      { ...base, title: 'Abbey Road', tags: ['vinyl'] },
+      { ...base, title: 'Plain Book', tags: ['fiction'] },
+    ])
+    expect((await getBook('project-hail-mary')).medium).toBe('audiobook')
+    expect((await getBook('serial')).medium).toBe('podcast')
+    expect((await getBook('dune-part-two')).medium).toBe('movie')
+    expect((await getBook('abbey-road')).medium).toBe('album')
+    expect((await getBook('plain-book')).medium).toBe('book')
+  })
 })
 
 describe('settings', () => {
