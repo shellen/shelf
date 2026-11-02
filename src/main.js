@@ -3,6 +3,8 @@ import embeddedBooks from 'virtual:bookshelf-data'
 import { parseGoodreadsCsv } from './goodreads.js'
 import { parseRoute, resolveRoute, slugify } from './routes.js'
 import { esc } from './html.js'
+import { showcaseGroups } from './showcase.js'
+import { renderShelfView, mountShelf } from './shelf.js'
 
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
@@ -85,6 +87,7 @@ function showConfirm(title, message) {
 
 // Helpers to update a book in state
 function syncBookState(updatedBook) {
+  coverUrlCache.delete(updatedBook.id)
   const bookIndex = state.books.findIndex(b => b.id === updatedBook.id)
   if (bookIndex !== -1) {
     state.books = [
@@ -166,7 +169,8 @@ const state = {
   loading: true,
   error: null,
   readOnly: false,
-  view: 'covers',
+  view: 'shelf',
+  shelf: { group: '', index: 0 },
   q: '',
   tag: '',
   sortBy: 'title',
@@ -210,6 +214,15 @@ function getAllTags() {
   const set = new Set()
   state.books.forEach(b => (b.tags || []).forEach(t => set.add(t)))
   return Array.from(set).sort()
+}
+
+function shelfGroups() {
+  const medium = state.route?.kind === 'medium' ? state.route.slug : ''
+  return showcaseGroups(state.books, { landing: state.settings.landing || [], medium })
+}
+
+function activeShelfGroup(groups = shelfGroups()) {
+  return groups.find(g => g.key === state.shelf.group) || groups[0] || null
 }
 
 function getFilteredSorted() {
@@ -284,6 +297,28 @@ window.__nextCover = (img) => {
 function coverImgAttrs(book) {
   const cands = coverCandidates(book)
   return `src="${esc(cands[0])}" data-fallbacks="${esc(cands.slice(1).join('\n'))}" onerror="window.__nextCover(this)"`
+}
+
+// Walks the cover chain with real image loads and settles on the first that works.
+// The generated placeholder is left out: the shelf and overlay draw their own.
+const coverUrlCache = new Map()
+function resolveCover(book) {
+  if (!coverUrlCache.has(book.id)) {
+    const candidates = coverCandidates(book).slice(0, -1)
+    coverUrlCache.set(book.id, (async () => {
+      for (const url of candidates) {
+        const ok = await new Promise(resolve => {
+          const img = new Image()
+          img.onload = () => resolve(img.naturalWidth > 1)
+          img.onerror = () => resolve(false)
+          img.src = url
+        })
+        if (ok) return url
+      }
+      return null
+    })())
+  }
+  return coverUrlCache.get(book.id)
 }
 
 function generatePlaceholder(book) {
@@ -439,11 +474,13 @@ function render() {
     return
   }
 
+  document.body.classList.toggle('is-shelf', state.view === 'shelf')
   document.querySelector('#app').innerHTML = `
     ${renderUnprotectedBanner()}
     <div class="header">
       <div class="masthead">
         <div class="view-toggle">
+          <button class="view-btn ${state.view === 'shelf' ? 'active' : ''}" data-action="view" data-view="shelf" aria-pressed="${state.view === 'shelf'}">Shelf</button>
           <button class="view-btn ${state.view === 'covers' ? 'active' : ''}" data-action="view" data-view="covers" aria-pressed="${state.view === 'covers'}">Covers</button>
           <button class="view-btn ${state.view === 'list' ? 'active' : ''}" data-action="view" data-view="list" aria-pressed="${state.view === 'list'}">List</button>
         </div>
@@ -469,6 +506,7 @@ function render() {
           </div>`}
         </div>
       </div>
+      ${state.view === 'shelf' ? '' : `
       <div class="toolbar">
         <select class="select select-tag" data-action="tag">
           <option value="">All tags</option>
@@ -478,11 +516,11 @@ function render() {
           ${SORT_OPTIONS.map(o => `<option value="${o.key}" ${state.sortBy === o.key ? 'selected' : ''}>${o.label}${state.sortBy === o.key ? (state.sortDir === 'asc' ? ' ↑' : ' ↓') : ''}</option>`).join('')}
         </select>
         <button class="btn" data-action="reset">Reset</button>
-      </div>
+      </div>`}
     </div>
 
     <div id="results">${renderResults(filtered)}</div>
-    ${renderStatusBar(filtered)}
+    ${state.view === 'shelf' ? '' : renderStatusBar(filtered)}
     ${state.drawerOpen ? renderDrawer() : ''}
     ${state.modalOpen ? renderModal() : ''}
     ${state.importOpen ? renderImportModal() : ''}
@@ -494,6 +532,7 @@ function render() {
   `
 
   attachEventListeners()
+  mountShelfIfShown()
 }
 
 function landingMedia() {
@@ -532,6 +571,17 @@ function renderSections(filtered) {
 }
 
 function renderResults(filtered) {
+  if (state.view === 'shelf') {
+    const groups = shelfGroups()
+    const group = activeShelfGroup(groups)
+    return renderShelfView({
+      groups,
+      activeKey: group?.key,
+      index: state.shelf.index,
+      total: state.books.length,
+      canAdd: !state.readOnly,
+    })
+  }
   if (!filtered.length && state.books.length) {
     return `
       <div class="empty-state">
@@ -564,10 +614,31 @@ function updateResults() {
   const filtered = getFilteredSorted()
   const results = document.querySelector('#results')
   if (results) results.innerHTML = renderResults(filtered)
+  mountShelfIfShown()
   const bar = document.querySelector('.status-bar')
   if (bar) bar.outerHTML = renderStatusBar(filtered)
   const clearBtn = document.querySelector('[data-action="clear-search"]')
   if (clearBtn) clearBtn.classList.toggle('hidden', !state.q)
+}
+
+let shelfControl = null
+
+function mountShelfIfShown() {
+  shelfControl?.destroy()
+  shelfControl = null
+  const root = document.querySelector('.shelf-view:not(.shelf-empty)')
+  if (!root) return
+  const group = activeShelfGroup()
+  const index = Math.min(state.shelf.index, group.items.length - 1)
+  state.shelf = { group: group.key, index }
+  shelfControl = mountShelf(root, {
+    items: group.items,
+    index,
+    reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+    resolveCover,
+    onIndexChange: i => { state.shelf = { group: group.key, index: i } },
+    onOpen: (i, rect) => openBook(group.items[i].id, { source: 'shelf', from: rect ? { rect, rotate: -4.5 } : null }),
+  })
 }
 
 function renderConfirmDialog() {
@@ -932,6 +1003,8 @@ function applyHash() {
   }
 
   const resolved = resolveRoute(route, state.books)
+  // Any route but a medium filter shows results, which the shelf view doesn't
+  if (route.kind !== 'medium' && state.view === 'shelf') state.view = 'covers'
   if (resolved.canonical && location.hash !== resolved.canonical) {
     history.replaceState(null, '', resolved.canonical)
   }
@@ -1196,6 +1269,16 @@ function attachEventListeners() {
     })
   })
 
+  // Shelf rail: switch showcase group. A mouse click releases focus so Enter opens the centred item.
+  document.querySelectorAll('[data-shelf-group]').forEach(el => {
+    el.addEventListener('click', e => {
+      const key = el.dataset.shelfGroup
+      state.shelf = { group: key, index: 0 }
+      render()
+      if (e.detail === 0) document.querySelector(`[data-shelf-group="${key}"]`)?.focus()
+    })
+  })
+
   // Reset
   document.querySelector('.header [data-action="reset"]')?.addEventListener('click', resetFilters)
 
@@ -1207,12 +1290,12 @@ function attachEventListeners() {
   })
 
   // Add book button
-  document.querySelector('[data-action="add-book"]')?.addEventListener('click', () => {
+  document.querySelectorAll('[data-action="add-book"]').forEach(el => el.addEventListener('click', () => {
     state.modalOpen = true
     state.modalStatus = null
     state.lookupPick = null
     render()
-  })
+  }))
 
   // Import button
   document.querySelector('.header [data-action="import"]')?.addEventListener('click', () => {
@@ -1372,6 +1455,7 @@ function attachEventListeners() {
   // Media tabs and section heading links
   document.querySelectorAll('.media-tab').forEach(el => {
     el.addEventListener('click', () => {
+      state.shelf.index = 0
       const key = el.dataset.medium
       if (key) {
         history.replaceState(null, '', `#/medium/${key}`)
@@ -1735,18 +1819,7 @@ function attachEventListeners() {
           // Save to database
           const updatedBook = await api.updateCover(bookId, newCoverUrl)
 
-          // Update local state - create new object to ensure React-like immutability
-          const bookIndex = state.books.findIndex(b => b.id === bookId)
-          if (bookIndex !== -1) {
-            // Create a new array with the updated book
-            state.books = [
-              ...state.books.slice(0, bookIndex),
-              { ...updatedBook },
-              ...state.books.slice(bookIndex + 1)
-            ]
-            // Update selected with a fresh copy
-            state.selected = { ...updatedBook }
-          }
+          syncBookState(updatedBook)
 
           console.log(`✓ Cover updated for "${updatedBook.title}"`)
         } catch (e) {

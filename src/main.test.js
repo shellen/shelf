@@ -15,7 +15,7 @@ const MIXED = [
   { id: 'radiolab', title: 'Radiolab', author: 'WNYC', tags: [], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null, medium: 'podcast' },
 ]
 
-async function loadApp(books = BOOKS, { session, settings } = {}) {
+async function loadApp(books = BOOKS, { session, settings, view = 'covers' } = {}) {
   window.location.hash = ''
   document.body.innerHTML = '<div id="app"></div>'
   const sessionState = session || { authRequired: false, writable: true }
@@ -81,6 +81,8 @@ async function loadApp(books = BOOKS, { session, settings } = {}) {
   })
   // Flush happy-dom's queued hashchange task from the hash reset above
   await new Promise(r => setTimeout(r, 0))
+  // Most suites exercise the cover wall; shelf suites ask for { view: 'shelf' }
+  if (view !== 'shelf') document.querySelector(`[data-view="${view}"]`).click()
 }
 
 function typeInSearch(chars) {
@@ -331,6 +333,54 @@ describe('shelf media', () => {
       .toBe(document.querySelectorAll('.media-tab').length - 1)
     expect(document.querySelector('.view-btn[data-view="covers"]').getAttribute('aria-pressed')).toBe('true')
     expect(document.querySelector('.view-btn[data-view="list"]').getAttribute('aria-pressed')).toBe('false')
+  })
+})
+
+describe('shelf view', () => {
+  const READING_BOOKS = BOOKS.map(b => ({ ...b, tags: b.id === 's1-flow' ? ['psychology', 'currently-reading'] : [...b.tags] }))
+  const caption = () => document.querySelector('.shelf-caption-title')?.textContent
+
+  it('lands on the shelf by default, without the toolbar or status bar', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    expect(document.querySelector('.shelf-view')).not.toBeNull()
+    expect(document.querySelector('.view-btn.active').dataset.view).toBe('shelf')
+    expect(document.querySelector('.toolbar')).toBeNull()
+    expect(document.querySelector('.status-bar')).toBeNull()
+  })
+
+  it('shows the showcase groups in the rail', async () => {
+    await loadApp(READING_BOOKS, { view: 'shelf' })
+    const tabs = [...document.querySelectorAll('[data-shelf-group]')].map(t => t.dataset.shelfGroup)
+    expect(tabs).toEqual(['reading', 'favorites'])
+    expect(caption()).toBe('Flow')
+  })
+
+  it('switches groups from the rail', async () => {
+    await loadApp(READING_BOOKS, { view: 'shelf' })
+    document.querySelector('[data-shelf-group="favorites"]').click()
+    expect(caption()).toBe('Dune')
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+  })
+
+  it('shows an empty shelf for an empty library', async () => {
+    await loadApp([], { view: 'shelf' })
+    expect(document.querySelector('.shelf-empty').textContent).toContain('Nothing on this shelf yet.')
+  })
+
+  it('keeps the shelf for a medium route, bypassing the landing config', async () => {
+    await loadApp(MIXED, { view: 'shelf', settings: { landing: ['book'] } })
+    document.querySelector('.media-tab[data-medium="album"]').click()
+    window.dispatchEvent(new Event('hashchange'))
+    expect(document.querySelector('.shelf-view')).not.toBeNull()
+    expect(caption()).toBe('Abbey Road')
+  })
+
+  it('an author route on the shelf switches to covers', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    window.location.hash = '#/author/herbert'
+    window.dispatchEvent(new Event('hashchange'))
+    expect(document.querySelector('.view-btn.active').dataset.view).toBe('covers')
+    expect(document.querySelector('.cover-title').textContent).toBe('Dune')
   })
 })
 
@@ -586,6 +636,7 @@ describe('static build fallback', () => {
     await vi.waitFor(() => {
       if (!document.querySelector('.header')) throw new Error('app not rendered yet')
     })
+    document.querySelector('[data-view="covers"]').click()
 
     expect(document.querySelectorAll('.cover-tile').length).toBe(3)
     expect(document.querySelector('[data-action="add-book"]')).toBeNull()
