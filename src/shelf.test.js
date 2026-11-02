@@ -1,7 +1,7 @@
 // ABOUTME: Tests for the shelf view's markup and its carousel controller under happy-dom.
 // ABOUTME: Motion is not asserted; caption, index reporting, input wiring and covers are.
 
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderShelfView, mountShelf } from './shelf.js'
 
 const books = n => Array.from({ length: n }, (_, i) => ({
@@ -141,6 +141,75 @@ describe('mountShelf', () => {
     control.destroy()
     expect(cancel).toHaveBeenCalled()
     cancel.mockRestore()
+  })
+
+  describe('measuring its own box', () => {
+    const realResizeObserver = globalThis.ResizeObserver
+    let observers
+    let shelfHeight
+
+    class FakeResizeObserver {
+      constructor(callback) {
+        this.callback = callback
+        this.observe = vi.fn()
+        this.disconnect = vi.fn()
+        observers.push(this)
+      }
+    }
+    const fire = (width, height) => observers[0].callback([{ contentRect: { width, height } }])
+    const stageHeight = () => document.querySelector('.shelf-stage').style.getPropertyValue('--h')
+
+    beforeEach(() => {
+      observers = []
+      shelfHeight = 600
+      globalThis.ResizeObserver = FakeResizeObserver
+      // happy-dom does no layout, so the probe that resolves --shelf-h reports the height set here
+      vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
+        const height = this.style.height === 'var(--shelf-h)' ? shelfHeight : 0
+        return { width: 0, height, top: 0, left: 0, right: 0, bottom: height, x: 0, y: 0 }
+      })
+    })
+
+    afterEach(() => {
+      globalThis.ResizeObserver = realResizeObserver
+    })
+
+    it('observes the shelf root', () => {
+      mountWith(books(10))
+      expect(observers).toHaveLength(1)
+      expect(observers[0].observe).toHaveBeenCalledWith(document.querySelector('.shelf-view'))
+    })
+
+    it('measures again when the root changes size', () => {
+      mountWith(books(10))
+      expect(stageHeight()).toBe('600px')
+      shelfHeight = 480
+      fire(1200, 800)
+      expect(stageHeight()).toBe('480px')
+    })
+
+    it('waits for the root to have a size', () => {
+      mountWith(books(10))
+      shelfHeight = 480
+      fire(0, 0)
+      expect(stageHeight()).toBe('600px')
+      fire(1200, 800)
+      expect(stageHeight()).toBe('480px')
+    })
+
+    it('disconnects the observer when destroyed', () => {
+      mountWith(books(10))
+      control.destroy()
+      expect(observers[0].disconnect).toHaveBeenCalled()
+    })
+
+    it('measures on window resize when there is no ResizeObserver', () => {
+      globalThis.ResizeObserver = undefined
+      mountWith(books(10))
+      shelfHeight = 480
+      window.dispatchEvent(new Event('resize'))
+      expect(stageHeight()).toBe('480px')
+    })
   })
 
   it('keeps every spine visible when a frame is stamped earlier than the mount', () => {

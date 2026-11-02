@@ -271,6 +271,15 @@ export function mountShelf(root, {
     geom = measure()
   }
 
+  // The container can change size without the window doing so (header fonts settling, the setup
+  // banner), and can report 0 until laid out; the first real size is measured.
+  const sizeObserver = typeof ResizeObserver === 'function'
+    ? new ResizeObserver(entries => {
+      const { width, height } = entries.at(-1).contentRect
+      if (width || height) onResize()
+    })
+    : null
+
   wrap.addEventListener('pointerdown', e => {
     if (e.button > 0) return
     drag = { x0: e.clientX, t0: target, moved: false }
@@ -319,7 +328,8 @@ export function mountShelf(root, {
   window.addEventListener('pointermove', onPointerMove)
   window.addEventListener('pointerup', onPointerUp)
   window.addEventListener('pointercancel', onPointerUp)
-  window.addEventListener('resize', onResize)
+  if (sizeObserver) sizeObserver.observe(root)
+  else window.addEventListener('resize', onResize)
 
   items.forEach(book => {
     resolveCover(book).then(url => {
@@ -347,6 +357,7 @@ export function mountShelf(root, {
       window.removeEventListener('pointerup', onPointerUp)
       window.removeEventListener('pointercancel', onPointerUp)
       window.removeEventListener('resize', onResize)
+      sizeObserver?.disconnect()
     },
   }
 }
