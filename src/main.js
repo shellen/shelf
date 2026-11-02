@@ -1177,11 +1177,11 @@ async function refreshSession() {
 function renderHelpOverlay() {
   const rows = [
     ['/', 'focus search'],
-    ['← → ↑ ↓', 'navigate the wall or list'],
+    ['← → ↑ ↓', 'navigate the wall or list; ← → move the shelf'],
     ['Enter', 'open selected book'],
     ['← →', 'previous / next book while a book is open'],
     ['Esc', 'close panels; then clear search'],
-    ['v', 'toggle Covers / List'],
+    ['v', 'cycle Shelf / Covers / List'],
     ['s', 'cycle sort field'],
     ['a', 'add media'],
     ['e', 'edit selected item'],
@@ -2013,6 +2013,19 @@ function onKeydown(e) {
     }
     return
   }
+  if (state.view === 'shelf') {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault()
+      shelfControl?.step(e.key === 'ArrowRight' ? 1 : -1)
+      return
+    }
+    if (e.key === 'Enter') {
+      // A focused button handles its own Enter
+      if (!document.activeElement?.closest?.('button, a')) shelfControl?.open()
+      return
+    }
+    if (['ArrowUp', 'ArrowDown', 's', 'e'].includes(e.key)) return
+  }
   const cols = state.view === 'covers' ? wallColumns() : 1
   const move = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cols, ArrowUp: -cols }[e.key]
   if (move !== undefined) {
@@ -2027,8 +2040,7 @@ function onKeydown(e) {
     return
   }
   if (e.key === 'v') {
-    state.view = state.view === 'covers' ? 'list' : 'covers'
-    render()
+    switchView(VIEWS[(VIEWS.indexOf(state.view) + 1) % VIEWS.length])
     return
   }
   if (e.key === 's') {

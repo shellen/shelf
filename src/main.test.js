@@ -581,6 +581,59 @@ describe('shelf view', () => {
     expect(window.location.hash).toBe('#/medium/album')
   })
 
+  const TWO_READING = BOOKS.map(b => ({ ...b, tags: b.id === 's1-flow' || b.id === 's2-dune' ? [...b.tags, 'currently-reading'] : [...b.tags] }))
+
+  it('left and right move the shelf, stopping at the ends of a short group', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    expect(caption()).toBe('Dune')
+    press('ArrowRight')
+    expect(caption()).toBe('Flow')
+    press('ArrowRight')
+    expect(caption()).toBe('Flow')
+    press('ArrowLeft')
+    expect(caption()).toBe('Dune')
+  })
+
+  it('Enter opens the centred item', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    press('ArrowRight')
+    press('Enter')
+    expect(document.querySelector('[data-field="title"]').value).toBe('Flow')
+  })
+
+  it('Enter on a focused rail tab presses the tab instead of opening', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    document.querySelector('[data-shelf-group="favorites"]').focus()
+    press('Enter')
+    expect(document.querySelector('[data-field="title"]')).toBeNull()
+  })
+
+  it('v cycles shelf, covers and list', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    press('v')
+    expect(activeView()).toBe('covers')
+    press('v')
+    expect(activeView()).toBe('list')
+    press('v')
+    expect(activeView()).toBe('shelf')
+  })
+
+  it('s, e, up and down do nothing on the shelf', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    for (const key of ['s', 'e', 'ArrowUp', 'ArrowDown']) press(key)
+    expect(activeView()).toBe('shelf')
+    expect(caption()).toBe('Dune')
+    expect(document.querySelector('[data-field="title"]')).toBeNull()
+    document.querySelector('[data-view="covers"]').click()
+    expect(document.querySelector('.status-bar').textContent).toContain('TITLE ↑') // s did not cycle the sort
+  })
+
+  it('the help overlay describes the view cycle', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    press('?')
+    expect(document.querySelector('.help-overlay').textContent).toContain('cycle Shelf / Covers / List')
+  })
+
   describe('covers', () => {
     // Stands in for the network: width(url) > 0 loads at that width, 0 fails
     let width
