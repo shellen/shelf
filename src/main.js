@@ -951,6 +951,32 @@ function resetFilters() {
   render()
 }
 
+const VIEWS = ['shelf', 'covers', 'list']
+
+// The shelf only ever carries a medium filter; entering it drops search, tag and other routes
+function clearFiltersForShelf() {
+  state.q = ''
+  state.tag = ''
+  state.selectedIndex = -1
+  if (state.route?.kind !== 'medium') state.route = null
+  if (parseRoute(location.hash)?.kind !== 'medium') clearHash()
+}
+
+function switchView(view) {
+  if (view === 'shelf' && state.view !== 'shelf') clearFiltersForShelf()
+  state.view = view
+  render()
+}
+
+function leaveShelfKeepingSearchFocus(input) {
+  const caret = input.selectionStart
+  state.view = 'covers'
+  render()
+  const next = document.querySelector('[data-action="search"]')
+  next?.focus()
+  next?.setSelectionRange(caret, caret)
+}
+
 // The hash a book is shareable at: its title slug when unambiguous, else its ISBN
 function bookHash(book) {
   const titleHash = `#/title/${slugify(book.title)}`
@@ -977,6 +1003,7 @@ function setTagRoute(tag) {
     history.replaceState(null, '', `#/tags/${slugify(tag)}`)
     state.tag = tag
     state.selectedIndex = -1
+    if (state.view === 'shelf') state.view = 'covers'
     render()
   } else {
     clearHash()
@@ -1011,6 +1038,10 @@ function applyHash() {
   const resolved = resolveRoute(route, state.books)
   // Any route but a medium filter shows results, which the shelf view doesn't
   if (route.kind !== 'medium' && state.view === 'shelf') state.view = 'covers'
+  // A different medium is a different set of shelf groups, which starts at its first item
+  if (route.kind === 'medium' && (state.route?.kind !== 'medium' || state.route.slug !== route.slug)) {
+    state.shelf = { ...state.shelf, index: 0 }
+  }
   if (resolved.canonical && location.hash !== resolved.canonical) {
     history.replaceState(null, '', resolved.canonical)
   }
@@ -1248,6 +1279,10 @@ function attachEventListeners() {
   document.querySelector('[data-action="search"]')?.addEventListener('input', e => {
     state.q = e.target.value
     state.selectedIndex = -1
+    if (state.view === 'shelf') {
+      leaveShelfKeepingSearchFocus(e.target)
+      return
+    }
     updateResults()
   })
 
@@ -1269,10 +1304,7 @@ function attachEventListeners() {
 
   // View toggle
   document.querySelectorAll('[data-action="view"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.view = btn.dataset.view
-      render()
-    })
+    btn.addEventListener('click', () => switchView(btn.dataset.view))
   })
 
   // Shelf rail: switch showcase group. A mouse click releases focus so Enter opens the centred item.
@@ -1292,6 +1324,7 @@ function attachEventListeners() {
   document.querySelector('[data-action="home"]')?.addEventListener('click', () => {
     state.drawerOpen = false
     state.selected = null
+    state.view = 'shelf'
     resetFilters()
   })
 
@@ -1461,7 +1494,7 @@ function attachEventListeners() {
   // Media tabs and section heading links
   document.querySelectorAll('.media-tab').forEach(el => {
     el.addEventListener('click', () => {
-      state.shelf.index = 0
+      state.shelf = { ...state.shelf, index: 0 }
       const key = el.dataset.medium
       if (key) {
         history.replaceState(null, '', `#/medium/${key}`)

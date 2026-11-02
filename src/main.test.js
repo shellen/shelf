@@ -405,6 +405,76 @@ describe('shelf view', () => {
     expect(caption()).toBe('Dune')
   })
 
+  const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+  const activeView = () => document.querySelector('.view-btn.active').dataset.view
+  it('typing a search on the shelf switches to covers and keeps typing in the search box', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    document.querySelector('[data-action="search"]').focus()
+    typeInSearch('du')
+    expect(activeView()).toBe('covers')
+    expect(document.activeElement.dataset.action).toBe('search')
+    expect(document.activeElement.value).toBe('du')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1)
+  })
+
+  it('a number-key tag filter on the shelf switches to covers', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    press('1')
+    expect(activeView()).toBe('covers')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1)
+  })
+
+  it('switching to the shelf clears the search and tag but keeps the medium', async () => {
+    await loadApp(MIXED)
+    document.querySelector('.media-tab[data-medium="album"]').click()
+    window.dispatchEvent(new Event('hashchange'))
+    const input = document.querySelector('[data-action="search"]')
+    input.value = 'abbey'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+
+    document.querySelector('[data-view="shelf"]').click()
+
+    expect(document.querySelector('[data-action="search"]').value).toBe('')
+    expect(window.location.hash).toBe('#/medium/album')
+    expect(caption()).toBe('Abbey Road')
+  })
+
+  it('clearing the search keeps you in covers', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    document.querySelector('[data-action="search"]').focus()
+    typeInSearch('du')
+    document.querySelector('[data-action="clear-search"]').click()
+    expect(activeView()).toBe('covers')
+  })
+
+  it('Escape on the shelf clears a medium route and stays on the shelf', async () => {
+    await loadApp(MIXED, { view: 'shelf' })
+    document.querySelector('.media-tab[data-medium="album"]').click()
+    window.dispatchEvent(new Event('hashchange'))
+    press('Escape')
+    expect(window.location.hash).toBe('')
+    expect(activeView()).toBe('shelf')
+  })
+
+  it('a medium change by hash starts the new medium at its first item', async () => {
+    const favorites = [
+      ['alpha', 'Alpha', 'album'],
+      ['bravo', 'Bravo', 'album'],
+      ['charlie', 'Charlie', 'podcast'],
+      ['delta', 'Delta', 'podcast'],
+    ].map(([id, title, medium]) => ({ ...MIXED[0], id, title, tags: [], rating: 5, medium }))
+    await loadApp(favorites, { view: 'shelf' })
+    window.location.hash = '#/medium/album'
+    window.dispatchEvent(new Event('hashchange'))
+    document.querySelector('[data-shelf-step="1"]').click()
+    expect(caption()).toBe('Bravo')
+
+    window.location.hash = '#/medium/podcast'
+    window.dispatchEvent(new Event('hashchange'))
+
+    expect(caption()).toBe('Charlie')
+  })
+
   describe('covers', () => {
     // Stands in for the network: width(url) > 0 loads at that width, 0 fails
     let width
@@ -680,7 +750,7 @@ describe('hash routes', () => {
     expect(document.querySelector('.status-bar').textContent).not.toContain('tag:')
   })
 
-  it('clicking the Bookshelf masthead goes home', async () => {
+  it('clicking the masthead goes home to the shelf', async () => {
     await loadApp()
     goTo('#/author/herbert')
     const input = document.querySelector('[data-action="search"]')
@@ -690,7 +760,7 @@ describe('hash routes', () => {
     document.querySelector('[data-action="home"]').click()
 
     expect(window.location.hash).toBe('')
-    expect(document.querySelectorAll('.cover-tile').length).toBe(3)
+    expect(document.querySelector('.view-btn.active').dataset.view).toBe('shelf')
     expect(document.querySelector('[data-action="search"]').value).toBe('')
   })
 
