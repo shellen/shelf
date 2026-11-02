@@ -440,6 +440,31 @@ describe('inline editing', () => {
     })
   })
 
+  it('clears the rating from the detail', async () => {
+    openDune()
+    document.querySelector('.detail [data-action="clear-rating"]').click()
+    await vi.waitFor(() => {
+      if (!fetch.mock.calls.some(([, o]) => o?.method === 'PUT')) throw new Error('no PUT yet')
+    })
+    const put = fetch.mock.calls.find(([, o]) => o?.method === 'PUT')
+    expect(JSON.parse(put[1].body).rating).toBeNull()
+    await vi.waitFor(() => {
+      if (document.querySelector('.detail .rating-value')) throw new Error('rating still shown')
+    })
+  })
+
+  it('saves notes from the detail on blur', async () => {
+    openDune()
+    const notes = document.querySelector('.detail [data-action="notes"]')
+    notes.value = 'Read it twice.'
+    notes.dispatchEvent(new Event('blur'))
+    await vi.waitFor(() => {
+      if (!fetch.mock.calls.some(([, o]) => o?.method === 'PUT')) throw new Error('no PUT yet')
+    })
+    const put = fetch.mock.calls.find(([, o]) => o?.method === 'PUT')
+    expect(JSON.parse(put[1].body).notes).toBe('Read it twice.')
+  })
+
   it('e focuses the title field for the selected book', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'e', bubbles: true }))
