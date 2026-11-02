@@ -152,14 +152,6 @@ export function mountShelf(root, {
     setTarget(Math.round(target) + delta)
   }
 
-  function goTo(i) {
-    let delta = i - itemIndexAt(target, count)
-    if (wraps(count)) {
-      if (delta > count / 2) delta -= count
-      if (delta < -count / 2) delta += count
-    }
-    setTarget(Math.round(target) + delta)
-  }
 
   function centreRect() {
     let best = null
@@ -345,7 +337,6 @@ export function mountShelf(root, {
 
   return {
     step,
-    goTo,
     open,
     centreRect,
     destroy() {

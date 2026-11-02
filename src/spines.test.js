@@ -2,7 +2,7 @@
 // ABOUTME: Colour choice must be deterministic per id and spread across the palette.
 
 import { describe, it, expect } from 'vitest'
-import { SPINE_PALETTE, spinePalette, spineTitle, subtitleOf, spineCreator } from './spines.js'
+import { SPINE_PALETTE, spinePalette, spineTitle, spineCreator } from './spines.js'
 
 describe('spinePalette', () => {
   it('always gives the same id the same palette entry', () => {
@@ -50,16 +50,6 @@ describe('spineTitle', () => {
 
   it('handles a missing title', () => {
     expect(spineTitle(undefined)).toBe('')
-  })
-})
-
-describe('subtitleOf', () => {
-  it('gives the text after the colon', () => {
-    expect(subtitleOf('Flow: The Psychology of Optimal Experience')).toBe('The Psychology of Optimal Experience')
-  })
-
-  it('is empty without a subtitle', () => {
-    expect(subtitleOf('Dune')).toBe('')
   })
 })
 

@@ -111,12 +111,6 @@ describe('mountShelf', () => {
     expect(onIndexChange).not.toHaveBeenCalled()
   })
 
-  it('goes the short way round to a far item', () => {
-    mountWith(books(10))
-    control.goTo(9)
-    expect(caption()).toBe('Book 9')
-  })
-
   it('starts on the given index', () => {
     mountWith(books(10), 4)
     expect(caption()).toBe('Book 4')

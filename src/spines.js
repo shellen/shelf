@@ -31,12 +31,6 @@ export function spineTitle(title) {
   return short || full
 }
 
-export function subtitleOf(title) {
-  const full = String(title || '')
-  const i = full.indexOf(': ')
-  return i > 0 ? full.slice(i + 2).trim() : ''
-}
-
 export function spineCreator(name) {
   const parts = String(name || '').replace(/,?\s+(Jr\.?|Sr\.?|II|III|IV)$/i, '').trim().split(/\s+/)
   return parts[parts.length - 1] || ''
