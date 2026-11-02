@@ -1322,7 +1322,10 @@ function attachEventListeners() {
   document.querySelectorAll('[data-shelf-group]').forEach(el => {
     el.addEventListener('click', e => {
       const key = el.dataset.shelfGroup
-      if (key === activeShelfGroup()?.key) return
+      if (key === activeShelfGroup()?.key) {
+        if (e.detail > 0) el.blur()
+        return
+      }
       state.shelf = { group: key, index: 0, medium: shelfMedium() }
       render()
       if (e.detail === 0) document.querySelector(`[data-shelf-group="${key}"]`)?.focus()

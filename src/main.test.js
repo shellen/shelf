@@ -621,6 +621,15 @@ describe('shelf view', () => {
     expect(caption()).toBe(placed)
   })
 
+  it('a mouse click on the active rail tab still lets Enter open the centred item', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    const active = document.querySelector('.shelf-tab.active')
+    active.focus()
+    active.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
+    press('Enter')
+    expect(document.querySelector('[data-field="title"]')).not.toBeNull()
+  })
+
   it('v cycles shelf, covers and list', async () => {
     await loadApp(BOOKS, { view: 'shelf' })
     press('v')
