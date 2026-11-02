@@ -9,7 +9,7 @@ import { wraps, slotCount, positionFor, relativePosition, itemIndexAt, clampPosi
 const ARROW_PREV = '<svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 1 L1 5 L5 9 M1 5 H17"/></svg>'
 const ARROW_NEXT = '<svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M13 1 L17 5 L13 9 M17 5 H1"/></svg>'
 const PLAY = '<svg width="12" height="12" viewBox="0 0 12 12"><polygon points="1,0 12,6 1,12" fill="currentColor"/></svg>'
-const TILT_DEG = -4.5
+export const TILT_DEG = -4.5
 
 // Survives re-renders so a fresh mount can start the cursor where the pointer already is.
 let lastPointer = null

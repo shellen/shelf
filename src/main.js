@@ -4,7 +4,7 @@ import { parseGoodreadsCsv } from './goodreads.js'
 import { parseRoute, resolveRoute, slugify } from './routes.js'
 import { esc } from './html.js'
 import { showcaseGroups } from './showcase.js'
-import { renderShelfView, mountShelf } from './shelf.js'
+import { renderShelfView, mountShelf, TILT_DEG } from './shelf.js'
 
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
@@ -87,7 +87,6 @@ function showConfirm(title, message) {
 
 // Helpers to update a book in state
 function syncBookState(updatedBook) {
-  coverUrlCache.delete(updatedBook.id)
   const bookIndex = state.books.findIndex(b => b.id === updatedBook.id)
   if (bookIndex !== -1) {
     state.books = [
@@ -225,6 +224,11 @@ function activeShelfGroup(groups = shelfGroups()) {
   return groups.find(g => g.key === state.shelf.group) || groups[0] || null
 }
 
+// A group that has gone away falls back to another, which starts at its first item
+function shelfIndex(group) {
+  return group.key === state.shelf.group ? Math.min(state.shelf.index, group.items.length - 1) : 0
+}
+
 function getFilteredSorted() {
   const q = state.q.trim().toLowerCase()
   const tag = state.tag
@@ -301,11 +305,13 @@ function coverImgAttrs(book) {
 
 // Walks the cover chain with real image loads and settles on the first that works.
 // The generated placeholder is left out: the shelf and overlay draw their own.
+// Results are cached by candidate chain, so a book whose cover inputs change resolves afresh.
 const coverUrlCache = new Map()
 function resolveCover(book) {
-  if (!coverUrlCache.has(book.id)) {
-    const candidates = coverCandidates(book).slice(0, -1)
-    coverUrlCache.set(book.id, (async () => {
+  const candidates = coverCandidates(book).slice(0, -1)
+  const key = candidates.join('\n')
+  if (!coverUrlCache.has(key)) {
+    coverUrlCache.set(key, (async () => {
       for (const url of candidates) {
         const ok = await new Promise(resolve => {
           const img = new Image()
@@ -318,7 +324,7 @@ function resolveCover(book) {
       return null
     })())
   }
-  return coverUrlCache.get(book.id)
+  return coverUrlCache.get(key)
 }
 
 function generatePlaceholder(book) {
@@ -577,7 +583,7 @@ function renderResults(filtered) {
     return renderShelfView({
       groups,
       activeKey: group?.key,
-      index: state.shelf.index,
+      index: group ? shelfIndex(group) : 0,
       total: state.books.length,
       canAdd: !state.readOnly,
     })
@@ -629,7 +635,7 @@ function mountShelfIfShown() {
   const root = document.querySelector('.shelf-view:not(.shelf-empty)')
   if (!root) return
   const group = activeShelfGroup()
-  const index = Math.min(state.shelf.index, group.items.length - 1)
+  const index = shelfIndex(group)
   state.shelf = { group: group.key, index }
   shelfControl = mountShelf(root, {
     items: group.items,
@@ -637,7 +643,7 @@ function mountShelfIfShown() {
     reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
     resolveCover,
     onIndexChange: i => { state.shelf = { group: group.key, index: i } },
-    onOpen: (i, rect) => openBook(group.items[i].id, { source: 'shelf', from: rect ? { rect, rotate: -4.5 } : null }),
+    onOpen: (i, rect) => openBook(group.items[i].id, { source: 'shelf', from: rect ? { rect, rotate: TILT_DEG } : null }),
   })
 }
 

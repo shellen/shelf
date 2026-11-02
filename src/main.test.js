@@ -382,6 +382,87 @@ describe('shelf view', () => {
     expect(document.querySelector('.view-btn.active').dataset.view).toBe('covers')
     expect(document.querySelector('.cover-title').textContent).toBe('Dune')
   })
+
+  // Re-reads the library the way a confirmed import does
+  async function refreshViaImport() {
+    document.querySelector('[data-action="import"]').click()
+    await window.__loadImportText('Title,Author,My Rating\nDune,Frank Herbert,5')
+    document.querySelector('[data-action="confirm-import"]').click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.modal-panel')) throw new Error('modal open')
+    })
+  }
+
+  it('starts a fallback group at its first item', async () => {
+    const library = BOOKS.map(b => ({ ...b, rating: 5, tags: b.id === 's2-dune' ? [...b.tags] : [...b.tags, 'currently-reading'] }))
+    await loadApp(library, { view: 'shelf' })
+    document.querySelector('[data-shelf-step="1"]').click()
+    expect(caption()).toBe('The Design of Everyday Things')
+
+    library.forEach(b => { b.tags = b.tags.filter(t => t !== 'currently-reading') })
+    await refreshViaImport()
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+    expect(caption()).toBe('Dune')
+  })
+
+  describe('covers', () => {
+    // Stands in for the network: width(url) > 0 loads at that width, 0 fails
+    let width
+    let requested
+    const duneCover = () => document.querySelector('.tape[data-id="s2-dune"] .tape-cover')
+    const dune = patch => BOOKS.map(b => ({ ...b, tags: [...b.tags], ...(b.id === 's2-dune' ? patch : {}) }))
+    const flush = () => new Promise(r => setTimeout(r, 0))
+
+    beforeEach(() => {
+      width = () => 0
+      requested = []
+      vi.stubGlobal('Image', class {
+        set src(url) {
+          requested.push(url)
+          queueMicrotask(() => {
+            const w = width(url)
+            if (w) { this.naturalWidth = w; this.onload?.() } else this.onerror?.()
+          })
+        }
+      })
+    })
+    afterEach(() => vi.unstubAllGlobals())
+
+    it('shows the first candidate that loads', async () => {
+      width = url => url.startsWith('https://') ? 100 : 0
+      await loadApp(dune({ coverUrl: 'https://covers.example/dune.jpg', isbn: '9780441013593' }), { view: 'shelf' })
+      await vi.waitFor(() => expect(duneCover().classList.contains('has-image')).toBe(true))
+      expect(duneCover().style.backgroundImage).toBe('url("https://covers.example/dune.jpg")')
+    })
+
+    it('skips a candidate that loads as a 1x1 image', async () => {
+      width = url => url.startsWith('https://covers.example') ? 1 : url.includes('openlibrary') ? 100 : 0
+      await loadApp(dune({ coverUrl: 'https://covers.example/dune.jpg', isbn: '9780441013593' }), { view: 'shelf' })
+      await vi.waitFor(() => expect(duneCover().classList.contains('has-image')).toBe(true))
+      expect(duneCover().style.backgroundImage).toBe('url("https://covers.openlibrary.org/b/isbn/9780441013593-L.jpg?default=false")')
+    })
+
+    it('keeps the typographic face when nothing loads, without probing the placeholder', async () => {
+      await loadApp(dune({ coverUrl: 'https://covers.example/dune.jpg', isbn: '9780441013593' }), { view: 'shelf' })
+      await vi.waitFor(() => expect(requested).toHaveLength(3))
+      await flush()
+      expect(duneCover().classList.contains('has-image')).toBe(false)
+      expect(requested.some(u => u.startsWith('data:'))).toBe(false)
+    })
+
+    it('shows a cover that a refresh newly makes available', async () => {
+      const library = dune({})
+      width = url => url.includes('openlibrary') ? 100 : 0
+      await loadApp(library, { view: 'shelf' })
+      await vi.waitFor(() => expect(requested).toEqual(['/covers/s2-dune.jpg']))
+      await flush()
+
+      library.find(b => b.id === 's2-dune').isbn = '9780441013593'
+      await refreshViaImport()
+      await vi.waitFor(() => expect(duneCover().classList.contains('has-image')).toBe(true))
+      expect(duneCover().style.backgroundImage).toBe('url("https://covers.openlibrary.org/b/isbn/9780441013593-L.jpg?default=false")')
+    })
+  })
 })
 
 describe('cover picker manual URL', () => {
