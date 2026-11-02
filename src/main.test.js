@@ -238,7 +238,7 @@ describe('inline editing', () => {
 describe('shelf media', () => {
   it('renames the masthead to Shelf', async () => {
     await loadApp()
-    expect(document.querySelector('.header-title h1').textContent).toBe('Shelf')
+    expect(document.querySelector('.masthead-title h1').textContent).toBe('Shelf')
   })
 
   it('renders medium tabs for present media and filters through them', async () => {
@@ -311,6 +311,15 @@ describe('shelf media', () => {
     const put = fetch.mock.calls.find(([u, o]) => String(u).endsWith('/api/settings') && o?.method === 'PUT')
     expect(JSON.parse(put[1].body).landing).not.toContain('book')
   })
+
+  it('puts the media links in the masthead and filters in a toolbar', async () => {
+    await loadApp(MIXED)
+    expect(document.querySelector('.masthead-title .media-tabs')).not.toBeNull()
+    expect(document.querySelector('.toolbar [data-action="tag"]')).not.toBeNull()
+    expect(document.querySelector('.toolbar [data-action="sort"]')).not.toBeNull()
+    expect(document.querySelector('.header .toolbar [data-action="reset"]')).not.toBeNull()
+    expect(document.querySelector('.masthead-actions [data-action="search"]')).not.toBeNull()
+  })
 })
 
 describe('cover picker manual URL', () => {
@@ -336,7 +345,7 @@ describe('cover picker manual URL', () => {
 describe('shelf identity', () => {
   it('shows a configured shelf name in the masthead and document title', async () => {
     await loadApp(BOOKS, { settings: { landing: ['book'], shelfName: "Mary Steiner's Shelf" } })
-    expect(document.querySelector('.header-title h1').textContent).toBe("Mary Steiner's Shelf")
+    expect(document.querySelector('.masthead-title h1').textContent).toBe("Mary Steiner's Shelf")
     expect(document.title).toBe("Mary Steiner's Shelf")
   })
 
@@ -365,7 +374,7 @@ describe('shelf identity', () => {
     })
     const put = fetch.mock.calls.find(([u, o]) => String(u).endsWith('/api/settings') && o?.method === 'PUT')
     expect(JSON.parse(put[1].body).shelfName).toBe("Jason's Shelf")
-    expect(document.querySelector('.header-title h1').textContent).toBe("Jason's Shelf")
+    expect(document.querySelector('.masthead-title h1').textContent).toBe("Jason's Shelf")
   })
 })
 

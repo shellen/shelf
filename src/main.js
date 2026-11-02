@@ -442,45 +442,45 @@ function render() {
   document.querySelector('#app').innerHTML = `
     ${renderUnprotectedBanner()}
     <div class="header">
-      <div class="header-inner">
-        <div class="header-row">
-          <div class="header-title">
-            <h1><button data-action="home" title="Back to the full shelf">${esc(state.settings.shelfName || 'Shelf')}</button></h1>
-          </div>
-          <div class="header-controls">
-            <div class="search-wrap">
-              <input type="text" class="search-input" placeholder="Search title / author / tags" value="${esc(state.q)}" data-action="search">
-              <button class="search-clear ${state.q ? '' : 'hidden'}" data-action="clear-search">&times;</button>
-            </div>
-            <select class="select select-tag" data-action="tag">
-              <option value="">All tags</option>
-              ${allTags.map(t => `<option value="${esc(t)}" ${state.tag === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}
-            </select>
-            <select class="select select-sort" data-action="sort">
-              ${SORT_OPTIONS.map(o => `<option value="${o.key}" ${state.sortBy === o.key ? 'selected' : ''}>${o.label}${state.sortBy === o.key ? (state.sortDir === 'asc' ? ' ↑' : ' ↓') : ''}</option>`).join('')}
-            </select>
-            <div class="view-toggle">
-              <button class="view-btn ${state.view === 'covers' ? 'active' : ''}" data-action="view" data-view="covers">Covers</button>
-              <button class="view-btn ${state.view === 'list' ? 'active' : ''}" data-action="view" data-view="list">List</button>
-            </div>
-            <button class="btn" data-action="reset">Reset</button>
-            ${state.canLogin && state.readOnly ? '<button class="btn" data-action="login">Log In</button>' : ''}
-            ${state.readOnly ? '' : `
-            <div class="avatar-wrap">
-              <button class="avatar" data-action="avatar-menu" title="Shelf actions">${esc((state.settings.shelfName || 'Shelf')[0].toUpperCase())}</button>
-              <div class="avatar-dropdown ${state.menuOpen ? 'open' : ''}">
-                <button data-action="add-book">Add Media</button>
-                <button data-action="import">Import</button>
-                <button data-action="shelf-settings">Shelf Settings</button>
-                ${state.loggedIn ? '<button data-action="logout">Log Out</button>' : ''}
-              </div>
-            </div>`}
-          </div>
+      <div class="masthead">
+        <div class="view-toggle">
+          <button class="view-btn ${state.view === 'covers' ? 'active' : ''}" data-action="view" data-view="covers">Covers</button>
+          <button class="view-btn ${state.view === 'list' ? 'active' : ''}" data-action="view" data-view="list">List</button>
         </div>
+        <div class="masthead-title">
+          <h1><button data-action="home" title="Back to the shelf">${esc(state.settings.shelfName || 'Shelf')}</button></h1>
+          ${renderMediaTabs()}
+        </div>
+        <div class="masthead-actions">
+          <div class="search-wrap">
+            <input type="text" class="search-input" placeholder="Search title / author / tags" value="${esc(state.q)}" data-action="search">
+            <button class="search-clear ${state.q ? '' : 'hidden'}" data-action="clear-search">&times;</button>
+          </div>
+          ${state.canLogin && state.readOnly ? '<button class="btn" data-action="login">Log In</button>' : ''}
+          ${state.readOnly ? '' : `
+          <div class="avatar-wrap">
+            <button class="avatar" data-action="avatar-menu" title="Shelf actions">${esc((state.settings.shelfName || 'Shelf')[0].toUpperCase())}</button>
+            <div class="avatar-dropdown ${state.menuOpen ? 'open' : ''}">
+              <button data-action="add-book">Add Media</button>
+              <button data-action="import">Import</button>
+              <button data-action="shelf-settings">Shelf Settings</button>
+              ${state.loggedIn ? '<button data-action="logout">Log Out</button>' : ''}
+            </div>
+          </div>`}
+        </div>
+      </div>
+      <div class="toolbar">
+        <select class="select select-tag" data-action="tag">
+          <option value="">All tags</option>
+          ${allTags.map(t => `<option value="${esc(t)}" ${state.tag === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}
+        </select>
+        <select class="select select-sort" data-action="sort">
+          ${SORT_OPTIONS.map(o => `<option value="${o.key}" ${state.sortBy === o.key ? 'selected' : ''}>${o.label}${state.sortBy === o.key ? (state.sortDir === 'asc' ? ' ↑' : ' ↓') : ''}</option>`).join('')}
+        </select>
+        <button class="btn" data-action="reset">Reset</button>
       </div>
     </div>
 
-    ${renderMediaTabs()}
     <div id="results">${renderResults(filtered)}</div>
     ${renderStatusBar(filtered)}
     ${state.drawerOpen ? renderDrawer() : ''}
