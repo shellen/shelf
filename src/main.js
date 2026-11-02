@@ -444,8 +444,8 @@ function render() {
     <div class="header">
       <div class="masthead">
         <div class="view-toggle">
-          <button class="view-btn ${state.view === 'covers' ? 'active' : ''}" data-action="view" data-view="covers">Covers</button>
-          <button class="view-btn ${state.view === 'list' ? 'active' : ''}" data-action="view" data-view="list">List</button>
+          <button class="view-btn ${state.view === 'covers' ? 'active' : ''}" data-action="view" data-view="covers" aria-pressed="${state.view === 'covers'}">Covers</button>
+          <button class="view-btn ${state.view === 'list' ? 'active' : ''}" data-action="view" data-view="list" aria-pressed="${state.view === 'list'}">List</button>
         </div>
         <div class="masthead-title">
           <h1><button data-action="home" title="Back to the shelf">${esc(state.settings.shelfName || 'Shelf')}</button></h1>
@@ -510,10 +510,10 @@ function renderMediaTabs() {
   if (present.length < 2) return ''
   const active = state.route?.kind === 'medium' ? state.route.slug : ''
   return `
-    <div class="media-tabs">
-      <button class="media-tab ${active === '' ? 'active' : ''}" data-medium="">All</button>
-      ${present.map(m => `<button class="media-tab ${active === m.key ? 'active' : ''}" data-medium="${m.key}">${m.label}</button>`).join('')}
-    </div>
+    <nav class="media-tabs" aria-label="Media">
+      <button class="media-tab ${active === '' ? 'active' : ''}" data-medium=""${active === '' ? ' aria-current="true"' : ''}>All</button>
+      ${present.map(m => `<button class="media-tab ${active === m.key ? 'active' : ''}" data-medium="${m.key}"${active === m.key ? ' aria-current="true"' : ''}>${m.label}</button>`).join('')}
+    </nav>
   `
 }
 

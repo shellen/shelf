@@ -320,6 +320,18 @@ describe('shelf media', () => {
     expect(document.querySelector('.header .toolbar [data-action="reset"]')).not.toBeNull()
     expect(document.querySelector('.masthead-actions [data-action="search"]')).not.toBeNull()
   })
+
+  it('marks the active media tab and view for assistive tech', async () => {
+    await loadApp(MIXED)
+    expect(document.querySelector('nav.media-tabs[aria-label="Media"]')).not.toBeNull()
+    const current = [...document.querySelectorAll('.media-tab[aria-current="true"]')]
+    expect(current).toHaveLength(1)
+    expect(current[0].dataset.medium).toBe('')
+    expect(document.querySelectorAll('.media-tab:not([aria-current])').length)
+      .toBe(document.querySelectorAll('.media-tab').length - 1)
+    expect(document.querySelector('.view-btn[data-view="covers"]').getAttribute('aria-pressed')).toBe('true')
+    expect(document.querySelector('.view-btn[data-view="list"]').getAttribute('aria-pressed')).toBe('false')
+  })
 })
 
 describe('cover picker manual URL', () => {
