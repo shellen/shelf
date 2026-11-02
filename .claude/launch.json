@@ -10,6 +10,19 @@
       ],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "bookshelf-static",
+      "runtimeExecutable": "/usr/bin/python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4173",
+        "--directory",
+        "/Users/shellen/Documents/Claude Stuff/bookshelf/dist"
+      ],
+      "port": 4173,
+      "autoPort": true
     }
   ]
 }
