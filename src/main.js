@@ -169,7 +169,7 @@ const state = {
   error: null,
   readOnly: false,
   view: 'shelf',
-  shelf: { group: '', index: 0 },
+  shelf: { group: '', index: 0, medium: '' },
   q: '',
   tag: '',
   sortBy: 'title',
@@ -215,18 +215,22 @@ function getAllTags() {
   return Array.from(set).sort()
 }
 
+function shelfMedium() {
+  return state.route?.kind === 'medium' ? state.route.slug : ''
+}
+
 function shelfGroups() {
-  const medium = state.route?.kind === 'medium' ? state.route.slug : ''
-  return showcaseGroups(state.books, { landing: state.settings.landing || [], medium })
+  return showcaseGroups(state.books, { landing: state.settings.landing || [], medium: shelfMedium() })
 }
 
 function activeShelfGroup(groups = shelfGroups()) {
   return groups.find(g => g.key === state.shelf.group) || groups[0] || null
 }
 
-// A group that has gone away falls back to another, which starts at its first item
+// A group that has gone away, or the same group under another medium, starts at its first item
 function shelfIndex(group) {
-  return group.key === state.shelf.group ? Math.min(state.shelf.index, group.items.length - 1) : 0
+  const sameGroup = group.key === state.shelf.group && state.shelf.medium === shelfMedium()
+  return sameGroup ? Math.min(state.shelf.index, group.items.length - 1) : 0
 }
 
 function getFilteredSorted() {
@@ -636,13 +640,14 @@ function mountShelfIfShown() {
   if (!root) return
   const group = activeShelfGroup()
   const index = shelfIndex(group)
-  state.shelf = { group: group.key, index }
+  const medium = shelfMedium()
+  state.shelf = { group: group.key, index, medium }
   shelfControl = mountShelf(root, {
     items: group.items,
     index,
     reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
     resolveCover,
-    onIndexChange: i => { state.shelf = { group: group.key, index: i } },
+    onIndexChange: i => { state.shelf = { group: group.key, index: i, medium } },
     onOpen: (i, rect) => openBook(group.items[i].id, { source: 'shelf', from: rect ? { rect, rotate: TILT_DEG } : null }),
   })
 }
@@ -970,8 +975,10 @@ function switchView(view) {
 
 function leaveShelfKeepingSearchFocus(input) {
   const caret = input.selectionStart
+  const focused = document.activeElement === input
   state.view = 'covers'
   render()
+  if (!focused) return
   const next = document.querySelector('[data-action="search"]')
   next?.focus()
   next?.setSelectionRange(caret, caret)
@@ -1038,10 +1045,6 @@ function applyHash() {
   const resolved = resolveRoute(route, state.books)
   // Any route but a medium filter shows results, which the shelf view doesn't
   if (route.kind !== 'medium' && state.view === 'shelf') state.view = 'covers'
-  // A different medium is a different set of shelf groups, which starts at its first item
-  if (route.kind === 'medium' && (state.route?.kind !== 'medium' || state.route.slug !== route.slug)) {
-    state.shelf = { ...state.shelf, index: 0 }
-  }
   if (resolved.canonical && location.hash !== resolved.canonical) {
     history.replaceState(null, '', resolved.canonical)
   }
@@ -1280,10 +1283,18 @@ function attachEventListeners() {
     state.q = e.target.value
     state.selectedIndex = -1
     if (state.view === 'shelf') {
-      leaveShelfKeepingSearchFocus(e.target)
+      if (!e.isComposing) leaveShelfKeepingSearchFocus(e.target)
       return
     }
     updateResults()
+  })
+
+  // An IME composition finishing is when a shelf search actually begins
+  // WebKit can fire it before the composition's last input event, so read the box itself
+  document.querySelector('[data-action="search"]')?.addEventListener('compositionend', e => {
+    if (state.view !== 'shelf') return
+    state.q = e.target.value
+    if (state.q) leaveShelfKeepingSearchFocus(e.target)
   })
 
   // Clear search
@@ -1311,7 +1322,7 @@ function attachEventListeners() {
   document.querySelectorAll('[data-shelf-group]').forEach(el => {
     el.addEventListener('click', e => {
       const key = el.dataset.shelfGroup
-      state.shelf = { group: key, index: 0 }
+      state.shelf = { group: key, index: 0, medium: shelfMedium() }
       render()
       if (e.detail === 0) document.querySelector(`[data-shelf-group="${key}"]`)?.focus()
     })
@@ -1494,7 +1505,6 @@ function attachEventListeners() {
   // Media tabs and section heading links
   document.querySelectorAll('.media-tab').forEach(el => {
     el.addEventListener('click', () => {
-      state.shelf = { ...state.shelf, index: 0 }
       const key = el.dataset.medium
       if (key) {
         history.replaceState(null, '', `#/medium/${key}`)
@@ -1965,6 +1975,8 @@ function wallColumns() {
 }
 
 function onKeydown(e) {
+  // Keys during IME composition belong to the IME (229 is the legacy composing keyCode)
+  if (e.isComposing || e.keyCode === 229) return
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)
   if (e.key === 'Escape') {
     if (state.helpOpen) { state.helpOpen = false; render(); return }

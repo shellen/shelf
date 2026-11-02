@@ -475,6 +475,112 @@ describe('shelf view', () => {
     expect(caption()).toBe('Charlie')
   })
 
+  describe('leaving a medium', () => {
+    const PODCAST_FAVORITES = [
+      ['alpha', 'Alpha', 'album'],
+      ['bravo', 'Bravo', 'album'],
+      ['charlie', 'Charlie', 'podcast'],
+      ['delta', 'Delta', 'podcast'],
+    ].map(([id, title, medium]) => ({ ...MIXED[0], id, title, author: 'Some Author', tags: [], rating: 5, medium }))
+
+    const leavingMedium = {
+      'Escape': () => press('Escape'),
+      'Back to an empty hash': () => {
+        window.location.hash = ''
+        window.dispatchEvent(new Event('hashchange'))
+      },
+      'Home': () => document.querySelector('[data-action="home"]').click(),
+      'an author route, then the Shelf button': () => {
+        window.location.hash = '#/author/some-author'
+        window.dispatchEvent(new Event('hashchange'))
+        document.querySelector('[data-view="shelf"]').click()
+      },
+    }
+
+    it.each(Object.entries(leavingMedium))('starts the unfiltered shelf at its first item after %s', async (_name, leave) => {
+      await loadApp(PODCAST_FAVORITES, { view: 'shelf' })
+      window.location.hash = '#/medium/podcast'
+      window.dispatchEvent(new Event('hashchange'))
+      document.querySelector('[data-shelf-step="1"]').click()
+      expect(caption()).toBe('Delta')
+
+      leave()
+
+      expect(document.querySelector('.shelf-view')).not.toBeNull()
+      expect(caption()).toBe('Alpha')
+    })
+  })
+
+  it('the Shelf button clears a route and tag set in covers', async () => {
+    await loadApp(READING_BOOKS, { view: 'covers' })
+    window.location.hash = '#/author/herbert'
+    window.dispatchEvent(new Event('hashchange'))
+    press('1')
+
+    document.querySelector('[data-view="shelf"]').click()
+
+    expect(window.location.hash).toBe('')
+    expect(document.querySelector('.shelf-view')).not.toBeNull()
+    expect([...document.querySelectorAll('[data-shelf-group]')].map(t => t.dataset.shelfGroup)).toEqual(['reading', 'favorites'])
+    document.querySelector('[data-view="covers"]').click()
+    expect(document.querySelectorAll('.cover-tile').length).toBe(3)
+  })
+
+  it('waits for an IME composition to end before leaving the shelf', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    const input = document.querySelector('[data-action="search"]')
+    input.focus()
+    input.value = 'du'
+    const composing = new Event('input', { bubbles: true })
+    Object.assign(composing, { isComposing: true })
+    input.dispatchEvent(composing)
+    expect(activeView()).toBe('shelf')
+    expect(document.querySelector('[data-action="search"]')).toBe(input)
+
+    input.dispatchEvent(new Event('compositionend', { bubbles: true }))
+
+    expect(activeView()).toBe('covers')
+    expect(document.activeElement.dataset.action).toBe('search')
+    expect(document.activeElement.value).toBe('du')
+  })
+
+  it('takes the search from the box when a composition ends before its last input event', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    const input = document.querySelector('[data-action="search"]')
+    input.focus()
+    input.value = 'du'
+    input.dispatchEvent(new Event('compositionend', { bubbles: true }))
+    expect(activeView()).toBe('covers')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(1)
+  })
+
+  it('stays on the shelf when a composition is cancelled', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    const input = document.querySelector('[data-action="search"]')
+    input.focus()
+    input.value = ''
+    input.dispatchEvent(new Event('compositionend', { bubbles: true }))
+    expect(activeView()).toBe('shelf')
+  })
+
+  it('leaves focus alone when a composition ends because the box lost focus', async () => {
+    await loadApp(BOOKS, { view: 'shelf' })
+    const input = document.querySelector('[data-action="search"]')
+    input.value = 'du'
+    input.dispatchEvent(new Event('compositionend', { bubbles: true }))
+    expect(activeView()).toBe('covers')
+    expect(document.activeElement.dataset.action).not.toBe('search')
+  })
+
+  it('ignores keys pressed while an IME is composing', async () => {
+    await loadApp(MIXED, { view: 'shelf' })
+    document.querySelector('.media-tab[data-medium="album"]').click()
+    window.dispatchEvent(new Event('hashchange'))
+    const escape = Object.assign(new Event('keydown', { bubbles: true }), { key: 'Escape', isComposing: true })
+    document.dispatchEvent(escape)
+    expect(window.location.hash).toBe('#/medium/album')
+  })
+
   describe('covers', () => {
     // Stands in for the network: width(url) > 0 loads at that width, 0 fails
     let width
