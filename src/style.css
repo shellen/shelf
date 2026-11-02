@@ -56,6 +56,16 @@ body::after {
   outline-offset: 3px;
 }
 
+/* Text-styled buttons reset with `all: unset` outrank the rule above */
+.header-title h1 button:focus-visible,
+.media-heading button:focus-visible,
+.list-title button:focus-visible,
+.drawer-author-link:focus-visible,
+.star-clear:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .hidden { display: none !important; }
 
 /* ---------- Header ---------- */
@@ -463,7 +473,10 @@ input, select, button, textarea {
   padding: 0.3rem 0;
 }
 
-.quick-add-input:focus { background: rgba(31, 63, 176, 0.08); }
+.quick-add-input:focus {
+  background: rgba(31, 63, 176, 0.08);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
 
 .quick-pending { background: repeating-linear-gradient(45deg, var(--paper), var(--paper) 8px, var(--sheet) 8px, var(--sheet) 16px); }
 
@@ -698,6 +711,12 @@ input, select, button, textarea {
 
 .list-sort:hover { color: var(--highlight); }
 
+/* Yellow ring: cobalt is too faint on the ink header */
+.list-sort:focus-visible {
+  outline: 2px solid var(--highlight);
+  outline-offset: -2px;
+}
+
 .list-sort.active {
   color: var(--highlight);
 }
@@ -909,6 +928,7 @@ input.drawer-title, input.drawer-author, .drawer-tags-input, .drawer-isbn {
 input.drawer-title:focus, input.drawer-author:focus,
 .drawer-tags-input:focus, .drawer-isbn:focus {
   background: rgba(31, 63, 176, 0.08);
+  box-shadow: inset 0 -2px 0 var(--accent);
 }
 
 input.drawer-title:hover:not(:focus), input.drawer-author:hover:not(:focus),
