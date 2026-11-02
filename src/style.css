@@ -816,12 +816,38 @@ input, select, button, textarea {
 
 /* ---------- Shelf view ---------- */
 
-body.is-shelf { overflow: hidden; }
+body.is-shelf {
+  overflow: hidden;
+  padding-bottom: 0; /* the shelf shows no status bar */
+}
 
+/* The shelf fills whatever is left below the banner and header */
+body.is-shelf #app {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.is-shelf .setup-banner,
+body.is-shelf .header { flex: none; }
+
+body.is-shelf #results {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* --shelf-h is the cover height; --shelf-cy is where its centre sits. The rail needs 86px above the cover
+   and the caption 110px below it, so the cover leaves 216px of the container's height for them and a margin,
+   and the group is centred by moving the centre up half the difference. */
 .shelf-view {
-  --shelf-h: min(46vh, 31vw);
-  position: fixed;
+  --shelf-h: max(120px, min(50cqh, 31cqw, 100cqh - 216px));
+  --shelf-cy: calc(50% - 12px);
+  position: absolute;
   inset: 0;
+  container-type: size;
+  overflow: hidden;
   z-index: 10;
   user-select: none;
   -webkit-user-select: none;
@@ -830,7 +856,7 @@ body.is-shelf { overflow: hidden; }
 .shelf-rail {
   position: absolute;
   left: 50%;
-  top: calc(50% - var(--shelf-h) / 2 - 86px);
+  top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 86px);
   transform: translateX(-50%);
   display: flex;
   z-index: 3;
@@ -869,11 +895,13 @@ body.is-shelf { overflow: hidden; }
   opacity: 0.6;
 }
 
+.shelf-tab.active .shelf-tab-count { opacity: 0.75; }
+
 .shelf-stage-wrap {
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(50% - var(--shelf-h) / 2 - 40px);
+  top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 40px);
   height: calc(var(--shelf-h) + 80px);
   perspective: 2200px;
   touch-action: pan-y;
@@ -1041,7 +1069,7 @@ body.is-shelf { overflow: hidden; }
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(50% + var(--shelf-h) / 2 + 30px);
+  top: calc(var(--shelf-cy) + var(--shelf-h) / 2 + 30px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1074,7 +1102,7 @@ body.is-shelf { overflow: hidden; }
 
 .shelf-arrow {
   position: absolute;
-  top: calc(50% + var(--shelf-h) / 2 + 40px);
+  top: calc(var(--shelf-cy) + var(--shelf-h) / 2 + 40px);
   width: 44px;
   height: 44px;
   display: grid;
@@ -1126,10 +1154,10 @@ body.is-shelf { overflow: hidden; }
   z-index: 100;
 }
 
-/* Custom cursor only over the shelf, only with a precise pointer; the header keeps the system cursor */
+/* Custom cursor only while a precise pointer is over the shelf; the header and an empty shelf keep the system cursor */
 @media (pointer: fine) {
-  .shelf-view, .shelf-view * { cursor: none; }
-  .shelf-cursor { display: block; }
+  .shelf-view.has-pointer, .shelf-view.has-pointer * { cursor: none; }
+  .shelf-view.has-pointer .shelf-cursor { display: block; }
 }
 
 .shelf-cursor-ring {
@@ -1176,13 +1204,32 @@ body.is-shelf { overflow: hidden; }
 .shelf-cursor[data-state="open"] .shelf-cursor-label { transform: scale(1); }
 
 @media (max-width: 767px) {
-  .shelf-view { --shelf-h: min(60vw, 40svh); }
-  .shelf-rail { top: calc(50% - var(--shelf-h) / 2 - 70px); }
+  .shelf-view {
+    --shelf-h: max(120px, min(60cqw, 50cqh, 100cqh - 194px));
+    --shelf-cy: calc(50% - 17px);
+  }
+  .shelf-rail { top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 70px); }
   .shelf-tab { padding: 0 6px; }
   .shelf-caption-title { font-size: 24px; }
   .shelf-prev { left: 6px; }
   .shelf-next { right: 6px; }
   .shelf-foot { left: 16px; bottom: 18px; }
+}
+
+/* A short container gives the cover what is left after a tighter rail and caption; the counts are in the rail tabs */
+@container (max-height: 479px) {
+  .shelf-foot { display: none; }
+}
+
+@container (max-height: 340px) {
+  .shelf-view > * {
+    --shelf-h: max(96px, 100cqh - 116px);
+    --shelf-cy: calc(50% - 16px);
+  }
+  .shelf-rail { top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 36px); }
+  .shelf-caption { top: calc(var(--shelf-cy) + var(--shelf-h) / 2 + 10px); gap: 3px; }
+  .shelf-caption-title { font-size: 20px; }
+  .shelf-arrow { top: calc(var(--shelf-cy) + var(--shelf-h) / 2 + 10px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

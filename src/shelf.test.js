@@ -183,7 +183,7 @@ describe('mountShelf', () => {
 
   it('starts the cursor where the pointer last was', () => {
     mountWith(books(10))
-    window.dispatchEvent(new MouseEvent('pointermove', { clientX: 10, clientY: 20 }))
+    document.querySelector('.shelf-view').dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: 10, clientY: 20 }))
     control.destroy()
     mountWith(books(10))
     expect(document.querySelector('.shelf-cursor').style.transform).toContain('10px,20px')
@@ -198,10 +198,73 @@ describe('mountShelf', () => {
     control = fresh.mountShelf(document.querySelector('.shelf-view'), { items: books(10), reducedMotion: true })
     const cursor = document.querySelector('.shelf-cursor')
     expect(cursor.style.visibility).toBe('hidden')
-    window.dispatchEvent(new MouseEvent('pointermove', { clientX: 30, clientY: 40 }))
+    document.querySelector('.shelf-view').dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: 30, clientY: 40 }))
     frames.run(performance.now() + 16)
     expect(cursor.style.visibility).toBe('')
     expect(cursor.style.transform).toContain('30px,40px')
+  })
+
+  describe('with the pointer', () => {
+    const moveOver = (el, x, y) => el.dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: x, clientY: y }))
+
+    async function mountFresh({ reducedMotion = true } = {}) {
+      vi.resetModules()
+      const frames = holdFrames()
+      const fresh = await import('./shelf.js')
+      document.body.innerHTML = '<div class="header"></div>' + fresh.renderShelfView({ groups: [group(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
+      const view = document.querySelector('.shelf-view')
+      control = fresh.mountShelf(view, { items: books(10), reducedMotion })
+      return { view, frames }
+    }
+
+    it('marks the shelf only while the custom cursor is showing', async () => {
+      const { view, frames } = await mountFresh()
+      const cursor = document.querySelector('.shelf-cursor')
+      expect(view.classList.contains('has-pointer')).toBe(false)
+      moveOver(view, 30, 40)
+      expect(view.classList.contains('has-pointer')).toBe(true)
+      frames.run(performance.now() + 16)
+      expect(cursor.style.visibility).toBe('')
+      view.dispatchEvent(new Event('pointerleave'))
+      expect(view.classList.contains('has-pointer')).toBe(false)
+      frames.run(performance.now() + 32)
+      expect(cursor.style.visibility).toBe('hidden')
+      moveOver(view, 50, 60)
+      expect(view.classList.contains('has-pointer')).toBe(true)
+    })
+
+    it('drops the custom cursor when the pointer moves onto the header', async () => {
+      const { view } = await mountFresh()
+      moveOver(view, 30, 40)
+      moveOver(document.querySelector('.header'), 30, 10)
+      expect(view.classList.contains('has-pointer')).toBe(false)
+    })
+
+    it('keeps the custom cursor across a re-render while the pointer is on the shelf', async () => {
+      const { view } = await mountFresh()
+      moveOver(view, 30, 40)
+      control.destroy()
+      document.body.innerHTML = '<div class="header"></div>' + renderShelfView({ groups: [group(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
+      const again = document.querySelector('.shelf-view')
+      control = (await import('./shelf.js')).mountShelf(again, { items: books(10), reducedMotion: true })
+      expect(again.classList.contains('has-pointer')).toBe(true)
+    })
+
+    const centreRotation = () => document.querySelectorAll('.tape[data-id="b0"]')[1].style.transform.match(/rotateY\(([-\d.]+)deg\)/)[1]
+
+    it('tilts the centred cover towards the pointer', async () => {
+      const { view, frames } = await mountFresh({ reducedMotion: false })
+      moveOver(view, 900, 40)
+      frames.run(performance.now() + 1000)
+      expect(Number(centreRotation())).not.toBe(-90)
+    })
+
+    it('holds the cover still under reduced motion', async () => {
+      const { view, frames } = await mountFresh({ reducedMotion: true })
+      moveOver(view, 900, 40)
+      frames.run(performance.now() + 1000)
+      expect(Number(centreRotation())).toBe(-90)
+    })
   })
 
   it('leaves ctrl+wheel to the browser', () => {

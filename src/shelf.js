@@ -11,7 +11,8 @@ const ARROW_NEXT = '<svg width="18" height="10" viewBox="0 0 18 10" fill="none" 
 const PLAY = '<svg width="12" height="12" viewBox="0 0 12 12"><polygon points="1,0 12,6 1,12" fill="currentColor"/></svg>'
 export const TILT_DEG = -4.5
 
-// Survives re-renders so a fresh mount can start the cursor where the pointer already is.
+// Survives re-renders so a fresh mount can start the cursor where the pointer already is,
+// and only if the pointer was over the shelf rather than the header.
 let lastPointer = null
 
 function captionHtml(book) {
@@ -105,7 +106,13 @@ export function mountShelf(root, {
   let tiltY = 0
   const pointer = { x: lastPointer?.x ?? 0, y: lastPointer?.y ?? 0, cx: lastPointer?.x ?? 0, cy: lastPointer?.y ?? 0 }
   let pointerKnown = !!lastPointer
+  let pointerInside = !!lastPointer?.inside
   let geom = measure()
+
+  // The custom cursor shows only for a pointer that is over the shelf; the class lets the
+  // stylesheet hide the system cursor at the same moment.
+  const cursorShowing = () => pointerKnown && pointerInside
+  const syncCursor = () => root.classList.toggle('has-pointer', cursorShowing())
 
   function measure() {
     const probe = document.createElement('div')
@@ -198,8 +205,8 @@ export function mountShelf(root, {
     pointer.cy += (pointer.y - pointer.cy) * follow
 
     const onCover = pointerKnown && h > 0 && Math.abs(pointer.x - cx) < 0.55 * faceWidth && Math.abs(pointer.y - cy) < 0.55 * h && Math.abs(target - pos) < 0.3
-    const goalY = onCover ? (pointer.x - cx) / (0.55 * safeFace) * 9 : pointerKnown ? (pointer.x - cx) / (innerWidth || 1) * 5 : 0
-    const goalX = onCover ? -(pointer.y - cy) / (safeH / 2) * 6 : 0
+    const goalY = reducedMotion ? 0 : onCover ? (pointer.x - cx) / (0.55 * safeFace) * 9 : pointerKnown ? (pointer.x - cx) / (innerWidth || 1) * 5 : 0
+    const goalX = reducedMotion || !onCover ? 0 : -(pointer.y - cy) / (safeH / 2) * 6
     const ease = 1 - Math.exp(-7 * dt)
     tiltY += (goalY - tiltY) * ease
     tiltX += (goalX - tiltX) * ease
@@ -234,7 +241,7 @@ export function mountShelf(root, {
     openButton.style.pointerEvents = settled < 0.5 ? 'none' : ''
 
     if (cursor) {
-      cursor.style.visibility = pointerKnown ? '' : 'hidden'
+      cursor.style.visibility = cursorShowing() ? '' : 'hidden'
       cursor.style.transform = `translate3d(${pointer.cx}px,${pointer.cy}px,0)`
       cursor.dataset.state = overButton ? 'button' : onCover ? 'open' : hoverSpine ? 'spine' : ''
     }
@@ -249,7 +256,9 @@ export function mountShelf(root, {
       pointer.cy = pointer.y
       pointerKnown = true
     }
-    lastPointer = { x: pointer.x, y: pointer.y }
+    pointerInside = e.target instanceof Node && root.contains(e.target)
+    lastPointer = { x: pointer.x, y: pointer.y, inside: pointerInside }
+    syncCursor()
     if (!drag) return
     const dx = e.clientX - drag.x0
     if (!drag.moved && Math.abs(dx) > 5) drag.moved = true
@@ -288,6 +297,11 @@ export function mountShelf(root, {
     clearTimeout(wheelTimer)
     wheelTimer = setTimeout(() => setTarget(Math.round(target)), 160)
   }, { passive: false })
+  root.addEventListener('pointerleave', () => {
+    pointerInside = false
+    if (lastPointer) lastPointer.inside = false
+    syncCursor()
+  })
   root.addEventListener('pointerover', e => {
     overButton = !!e.target.closest?.('button, a')
     const tape = e.target.closest?.('.tape')
@@ -326,6 +340,7 @@ export function mountShelf(root, {
     })
   })
 
+  syncCursor()
   tick(performance.now())
 
   return {
