@@ -278,7 +278,6 @@ input, select, button, textarea {
   display: flex;
   border: var(--rule);
   border-radius: var(--radius);
-  overflow: hidden;
 }
 
 .view-btn {
@@ -418,7 +417,6 @@ input, select, button, textarea {
   border: var(--rule);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  overflow: hidden;
   min-width: 11rem;
 }
 
