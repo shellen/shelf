@@ -1032,20 +1032,36 @@ function detailList() {
 function stepDetail(delta) {
   const list = detailList()
   const i = list.findIndex(b => b.id === state.selected?.id)
+  // An item edited out of the list it was opened from has no neighbours there
+  if (i < 0) return
   const next = list[i + delta]
   if (!next) return
+  const pressed = document.activeElement?.dataset?.action
   if (state.detailSource === 'shelf') state.shelf.index = i + delta
   else state.selectedIndex = i + delta
   openBook(next.id, { source: state.detailSource, entrance: false })
+  // The step button that was pressed keeps focus while it can still step; otherwise focus rests on Close
+  const stepButton = ['detail-prev', 'detail-next'].includes(pressed) ? document.querySelector(`.detail [data-action="${pressed}"]`) : null
+  const target = stepButton && !stepButton.disabled ? stepButton : document.querySelector('.detail-close')
+  target?.focus({ preventScroll: true })
 }
 
+// The cover tile or list row in the results that opens this item
+const resultTile = id => [...document.querySelectorAll('#results [data-id]')].find(el => el.dataset.id === id)
+
+function onScreen(rect) {
+  const { clientWidth, clientHeight } = document.documentElement
+  return rect.right > 0 && rect.bottom > 0 && rect.left < clientWidth && rect.top < clientHeight
+}
+
+// Where the detail folds away to: the shelf's centred cover, or its tile when that is on screen (else a fade)
 function detailOrigin(source, id) {
   if (source === 'shelf') {
     const rect = shelfControl?.centreRect()
     return rect ? { rect, rotate: TILT_DEG } : null
   }
-  const tile = [...document.querySelectorAll('#results [data-id]')].find(el => el.dataset.id === id)
-  return tile ? { rect: tile.getBoundingClientRect(), rotate: 0 } : null
+  const rect = resultTile(id)?.getBoundingClientRect()
+  return rect && onScreen(rect) ? { rect, rotate: 0 } : null
 }
 
 function renderDetailOverlay(settled) {
@@ -1065,9 +1081,13 @@ function renderDetailOverlay(settled) {
 }
 
 function afterDetailRender(entrance, animate) {
-  const el = document.querySelector('.detail')
+  // A copy still folding away from the last close carries the same ids as the detail
+  document.querySelectorAll('body > .detail-ghost').forEach(ghost => ghost.remove())
+  const el = document.querySelector('#app .detail')
   const book = state.selected
   if (!el || !book) return
+  // A dialog opened over the detail takes the keyboard to itself
+  el.toggleAttribute('inert', state.confirmOpen || state.coverPickerOpen)
   resolveCover(book).then(url => {
     const img = document.querySelector('.detail-cover-image')
     if (url && img && state.selected?.id === book.id) img.setAttribute('href', url)
@@ -1100,6 +1120,7 @@ function closeDetail() {
   const route = parseRoute(location.hash)
   if (route && (route.kind === 'title' || route.kind === 'isbn')) clearHash()
   render()
+  if (source !== 'shelf') resultTile(id)?.focus({ preventScroll: true })
   if (el && canAnimate() && !prefersReducedMotion()) playExit(el, detailOrigin(source, id))
 }
 
@@ -2106,8 +2127,12 @@ function onKeydown(e) {
       return
     }
     if (e.key === 'Enter') {
-      // A focused button handles its own Enter
-      if (!document.activeElement?.closest?.('button, a')) shelfControl?.open()
+      // A focused button handles its own Enter. One that opens the detail must not
+      // go on to press the Close button the detail focuses.
+      if (shelfControl && !document.activeElement?.closest?.('button, a')) {
+        e.preventDefault()
+        shelfControl.open()
+      }
       return
     }
     if (['ArrowUp', 'ArrowDown', 's', 'e'].includes(e.key)) return
@@ -2122,6 +2147,8 @@ function onKeydown(e) {
     return
   }
   if (e.key === 'Enter' && state.selectedIndex >= 0) {
+    // Keeps this Enter from going on to press the Close button the detail focuses
+    e.preventDefault()
     const tile = document.querySelector('.kb-selected')
     openBook(filtered[state.selectedIndex]?.id, { from: tile ? { rect: tile.getBoundingClientRect(), rotate: 0 } : null })
     return

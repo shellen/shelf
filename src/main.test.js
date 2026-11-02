@@ -75,6 +75,12 @@ async function loadApp(books = BOOKS, { session, settings, view = 'covers' } = {
     if (idMatch && opts.method === 'DELETE') {
       return { ok: true, json: async () => ({ ok: true }) }
     }
+    if (u.startsWith('https://openlibrary.org/search.json')) {
+      return { ok: true, json: async () => ({ docs: [] }) }
+    }
+    if (u.startsWith('https://www.googleapis.com/books/v1/volumes')) {
+      return { ok: true, json: async () => ({ items: [] }) }
+    }
     throw new Error('unexpected fetch: ' + u)
   }))
   vi.resetModules()
@@ -181,7 +187,6 @@ describe('detail overlay', () => {
     openDune()
     document.querySelector('[data-action="delete-book"]').click()
     expect(document.querySelector('.confirm-dialog').closest('[inert]')).toBeNull()
-    expect(document.querySelector('.detail').closest('[inert]')).toBeNull()
   })
 
   it('keeps the cover picker usable above it', async () => {
@@ -189,6 +194,141 @@ describe('detail overlay', () => {
     openDune()
     document.querySelector('[data-action="open-cover-picker"]').click()
     expect(document.querySelector('.cover-picker-panel').closest('[inert]')).toBeNull()
+  })
+
+  it('is itself inert while the remove confirmation is open', async () => {
+    await loadApp()
+    openDune()
+    document.querySelector('[data-action="delete-book"]').click()
+    expect(isInert('.detail')).toBe(true)
+    document.querySelector('[data-action="confirm-cancel"]').click()
+    expect(isInert('.detail')).toBe(false)
+  })
+
+  it('is itself inert while the cover picker is open', async () => {
+    await loadApp()
+    openDune()
+    document.querySelector('[data-action="open-cover-picker"]').click()
+    expect(isInert('.detail')).toBe(true)
+    await vi.waitFor(() => {
+      if (!document.querySelector('.cover-picker-empty')) throw new Error('search not finished')
+    })
+    expect(isInert('.detail')).toBe(true)
+    document.querySelector('.modal-actions [data-action="close-cover-picker"]').click()
+    expect(isInert('.detail')).toBe(false)
+  })
+
+  it('keeps focus on a step button that is still enabled after the step', async () => {
+    await loadApp()
+    openDune()
+    const next = document.querySelector('[data-action="detail-next"]')
+    next.focus()
+    next.click()
+    expect(document.querySelector('[data-field="title"]').value).toBe('Flow')
+    expect(document.activeElement?.dataset.action).toBe('detail-next')
+  })
+
+  it('moves focus to Close when a step disables the step button', async () => {
+    await loadApp()
+    openDune()
+    for (let k = 0; k < 2; k++) {
+      const next = document.querySelector('[data-action="detail-next"]')
+      next.focus()
+      next.click()
+    }
+    expect(document.querySelector('[data-field="title"]').value).toBe('The Design of Everyday Things')
+    expect(document.querySelector('[data-action="detail-next"]').disabled).toBe(true)
+    expect(document.activeElement?.dataset.action).toBe('close-detail')
+  })
+
+  it('keeps focus on Close across an arrow-key step', async () => {
+    await loadApp()
+    openDune()
+    expect(document.activeElement?.dataset.action).toBe('close-detail')
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+    expect(document.querySelector('[data-field="title"]').value).toBe('Flow')
+    expect(document.activeElement?.dataset.action).toBe('close-detail')
+  })
+
+  it('returns focus to the tile it was opened from on close', async () => {
+    await loadApp()
+    openDune()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    expect(document.activeElement?.dataset.id).toBe('s2-dune')
+    expect(document.activeElement.classList.contains('cover-tile')).toBe(true)
+  })
+
+  it('returns focus to the list row for the item last shown on close', async () => {
+    await loadApp(BOOKS, { view: 'list' })
+    document.querySelector('.list-title [data-id="s2-dune"]').click()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+    document.querySelector('[data-action="close-detail"]').click()
+    expect(document.activeElement?.dataset.id).toBe('s1-flow')
+    expect(document.activeElement.closest('.list-title')).not.toBeNull()
+  })
+})
+
+describe('detail motion', () => {
+  const ON_SCREEN = { left: 100, top: 100, right: 300, bottom: 400, width: 200, height: 300, x: 100, y: 100 }
+  const OFF_SCREEN = { left: 100, top: 2000, right: 300, bottom: 2300, width: 200, height: 300, x: 100, y: 2000 }
+  const openDune = () => document.querySelector('[data-id="s2-dune"]').click()
+  const ghosts = () => document.querySelectorAll('body > .detail-ghost')
+  const framesOf = el => {
+    const { calls, contexts } = Element.prototype.animate.mock
+    return calls[contexts.indexOf(el)]?.[0]
+  }
+  const original = Element.prototype.animate
+  let tileRect
+
+  beforeEach(async () => {
+    await loadApp()
+    tileRect = ON_SCREEN
+    Element.prototype.animate = vi.fn(() => ({ finished: Promise.resolve(), cancel() {}, onfinish: null }))
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
+      return this.dataset?.id === 's2-dune' ? tileRect : ON_SCREEN
+    })
+    Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 768 })
+  })
+
+  afterEach(() => {
+    if (original) Element.prototype.animate = original
+    else delete Element.prototype.animate
+    vi.restoreAllMocks()
+    delete document.documentElement.clientWidth
+    delete document.documentElement.clientHeight
+    ghosts().forEach(g => g.remove())
+  })
+
+  it('plays the entrance and focuses Close on open', () => {
+    openDune()
+    expect(Element.prototype.animate.mock.contexts).toContain(document.querySelector('#app .detail'))
+    expect(document.activeElement?.dataset.action).toBe('close-detail')
+  })
+
+  it('folds a ghost back into the tile on close', () => {
+    openDune()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    expect(ghosts()).toHaveLength(1)
+    expect(ghosts()[0].style.transformOrigin).toBe('200px 250px')
+    expect(framesOf(ghosts()[0])[1].clipPath).toMatch(/^inset\(/)
+  })
+
+  it('fades the ghost out instead when the tile is off screen', () => {
+    openDune()
+    tileRect = OFF_SCREEN
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    expect(ghosts()).toHaveLength(1)
+    expect(framesOf(ghosts()[0])).toEqual([{ opacity: 1 }, { opacity: 0 }])
+  })
+
+  it('clears a lingering exit ghost when the detail opens again', () => {
+    openDune()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    expect(ghosts()).toHaveLength(1)
+    openDune()
+    expect(ghosts()).toHaveLength(0)
+    expect(document.querySelectorAll('.detail')).toHaveLength(1)
   })
 })
 
@@ -716,6 +856,57 @@ describe('shelf view', () => {
     expect(activeView()).toBe('shelf')
   })
 
+  it('keeps the Enter that opens the centred item from reaching the focused Close button', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    document.dispatchEvent(enter)
+    expect(document.querySelector('.detail')).not.toBeNull()
+    expect(enter.defaultPrevented).toBe(true)
+  })
+
+  it('leaves Enter on a focused rail tab to the tab', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    document.querySelector('[data-shelf-group="favorites"]').focus()
+    const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    document.dispatchEvent(enter)
+    expect(document.querySelector('.detail')).toBeNull()
+    expect(enter.defaultPrevented).toBe(false)
+  })
+
+  it('does not step when the open item has left the group it was opened from', async () => {
+    const FAVORITES = BOOKS.map(b => ({ ...b, tags: [...b.tags], rating: b.id === 's1-flow' ? 5 : b.rating }))
+    await loadApp(FAVORITES, { view: 'shelf' })
+    expect(caption()).toBe('Dune')
+    press('Enter')
+    document.querySelector('[data-action="set-rating"][data-rating="4"]').click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.detail .rating-value')?.textContent !== '4') throw new Error('rating not shown yet')
+    })
+    press('ArrowRight')
+    expect(document.querySelector('[data-field="title"]').value).toBe('Dune')
+  })
+
+  it('re-centres on the item before one removed after its edit moved it to the end of its group', async () => {
+    const ALL_READING = BOOKS.map(b => ({ ...b, tags: [...b.tags, 'currently-reading'] }))
+    await loadApp(ALL_READING, { view: 'shelf' })
+    expect(caption()).toBe('Dune')
+    press('Enter')
+    // Flush happy-dom's queued hashchange for the opened item before its title stops matching the hash
+    await new Promise(r => setTimeout(r, 0))
+    const title = document.querySelector('[data-field="title"]')
+    title.value = 'Zen'
+    title.dispatchEvent(new Event('blur'))
+    await vi.waitFor(() => {
+      if (caption() !== 'Flow') throw new Error('rename not applied yet')
+    })
+    document.querySelector('[data-action="delete-book"]').click()
+    document.querySelector('[data-action="confirm-ok"]').click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.detail')) throw new Error('detail still open')
+    })
+    expect(caption()).toBe('The Design of Everyday Things')
+  })
+
   it('re-centres on the next item after removing one opened from the shelf', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
     press('Enter')
@@ -1151,6 +1342,14 @@ describe('keyboard shortcuts', () => {
     press('Enter')
     expect(document.querySelector('.detail-title').value)
       .toBe(selected.getAttribute('aria-label').split(' by ')[0])
+  })
+
+  it('keeps the Enter that opens the selected tile from reaching the focused Close button', () => {
+    press('ArrowRight')
+    const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    document.dispatchEvent(enter)
+    expect(document.querySelector('.detail')).not.toBeNull()
+    expect(enter.defaultPrevented).toBe(true)
   })
 
   it('left/right walk prev/next while the detail is open', () => {
