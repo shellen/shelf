@@ -1542,14 +1542,6 @@ body.is-shelf #results {
   letter-spacing: -0.01em;
 }
 
-@media (max-width: 479px) {
-  .modal-close {
-    width: 2.75rem;
-    height: 2.75rem;
-    font-size: 1.4rem;
-  }
-}
-
 .modal-close {
   border: var(--rule);
   border-radius: var(--radius);
@@ -1563,6 +1555,14 @@ body.is-shelf #results {
 }
 
 .modal-close:hover { background: var(--ink); color: var(--paper); }
+
+@media (max-width: 479px) {
+  .modal-close {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.4rem;
+  }
+}
 
 .modal-body { padding: 1rem; }
 
