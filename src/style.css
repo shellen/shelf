@@ -1,34 +1,59 @@
-/* ABOUTME: Brutalist print-zine design system for the bookshelf app.
-   ABOUTME: White ground, 3px black rules, Inter 900 display, mono metadata, red accent. */
+/* ABOUTME: Paper gallery design system for the bookshelf app.
+   ABOUTME: Warm paper ground, film grain, Newsreader display, Inter Tight labels, cobalt accent. */
 
 :root {
-  --ink: #000;
-  --paper: #fff;
-  --accent: #ff2e2e;
+  --ink: #141414;
+  --paper: #EDEBE6;
+  --sheet: #F4F2ED;
+  --muted: #6D6A63;
+  --accent: #1F3FB0;
   --highlight: #ffec42;
-  --rule: 3px solid var(--ink);
-  --rule-thin: 1px solid var(--ink);
-  --display: 'Inter', 'Arial Black', system-ui, sans-serif;
+  --rule: 1px solid var(--ink);
+  --rule-thin: 1px solid rgba(20, 20, 20, 0.22);
+  --display: 'Newsreader', Georgia, serif;
+  --sans: 'Inter Tight', system-ui, sans-serif;
   --mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  --radius: 2px;
+  --shadow: 0 18px 36px -20px rgba(20, 16, 10, 0.55);
+  --ease: cubic-bezier(.2, .8, .2, 1);
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  border-radius: 0 !important;
 }
 
 html, body {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--display);
+  font-family: var(--sans);
   font-size: 15px;
   line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   padding-bottom: 34px; /* clear the fixed status bar */
+}
+
+/* Film grain over everything; never intercepts input */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .42 0 0 0 0 .38 .44 0 0 0 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .hidden { display: none !important; }
