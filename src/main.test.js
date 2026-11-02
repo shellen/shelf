@@ -72,6 +72,9 @@ async function loadApp(books = BOOKS, { session, settings, view = 'covers' } = {
     if (u.endsWith('/api/import') && opts.method === 'POST') {
       return { ok: true, json: async () => ({ added: 1, filled: 1, skipped: 0 }) }
     }
+    if (idMatch && opts.method === 'DELETE') {
+      return { ok: true, json: async () => ({ ok: true }) }
+    }
     throw new Error('unexpected fetch: ' + u)
   }))
   vi.resetModules()
@@ -138,14 +141,54 @@ describe('html escaping', () => {
   })
 })
 
-describe('drawer metadata', () => {
-  it('shows metadata instead of shelf in the drawer', async () => {
+describe('detail metadata', () => {
+  it('shows metadata instead of shelf in the detail', async () => {
     await loadApp()
     document.querySelector('[data-id="s2-dune"]').click()
-    const meta = document.querySelector('.drawer-meta').textContent
+    const meta = document.querySelector('.detail-meta').textContent
     expect(meta).not.toContain('Shelf')
     expect(meta).toContain('1965')
     expect(meta).toContain('412')
+  })
+})
+
+describe('detail overlay', () => {
+  const openDune = () => document.querySelector('[data-id="s2-dune"]').click()
+  const isInert = selector => document.querySelector(selector).hasAttribute('inert')
+
+  it('makes the page behind it inert while it is open', async () => {
+    await loadApp()
+    openDune()
+    expect(isInert('.header')).toBe(true)
+    expect(isInert('#results')).toBe(true)
+    expect(isInert('.status-bar')).toBe(true)
+    expect(document.querySelector('.detail').closest('[inert]')).toBeNull()
+    document.querySelector('[data-action="close-detail"]').click()
+    expect(document.querySelector('.detail')).toBeNull()
+    expect(document.querySelectorAll('#app [inert]')).toHaveLength(0)
+  })
+
+  it('makes the read-only banner inert while it is open', async () => {
+    await loadApp(BOOKS, { session: { authRequired: false, writable: false, unprotected: true } })
+    openDune()
+    expect(isInert('.setup-banner')).toBe(true)
+    document.querySelector('[data-action="close-detail"]').click()
+    expect(isInert('.setup-banner')).toBe(false)
+  })
+
+  it('keeps the remove confirmation usable above it', async () => {
+    await loadApp()
+    openDune()
+    document.querySelector('[data-action="delete-book"]').click()
+    expect(document.querySelector('.confirm-dialog').closest('[inert]')).toBeNull()
+    expect(document.querySelector('.detail').closest('[inert]')).toBeNull()
+  })
+
+  it('keeps the cover picker usable above it', async () => {
+    await loadApp()
+    openDune()
+    document.querySelector('[data-action="open-cover-picker"]').click()
+    expect(document.querySelector('.cover-picker-panel').closest('[inert]')).toBeNull()
   })
 })
 
@@ -155,7 +198,7 @@ describe('inline editing', () => {
   const openDune = () => document.querySelector('[data-id="s2-dune"]').click()
   const field = (name) => document.querySelector(`[data-field="${name}"]`)
 
-  it('shows editable fields prefilled in the drawer, with no edit modal path', () => {
+  it('shows editable fields prefilled in the detail, with no edit modal path', () => {
     openDune()
     expect(field('title').value).toBe('Dune')
     expect(field('author').value).toBe('Frank Herbert')
@@ -164,7 +207,7 @@ describe('inline editing', () => {
     expect(document.querySelector('[data-action="edit-book"]')).toBeNull()
   })
 
-  it('saves a changed field on blur via PUT without rebuilding the drawer', async () => {
+  it('saves a changed field on blur via PUT without rebuilding the detail', async () => {
     openDune()
     const author = field('author')
     author.value = 'Frank Herbert Sr.'
@@ -176,7 +219,7 @@ describe('inline editing', () => {
     const put = fetch.mock.calls.find(([, o]) => o?.method === 'PUT')
     expect(put[0]).toContain('/api/books/s2-dune')
     expect(JSON.parse(put[1].body)).toEqual({ author: 'Frank Herbert Sr.' })
-    expect(field('author')).toBe(author)   // drawer not re-rendered out from under the user
+    expect(field('author')).toBe(author)   // detail not re-rendered out from under the user
   })
 
   it('parses tags on save', async () => {
@@ -199,13 +242,13 @@ describe('inline editing', () => {
     expect(fetch.mock.calls.some(([, o]) => o?.method === 'PUT')).toBe(false)
   })
 
-  it('Escape reverts the field and keeps the drawer open', () => {
+  it('Escape reverts the field and keeps the detail open', () => {
     openDune()
     const author = field('author')
     author.value = 'Wrong Name'
     author.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
     expect(field('author').value).toBe('Frank Herbert')
-    expect(document.querySelector('.drawer-panel')).not.toBeNull()
+    expect(document.querySelector('.detail')).not.toBeNull()
     expect(fetch.mock.calls.some(([, o]) => o?.method === 'PUT')).toBe(false)
   })
 
@@ -227,6 +270,19 @@ describe('inline editing', () => {
 
     await vi.waitFor(() => {
       if (field('author').value !== 'Frank Herbert') throw new Error('not reverted yet')
+    })
+  })
+
+  it('sets the rating from a star in the detail', async () => {
+    openDune()
+    document.querySelector('[data-action="set-rating"][data-rating="4"]').click()
+    await vi.waitFor(() => {
+      if (!fetch.mock.calls.some(([, o]) => o?.method === 'PUT')) throw new Error('no PUT yet')
+    })
+    const put = fetch.mock.calls.find(([, o]) => o?.method === 'PUT')
+    expect(JSON.parse(put[1].body).rating).toBe(4)
+    await vi.waitFor(() => {
+      if (document.querySelector('.detail .rating-value')?.textContent !== '4') throw new Error('rating not shown yet')
     })
   })
 
@@ -630,6 +686,47 @@ describe('shelf view', () => {
     expect(document.querySelector('[data-field="title"]')).not.toBeNull()
   })
 
+  it('steps through the shelf group from the detail and re-centres the shelf on close', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    press('Enter')
+    expect(document.querySelector('[data-field="title"]').value).toBe('Dune')
+    press('ArrowRight')
+    expect(document.querySelector('[data-field="title"]').value).toBe('Flow')
+    press('ArrowRight')
+    expect(document.querySelector('[data-field="title"]').value).toBe('Flow')
+    press('Escape')
+    expect(document.querySelector('.detail')).toBeNull()
+    expect(caption()).toBe('Flow')
+  })
+
+  it('stays on the shelf when the hash changes to the item already open', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    press('Enter')
+    expect(window.location.hash).toBe('#/title/dune')
+    window.dispatchEvent(new Event('hashchange'))
+    expect(activeView()).toBe('shelf')
+    expect(document.querySelector('[data-field="title"]').value).toBe('Dune')
+  })
+
+  it('slash does nothing while the detail is open', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    press('Enter')
+    press('/')
+    expect(document.activeElement?.dataset.action).not.toBe('search')
+    expect(activeView()).toBe('shelf')
+  })
+
+  it('re-centres on the next item after removing one opened from the shelf', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    press('Enter')
+    document.querySelector('[data-action="delete-book"]').click()
+    document.querySelector('[data-action="confirm-ok"]').click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.detail')) throw new Error('detail still open')
+    })
+    expect(caption()).toBe('Flow')
+  })
+
   it('v cycles shelf, covers and list', async () => {
     await loadApp(BOOKS, { view: 'shelf' })
     press('v')
@@ -921,10 +1018,10 @@ describe('hash routes', () => {
     expect(document.querySelector('.cover-title').textContent).toBe('The Design of Everyday Things')
   })
 
-  it('opens the drawer for a single-title route', async () => {
+  it('opens the detail for a single-title route', async () => {
     await loadApp()
     goTo('#/title/dune')
-    expect(document.querySelector('.drawer-title').value).toBe('Dune')
+    expect(document.querySelector('.detail-title').value).toBe('Dune')
   })
 
   it('sets a book hash when opening from the wall and clears it on close', async () => {
@@ -1031,7 +1128,7 @@ describe('keyboard access', () => {
 
     tile.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
 
-    expect(document.querySelector('.drawer-title').value).toBe('Dune')
+    expect(document.querySelector('.detail-title').value).toBe('Dune')
   })
 })
 
@@ -1052,15 +1149,15 @@ describe('keyboard shortcuts', () => {
     const selected = document.querySelector('.kb-selected')
     expect(selected).not.toBeNull()
     press('Enter')
-    expect(document.querySelector('.drawer-title').value)
+    expect(document.querySelector('.detail-title').value)
       .toBe(selected.getAttribute('aria-label').split(' by ')[0])
   })
 
-  it('left/right walk prev/next while the drawer is open', () => {
+  it('left/right walk prev/next while the detail is open', () => {
     press('ArrowRight'); press('Enter')
-    const first = document.querySelector('.drawer-title').value
+    const first = document.querySelector('.detail-title').value
     press('ArrowRight')
-    expect(document.querySelector('.drawer-title').value).not.toBe(first)
+    expect(document.querySelector('.detail-title').value).not.toBe(first)
   })
 
   it('v toggles view and s cycles sort at default direction', () => {
@@ -1070,10 +1167,10 @@ describe('keyboard shortcuts', () => {
     expect(document.querySelector('.status-bar').textContent).toContain('AUTHOR ↑')
   })
 
-  it('Escape closes the drawer, then clears the search', () => {
+  it('Escape closes the detail, then clears the search', () => {
     press('ArrowRight'); press('Enter')
     press('Escape')
-    expect(document.querySelector('.drawer-panel')).toBeNull()
+    expect(document.querySelector('.detail')).toBeNull()
     const input = document.querySelector('[data-action="search"]')
     input.focus(); input.value = 'dune'
     input.dispatchEvent(new Event('input', { bubbles: true }))

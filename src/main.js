@@ -5,6 +5,7 @@ import { parseRoute, resolveRoute, slugify } from './routes.js'
 import { esc } from './html.js'
 import { showcaseGroups } from './showcase.js'
 import { renderShelfView, mountShelf, TILT_DEG } from './shelf.js'
+import { renderDetail, playEntrance, playExit } from './overlay.js'
 
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
@@ -109,7 +110,7 @@ function parseTags(value) {
   return value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
 }
 
-// Inline field save - commits one drawer field, leaving the drawer DOM alone
+// Inline field save - commits one detail field, leaving the detail DOM alone
 async function saveField(el) {
   const book = state.selected
   if (!book || state.readOnly) return
@@ -181,8 +182,10 @@ const state = {
   menuOpen: false,
   lookupPick: null,
   quickQueue: [],
-  drawerOpen: false,
+  detailOpen: false,
   selected: null,
+  detailSource: 'results',
+  detailEntrance: null,
   modalOpen: false,
   modalLoading: false,
   modalStatus: null,
@@ -458,6 +461,9 @@ async function searchCovers(book) {
   return results
 }
 
+// The full-screen detail is modal: the page it covers stays out of reach while it is open
+const behindDetail = () => state.detailOpen ? 'inert' : ''
+
 // Render
 function render() {
   const filtered = getFilteredSorted()
@@ -484,10 +490,16 @@ function render() {
     return
   }
 
+  const entrance = state.detailOpen ? state.detailEntrance : null
+  state.detailEntrance = null
+  const animateEntrance = !!entrance && canAnimate()
+  // The ink reveal starts from bare paper only when it will actually play
+  const settledCover = !animateEntrance || prefersReducedMotion()
+
   document.body.classList.toggle('is-shelf', state.view === 'shelf')
   document.querySelector('#app').innerHTML = `
     ${renderUnprotectedBanner()}
-    <div class="header">
+    <div class="header" ${behindDetail()}>
       <div class="masthead">
         <div class="view-toggle">
           <button class="view-btn ${state.view === 'shelf' ? 'active' : ''}" data-action="view" data-view="shelf" aria-pressed="${state.view === 'shelf'}">Shelf</button>
@@ -529,9 +541,9 @@ function render() {
       </div>`}
     </div>
 
-    <div id="results">${renderResults(filtered)}</div>
+    <div id="results" ${behindDetail()}>${renderResults(filtered)}</div>
     ${state.view === 'shelf' ? '' : renderStatusBar(filtered)}
-    ${state.drawerOpen ? renderDrawer() : ''}
+    ${state.detailOpen ? renderDetailOverlay(settledCover) : ''}
     ${state.modalOpen ? renderModal() : ''}
     ${state.importOpen ? renderImportModal() : ''}
     ${state.loginOpen ? renderLoginModal() : ''}
@@ -543,6 +555,7 @@ function render() {
 
   attachEventListeners()
   mountShelfIfShown()
+  if (state.detailOpen) afterDetailRender(entrance, animateEntrance)
 }
 
 function landingMedia() {
@@ -609,7 +622,7 @@ function renderStatusBar(filtered) {
   const shown = filtered.length
   const opt = SORT_OPTIONS.find(o => o.key === state.sortBy) || SORT_OPTIONS[0]
   return `
-    <div class="status-bar">
+    <div class="status-bar" ${behindDetail()}>
       ${shown === total ? `${total} BOOKS` : `${shown}/${total} BOOKS`}
       / SORTED BY ${esc(opt.label.toUpperCase())} ${state.sortDir === 'asc' ? '↑' : '↓'}
       ${state.route ? ` / ${esc(state.route.kind)}: "${esc(state.route.slug)}"` : ''}
@@ -645,7 +658,7 @@ function mountShelfIfShown() {
   shelfControl = mountShelf(root, {
     items: group.items,
     index,
-    reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+    reducedMotion: prefersReducedMotion(),
     resolveCover,
     onIndexChange: i => { state.shelf = { group: group.key, index: i, medium } },
     onOpen: (i, rect) => openBook(group.items[i].id, { source: 'shelf', from: rect ? { rect, rotate: TILT_DEG } : null }),
@@ -993,16 +1006,74 @@ function bookHash(book) {
   return null
 }
 
-function openBook(id) {
+function openBook(id, { from = null, source = 'results', entrance = true } = {}) {
   const book = state.books.find(b => b.id === id)
   if (!book) return
   state.selected = book
-  state.drawerOpen = true
+  state.detailOpen = true
+  state.detailSource = source
+  state.detailEntrance = entrance ? { from } : null
   const target = bookHash(book)
   if (target && location.hash !== target) {
     history.replaceState(null, '', target)
   }
   render()
+}
+
+const canAnimate = () => typeof Element.prototype.animate === 'function'
+const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// The list the detail steps through: the shelf group it was opened from, or the current results
+function detailList() {
+  if (state.detailSource === 'shelf') return activeShelfGroup()?.items || []
+  return getFilteredSorted()
+}
+
+function stepDetail(delta) {
+  const list = detailList()
+  const i = list.findIndex(b => b.id === state.selected?.id)
+  const next = list[i + delta]
+  if (!next) return
+  if (state.detailSource === 'shelf') state.shelf.index = i + delta
+  else state.selectedIndex = i + delta
+  openBook(next.id, { source: state.detailSource, entrance: false })
+}
+
+function detailOrigin(source, id) {
+  if (source === 'shelf') {
+    const rect = shelfControl?.centreRect()
+    return rect ? { rect, rotate: TILT_DEG } : null
+  }
+  const tile = [...document.querySelectorAll('#results [data-id]')].find(el => el.dataset.id === id)
+  return tile ? { rect: tile.getBoundingClientRect(), rotate: 0 } : null
+}
+
+function renderDetailOverlay(settled) {
+  const b = state.selected
+  if (!b) return ''
+  const list = detailList()
+  const i = list.findIndex(x => x.id === b.id)
+  return renderDetail(b, {
+    readOnly: state.readOnly,
+    savingCover: state.savingCover,
+    media: MEDIA,
+    links: [['Bookshop.org', bookshopLink(b)], ['Amazon', amazonLink(b)], ['Open Library', openLibraryLink(b)]],
+    canPrev: i > 0,
+    canNext: i >= 0 && i < list.length - 1,
+    settled,
+  })
+}
+
+function afterDetailRender(entrance, animate) {
+  const el = document.querySelector('.detail')
+  const book = state.selected
+  if (!el || !book) return
+  resolveCover(book).then(url => {
+    const img = document.querySelector('.detail-cover-image')
+    if (url && img && state.selected?.id === book.id) img.setAttribute('href', url)
+  })
+  if (animate) playEntrance(el, entrance.from, { reducedMotion: prefersReducedMotion() })
+  if (entrance) el.querySelector('.detail-close')?.focus({ preventScroll: true })
 }
 
 function setTagRoute(tag) {
@@ -1020,22 +1091,26 @@ function setTagRoute(tag) {
   }
 }
 
-function closeDrawer() {
-  state.drawerOpen = false
+function closeDetail() {
+  const el = document.querySelector('.detail')
+  const source = state.detailSource
+  const id = state.selected?.id
+  state.detailOpen = false
   state.selected = null
   const route = parseRoute(location.hash)
   if (route && (route.kind === 'title' || route.kind === 'isbn')) clearHash()
   render()
+  if (el && canAnimate() && !prefersReducedMotion()) playExit(el, detailOrigin(source, id))
 }
 
 // Apply the current location.hash to app state
 function applyHash() {
   const route = parseRoute(location.hash)
   if (!route) {
-    if (!state.route && !state.drawerOpen) return // nothing to change; skip the re-render
+    if (!state.route && !state.detailOpen) return // nothing to change; skip the re-render
     state.route = null
-    if (state.drawerOpen) {
-      state.drawerOpen = false
+    if (state.detailOpen) {
+      state.detailOpen = false
       state.selected = null
     }
     render()
@@ -1043,6 +1118,8 @@ function applyHash() {
   }
 
   const resolved = resolveRoute(route, state.books)
+  // The open item's own link: the detail already shows it, from whichever view opened it
+  if (state.detailOpen && resolved.open && resolved.open.id === state.selected?.id) return
   // Any route but a medium filter shows results, which the shelf view doesn't
   if (route.kind !== 'medium' && state.view === 'shelf') state.view = 'covers'
   if (resolved.canonical && location.hash !== resolved.canonical) {
@@ -1060,7 +1137,9 @@ function applyHash() {
   if (resolved.open) {
     state.route = null
     state.selected = state.books.find(b => b.id === resolved.open.id) || null
-    state.drawerOpen = !!state.selected
+    state.detailOpen = !!state.selected
+    state.detailSource = 'results'
+    state.detailEntrance = { from: null }
     render()
     return
   }
@@ -1070,7 +1149,7 @@ function applyHash() {
   state.route = { kind: route.kind, slug: route.slug, ids: new Set(resolved.books.map(b => b.id)) }
   state.tag = ''
   state.q = ''
-  state.drawerOpen = false
+  state.detailOpen = false
   state.selected = null
   state.selectedIndex = -1
   render()
@@ -1122,7 +1201,7 @@ function renderSettingsModal() {
 function renderUnprotectedBanner() {
   if (!state.unprotected) return ''
   return `
-    <div class="setup-banner" role="status">
+    <div class="setup-banner" role="status" ${behindDetail()}>
       <strong>Read-only</strong>
       <span>The owner of this shelf hasn't set up sign-in yet, so nothing here can be added, edited, or deleted.</span>
       <span class="setup-banner-owner">If this is your shelf, the README explains how to finish setup on your host.</span>
@@ -1337,7 +1416,7 @@ function attachEventListeners() {
 
   // Masthead goes home: clear route, filters, and any open panels
   document.querySelector('[data-action="home"]')?.addEventListener('click', () => {
-    state.drawerOpen = false
+    state.detailOpen = false
     state.selected = null
     state.view = 'shelf'
     resetFilters()
@@ -1490,7 +1569,7 @@ function attachEventListeners() {
       return
     }
     const el = e.target.closest('[data-action="open-book"]')
-    if (el) openBook(el.dataset.id)
+    if (el) openBook(el.dataset.id, { from: { rect: el.getBoundingClientRect(), rotate: 0 } })
   })
 
   document.querySelector('#results')?.addEventListener('keydown', e => {
@@ -1498,13 +1577,13 @@ function attachEventListeners() {
     const el = e.target.closest('[data-action="open-book"]')
     if (!el) return
     e.preventDefault()
-    openBook(el.dataset.id)
+    openBook(el.dataset.id, { from: { rect: el.getBoundingClientRect(), rotate: 0 } })
   })
 
-  // Close drawer
-  document.querySelectorAll('[data-action="close-drawer"]').forEach(el => {
-    el.addEventListener('click', closeDrawer)
-  })
+  // Close and step the detail
+  document.querySelector('[data-action="close-detail"]')?.addEventListener('click', closeDetail)
+  document.querySelector('[data-action="detail-prev"]')?.addEventListener('click', () => stepDetail(-1))
+  document.querySelector('[data-action="detail-next"]')?.addEventListener('click', () => stepDetail(1))
 
   // Media tabs and section heading links
   document.querySelectorAll('.media-tab').forEach(el => {
@@ -1676,7 +1755,7 @@ function attachEventListeners() {
   })
 
   // Inline field editing - save on blur, Enter commits, Escape reverts
-  document.querySelectorAll('.drawer-panel [data-field]').forEach(el => {
+  document.querySelectorAll('.detail [data-field]').forEach(el => {
     if (el.tagName === 'SELECT') {
       el.addEventListener('change', () => saveField(el))
       return
@@ -1694,7 +1773,7 @@ function attachEventListeners() {
     })
   })
 
-  // Author route from the drawer
+  // Author route from the detail
   document.querySelector('[data-action="author-route"]')?.addEventListener('click', () => {
     if (!state.selected?.author) return
     history.replaceState(null, '', `#/author/${slugify(state.selected.author)}`)
@@ -1713,9 +1792,14 @@ function attachEventListeners() {
       await api.deleteBook(book.id)
 
       // Remove from local state
+      const list = state.detailSource === 'shelf' ? detailList() : null
+      const removedAt = list ? list.findIndex(b => b.id === book.id) : -1
       state.books = state.books.filter(b => b.id !== book.id)
-      state.drawerOpen = false
+      state.detailOpen = false
       state.selected = null
+      if (removedAt >= 0) state.shelf.index = removedAt < list.length - 1 ? removedAt : Math.max(0, removedAt - 1)
+      // The removed item's own link would now resolve to nothing
+      if (['title', 'isbn'].includes(parseRoute(location.hash)?.kind)) clearHash()
 
       showToast(`"${book.title}" removed`)
       render()
@@ -1989,7 +2073,7 @@ function onKeydown(e) {
     if (state.loginOpen) { state.loginOpen = false; state.loginError = null; render(); return }
     if (state.settingsOpen) { state.settingsOpen = false; render(); return }
     if (state.importOpen) { closeImport(); return }
-    if (state.drawerOpen) { closeDrawer(); return }
+    if (state.detailOpen) { closeDetail(); return }
     if (state.route) { state.route = null; clearHash(); render(); return }
     if (state.q) { state.q = ''; document.querySelector('[data-action="search"]')?.blur(); render() }
     return
@@ -1999,23 +2083,20 @@ function onKeydown(e) {
   if (state.confirmOpen || state.modalOpen || state.coverPickerOpen || state.importOpen || state.helpOpen || state.loginOpen || state.settingsOpen) return
 
   const filtered = getFilteredSorted()
-  if (e.key === '/') {
-    e.preventDefault()
-    document.querySelector('[data-action="search"]')?.focus()
-    return
-  }
-  if (state.drawerOpen) {
+  if (state.detailOpen) {
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      const delta = e.key === 'ArrowRight' ? 1 : -1
-      const i = filtered.findIndex(b => b.id === state.selected?.id)
-      const next = filtered[i + delta]
-      if (next) { state.selectedIndex = i + delta; openBook(next.id) }
+      stepDetail(e.key === 'ArrowRight' ? 1 : -1)
       return
     }
     if (e.key === 'e' && !state.readOnly && state.selected) {
       e.preventDefault()
-      document.querySelector('.drawer-panel [data-field="title"]')?.focus()
+      document.querySelector('.detail [data-field="title"]')?.focus()
     }
+    return
+  }
+  if (e.key === '/') {
+    e.preventDefault()
+    document.querySelector('[data-action="search"]')?.focus()
     return
   }
   if (state.view === 'shelf') {
@@ -2041,7 +2122,8 @@ function onKeydown(e) {
     return
   }
   if (e.key === 'Enter' && state.selectedIndex >= 0) {
-    openBook(filtered[state.selectedIndex]?.id)
+    const tile = document.querySelector('.kb-selected')
+    openBook(filtered[state.selectedIndex]?.id, { from: tile ? { rect: tile.getBoundingClientRect(), rotate: 0 } : null })
     return
   }
   if (e.key === 'v') {
@@ -2071,7 +2153,7 @@ function onKeydown(e) {
   if (!state.readOnly && e.key === 'e' && state.selectedIndex >= 0) {
     e.preventDefault()
     openBook(filtered[state.selectedIndex].id)
-    document.querySelector('.drawer-panel [data-field="title"]')?.focus()
+    document.querySelector('.detail [data-field="title"]')?.focus()
     return
   }
   if (e.key === '?') {
