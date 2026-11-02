@@ -42,6 +42,11 @@ This is a front-end-only change: no API, schema, or server edits.
   choosing a tag (select or number key), or applying a `title` / `author` /
   `tags` / `isbn` route sets `state.view = 'covers'`. This rule applies only
   from shelf; in covers or list these actions never change the view.
+- **Entering the shelf:** switching to shelf by the Shelf button or `v`
+  clears the search, the tag, and any `title` / `author` / `tags` / `isbn`
+  route, but keeps a medium route. So the shelf never carries a stale search
+  or tag, and the only filter it ever shows is the medium. In shelf view, Esc
+  clears a medium route (as Esc clears routes today) and stays in shelf.
 - **Nothing implicitly returns to the shelf.** Clearing the search, toggling
   a tag off, Esc clearing a route, Reset, and the empty-state "Clear filters"
   button all keep the current view (Reset clears filters and sort, as today).
@@ -81,14 +86,26 @@ controls, restyled. Hidden in shelf view.
 
 The fixed status bar stays for covers and list and is hidden in shelf view,
 where the caption and a footer count take its place: "<n> in <group name> ·
-<total> in the library".
+<total> in the library", where total is `state.books.length`.
+
+Header listeners for Reset, Import, Log In and Log Out are scoped to
+`.header [data-action=…]` today; they move with their controls, and the
+toolbar row stays inside `.header` so those selectors keep working. The
+three-way toggle keeps the `.view-btn` / `.active` / `data-view` markup that
+existing tests and handlers rely on. The Shelf button arrives in step 4, with
+the shelf view itself.
+
+Clicking a rail tab or media link with the mouse releases its focus, so Enter
+then opens the centred item instead of re-pressing the button; keyboard
+focus on those buttons is unaffected. (Found in the prototype.)
 
 ### Keys in shelf view
 
 Left/Right move the carousel; Enter opens the centred item; `/` focuses
 search; `v` cycles views; `?` help and number-key tag filters work as today
 (a tag leaves the shelf, per the rules above). `e`, `s`, Up and Down do
-nothing in shelf view.
+nothing in shelf view. While the overlay is open, `/` does nothing (the
+overlay covers the search box).
 
 ## Shelf view (curated showcase)
 
@@ -138,7 +155,21 @@ capped small, so DOM stays cheap.
   `currently-reading`, else "Read <Mon YYYY>" if `dateRead` is set, else
   omitted; then the star rating if rated.
 - **Open:** clicking the centered item, the open affordance, or pressing Enter
-  opens the overlay. Clicking an off-center spine centers it.
+  opens the overlay. Clicking an off-center spine centers it. Spines and faces
+  carry no `data-action="open-book"`, so the delegated `#results` click and
+  keydown handlers don't open a book when a spine is clicked.
+
+### Surviving re-renders
+
+`render()` replaces all of `#app`, and many actions call it, including while
+the detail is open (rating, notes, cover save, confirm dialogs, Left/Right
+stepping). So:
+- The active group key and centred item index live in `state`, not the DOM.
+  A re-render rebuilds the carousel at that index with no motion. The spring
+  animates only in response to navigation input.
+- The overlay's entrance animations (clip-path expand, ink reveal, text rise)
+  run only on the render that opens it, via a one-shot flag consumed by that
+  render. Re-renders while it is open draw it in its settled state.
 
 ### Texture and motion
 
@@ -165,25 +196,33 @@ capped small, so DOM stays cheap.
 
 ### Parity checklist (exactly the drawer today, nothing added)
 
-Always:
-- Media-type label (today's drawer header label) as the kicker.
+Always shown (signed in or out), matching `renderDrawer`:
+- Media-type label (today's drawer header) as the kicker.
+- Cover image (existing cover chain).
+- Title and creator fields (`data-field="title"` / `"author"`).
+- "More by this author" link (author route), when the item has an author.
+- Star display with halves, and the numeric rating value when rated.
+- Metadata line: year · pages · read date.
+- Notes textarea (`data-action="notes"`).
 - External links: Bookshop.org, Amazon, Open Library search (existing
   `bookshopLink` / `amazonLink` / `openLibraryLink`).
 
-Signed in:
-- Editable title, creator, medium, tags (comma input), ISBN — `data-field`
-  inputs saved by `saveField`; Escape reverts a field; empty title refused;
-  failed save reverts.
-- Half-star rating with set / clear.
-- Notes textarea (`data-action="notes"`).
-- Metadata line: year · pages · read date.
-- "More by this author" link (author route).
-- Change cover → cover picker (search + manual URL); the button is disabled
-  with a spinner while a cover saves (`state.savingCover`).
-- Remove Book with confirm.
+Signed in only:
+- Title and creator editable; medium select; tags comma input; ISBN input —
+  all `data-field` inputs saved by `saveField`, with Escape reverting a field,
+  an empty title refused, and a failed save reverted.
+- Star click targets (half and full) to set the rating, plus Clear.
+- Notes editable.
+- Change Cover → cover picker (search + manual URL); disabled with a spinner
+  while a cover saves (`state.savingCover`).
+- Remove Book with confirm. If the removed item was open from the shelf, the
+  carousel re-centres on the next item in the group, else the previous one;
+  if the group empties, it disappears from the rail per the group rules.
 
-Signed out (`state.readOnly`): fields read-only, tags as chips, notes shown
-read-only, metadata line adds ISBN, no editing actions.
+Signed-out differences (`state.readOnly`): title, creator and notes are
+read-only; no medium select; tags render as chips; no ISBN input, and the
+metadata line adds "ISBN …" instead; no star targets, Clear, Change Cover or
+Remove Book.
 
 Keyboard while open: Left/Right step to the previous/next item **in the list
 it was opened from** (the active showcase group when opened from shelf, the
@@ -191,7 +230,10 @@ filtered list otherwise) and **stop at the ends** — no wrap, as today; `e`
 focuses the title field; Esc closes.
 
 The selectors currently scoped to `.drawer-panel` (field listeners, `e`
-focus) are re-scoped to the overlay.
+focus) are re-scoped to the overlay. `.drawer-close` is also the close-button
+class in the Add Media, Cover Picker, Settings, Log In and Import modals, and
+its rules live in the Drawer CSS section; step-6 cleanup renames it to
+`.modal-close` in all five modals and moves its rules to the Modals section.
 
 ## Design tokens (style.css)
 
@@ -260,9 +302,10 @@ the behaviour under test and updates only selectors or expected view):
 
 | Step | Tests | Why |
 |---|---|---|
-| 2 | `renames the masthead to Shelf`, `shows a configured shelf name in the masthead and document title` | masthead markup and selector change |
+| 2 | `renames the masthead to Shelf`, `shows a configured shelf name in the masthead and document title`, `saves the shelf name from Shelf Settings` | `.header-title h1` selector changes |
 | 2, 4 | `clicking the Bookshelf masthead goes home` | selector (2); Home now lands on shelf (4) |
-| 5 | `drawer metadata`, all `inline editing` tests, `opens the drawer for a single-title route`, `sets a book hash when opening from the wall…`, `left/right walk prev/next while the drawer is open` | `.drawer-panel` → overlay selectors |
+| 4 | `renders embedded books read-only when the API is unavailable` | boots `main.js` itself, bypassing `loadApp`; it clicks `[data-view="covers"]` after boot, like the helper |
+| 5 | `drawer metadata`, all `inline editing` tests, `opens the drawer for a single-title route`, `opens a book from the cover wall with the Enter key`, `arrows move the selection and Enter opens`, `left/right walk prev/next while the drawer is open`, `Escape closes the drawer, then clears the search` | `.drawer-panel` / `.drawer-title` → overlay selectors |
 
 This table is the expected impact, not a guarantee. The full suite runs at
 every step; any failing test not listed here is raised with Jason before it
@@ -273,8 +316,8 @@ is changed.
 1. Tokens, fonts, placeholder restyle — app restyled flat, no layout changes.
 2. Header masthead + toolbar; covers/list/modals re-dress.
 3. `showcase.js` + `spines.js` with tests.
-4. Shelf view carousel (markup, geometry, inputs, caption); default view
-   switch; `loadApp` helper change; view-change rules.
+4. Shelf view carousel (markup, geometry, inputs, caption); Shelf button and
+   default view switch; `loadApp` helper change; view-change rules.
 5. Detail overlay; every view opens it.
 6. **Checkpoint for Jason's review:** parity checklist passes → drawer
    removal and dead-style cleanup.
