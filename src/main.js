@@ -1322,6 +1322,7 @@ function attachEventListeners() {
   document.querySelectorAll('[data-shelf-group]').forEach(el => {
     el.addEventListener('click', e => {
       const key = el.dataset.shelfGroup
+      if (key === activeShelfGroup()?.key) return
       state.shelf = { group: key, index: 0, medium: shelfMedium() }
       render()
       if (e.detail === 0) document.querySelector(`[data-shelf-group="${key}"]`)?.focus()
@@ -1990,6 +1991,7 @@ function onKeydown(e) {
     if (state.q) { state.q = ''; document.querySelector('[data-action="search"]')?.blur(); render() }
     return
   }
+  if (e.metaKey || e.ctrlKey || e.altKey) return
   if (typing) return
   if (state.confirmOpen || state.modalOpen || state.coverPickerOpen || state.importOpen || state.helpOpen || state.loginOpen || state.settingsOpen) return
 

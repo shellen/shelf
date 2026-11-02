@@ -601,11 +601,24 @@ describe('shelf view', () => {
     expect(document.querySelector('[data-field="title"]').value).toBe('Flow')
   })
 
-  it('Enter on a focused rail tab presses the tab instead of opening', async () => {
+  it('Enter on a focused rail tab does not open the centred item', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
     document.querySelector('[data-shelf-group="favorites"]').focus()
     press('Enter')
     expect(document.querySelector('[data-field="title"]')).toBeNull()
+  })
+
+  it('pressing the active rail tab again keeps the place on the shelf', async () => {
+    const library = BOOKS.map(b => ({ ...b, rating: 5, tags: b.id === 's2-dune' ? [...b.tags] : [...b.tags, 'currently-reading'] }))
+    await loadApp(library, { view: 'shelf' })
+    const favorites = () => document.querySelector('[data-shelf-group="favorites"]')
+    favorites().click()
+    press('ArrowRight')
+    press('ArrowRight')
+    const placed = caption()
+    expect(placed).not.toBe(library.map(b => b.title).sort()[0])
+    favorites().dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }))
+    expect(caption()).toBe(placed)
   })
 
   it('v cycles shelf, covers and list', async () => {
@@ -620,12 +633,33 @@ describe('shelf view', () => {
 
   it('s, e, up and down do nothing on the shelf', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
-    for (const key of ['s', 'e', 'ArrowUp', 'ArrowDown']) press(key)
+    for (const key of ['ArrowUp', 'ArrowDown', 's', 'e']) press(key)
     expect(activeView()).toBe('shelf')
     expect(caption()).toBe('Dune')
     expect(document.querySelector('[data-field="title"]')).toBeNull()
     document.querySelector('[data-view="covers"]').click()
     expect(document.querySelector('.status-bar').textContent).toContain('TITLE ↑') // s did not cycle the sort
+  })
+
+  it.each(['metaKey', 'ctrlKey'])('%s with v leaves the view and tag alone', async (modifier) => {
+    await loadApp(READING_BOOKS, { view: 'list' })
+    press('1')
+    const hash = window.location.hash
+    const rows = document.querySelectorAll('.list-row').length
+    expect(hash).not.toBe('')
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'v', [modifier]: true, bubbles: true }))
+    expect(activeView()).toBe('list')
+    expect(window.location.hash).toBe(hash)
+    expect(document.querySelectorAll('.list-row').length).toBe(rows)
+  })
+
+  it('alt with left leaves the browser its Back shortcut', async () => {
+    await loadApp(TWO_READING, { view: 'shelf' })
+    press('ArrowRight')
+    const back = new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true, bubbles: true, cancelable: true })
+    document.dispatchEvent(back)
+    expect(back.defaultPrevented).toBe(false)
+    expect(caption()).toBe('Flow')
   })
 
   it('the help overlay describes the view cycle', async () => {
