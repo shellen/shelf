@@ -2,7 +2,7 @@
 // ABOUTME: Signed-in and signed-out renders are checked separately against the spec's checklist.
 
 import { describe, it, expect, afterEach } from 'vitest'
-import { renderDetail, insetFrom, playExit } from './overlay.js'
+import { renderDetail, insetFrom, playEntrance, playExit } from './overlay.js'
 
 const MEDIA = [
   { key: 'book', label: 'Books', creator: 'Author' },
@@ -156,5 +156,25 @@ describe('playExit', () => {
     expect(ghosts[0].inert).toBe(true)
     expect(ghosts[0].getAttribute('aria-hidden')).toBe('true')
     expect(ghosts[0].querySelector('[mask]')).toBeNull()
+  })
+})
+
+describe('playEntrance', () => {
+  const original = Element.prototype.animate
+  afterEach(() => {
+    if (original) Element.prototype.animate = original
+    else delete Element.prototype.animate
+  })
+
+  it('starts each rising line below the 6px of focus-ring room in its mask', () => {
+    show(DUNE, { settled: false })
+    Element.prototype.animate = function () { return {} }
+    const starts = new Map()
+    const lines = [...document.querySelectorAll('.dm > *')]
+    // Stubbed per line: happy-dom's <select> doesn't pick up a prototype stub
+    for (const line of lines) line.animate = function (frames) { starts.set(this, frames[0]); return {} }
+    playEntrance($('.detail'), null, { reducedMotion: false })
+    expect(lines.length).toBeGreaterThan(0)
+    for (const line of lines) expect(starts.get(line).transform).toBe('translateY(calc(110% + 8px))')
   })
 })

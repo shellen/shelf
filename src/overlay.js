@@ -183,7 +183,8 @@ export function playEntrance(el, from, { reducedMotion = false } = {}) {
     el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: 'ease-out' })
   }
   el.querySelectorAll('.dm > *').forEach((child, k) => {
-    child.animate([{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }],
+    // The extra 8px clears the focus-ring padding at the foot of each .dm mask
+    child.animate([{ transform: 'translateY(calc(110% + 8px))' }, { transform: 'translateY(0)' }],
       { duration: 900, delay: (from ? 620 : 120) + k * 60, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' })
   })
   revealInk(el, from ? 520 : 0)
