@@ -309,24 +309,17 @@ function generatePlaceholder(book) {
 
   const escapeXml = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-  const titleLines = wrapText(title, 18).map((line, i) =>
-    `<tspan x="60" dy="${i === 0 ? 0 : 58}">${escapeXml(line)}</tspan>`
+  const titleLines = wrapText(title.toUpperCase(), 16).map((line, i) =>
+    `<tspan x="300" dy="${i === 0 ? 0 : 60}">${escapeXml(line)}</tspan>`
   ).join('')
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="600" height="900">
-      <rect width="600" height="900" fill="#ffffff"/>
-      <rect x="9" y="9" width="582" height="882" fill="none" stroke="#000000" stroke-width="18"/>
-      <rect x="60" y="70" width="480" height="18" fill="#ff2e2e"/>
-      <text x="60" y="190" font-family="'Arial Black', Inter, system-ui" font-size="46" fill="#000000" font-weight="900" style="text-transform:uppercase" letter-spacing="-1">
+      <rect width="600" height="900" fill="#E6DBC2"/>
+      <text x="300" y="110" text-anchor="middle" font-family="'Inter Tight', system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="4" fill="#141414">${escapeXml(author.toUpperCase())}</text>
+      <text x="300" y="360" text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="52" fill="#141414">
         ${titleLines}
       </text>
-      <text x="60" y="620" font-family="Menlo, monospace" font-size="22" fill="#000000">
-        ${escapeXml(author)}
-      </text>
-      <rect x="60" y="700" width="420" height="10" fill="#000000"/>
-      <rect x="60" y="728" width="360" height="10" fill="#000000"/>
-      <rect x="60" y="756" width="400" height="10" fill="#000000"/>
     </svg>
   `.trim()
 
