@@ -103,6 +103,8 @@ function typeInSearch(chars) {
   }
 }
 
+const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+
 describe('initial render', () => {
   beforeEach(() => loadApp())
 
@@ -203,6 +205,18 @@ describe('detail overlay', () => {
     expect(isInert('.detail')).toBe(true)
     document.querySelector('[data-action="confirm-cancel"]').click()
     expect(isInert('.detail')).toBe(false)
+  })
+
+  it('Escape cancels the remove confirmation and keeps the detail open', async () => {
+    await loadApp()
+    openDune()
+    document.querySelector('[data-action="delete-book"]').click()
+    press('Escape')
+    expect(document.querySelector('.confirm-dialog')).toBeNull()
+    expect(document.querySelector('.detail-title').value).toBe('Dune')
+    expect(isInert('.detail')).toBe(false)
+    await new Promise(r => setTimeout(r, 0)) // a confirmed removal would have sent its DELETE by now
+    expect(fetch.mock.calls.some(([, o]) => o?.method === 'DELETE')).toBe(false)
   })
 
   it('is itself inert while the cover picker is open', async () => {
@@ -601,7 +615,6 @@ describe('shelf view', () => {
     expect(caption()).toBe('Dune')
   })
 
-  const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
   const activeView = () => document.querySelector('.view-btn.active').dataset.view
   it('typing a search on the shelf switches to covers and keeps typing in the search box', async () => {
     await loadApp(BOOKS, { view: 'shelf' })
@@ -1325,7 +1338,6 @@ describe('keyboard access', () => {
 
 describe('keyboard shortcuts', () => {
   beforeEach(() => loadApp())
-  const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
 
   it('slash focuses search; typing there suspends shortcuts', () => {
     press('/')
@@ -1381,7 +1393,6 @@ describe('keyboard shortcuts', () => {
 
 describe('help overlay and tag keys', () => {
   beforeEach(() => loadApp())
-  const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
 
   it('? opens the help overlay listing shortcuts', () => {
     press('?')

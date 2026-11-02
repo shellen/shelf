@@ -86,6 +86,13 @@ function showConfirm(title, message) {
   })
 }
 
+function answerConfirm(ok) {
+  state.confirmOpen = false
+  if (state.confirmAction) state.confirmAction(ok)
+  state.confirmAction = null
+  render()
+}
+
 // Helpers to update a book in state
 function syncBookState(updatedBook) {
   const bookIndex = state.books.findIndex(b => b.id === updatedBook.id)
@@ -1831,19 +1838,8 @@ function attachEventListeners() {
   })
 
   // Confirm dialog buttons
-  document.querySelector('[data-action="confirm-ok"]')?.addEventListener('click', () => {
-    state.confirmOpen = false
-    if (state.confirmAction) state.confirmAction(true)
-    state.confirmAction = null
-    render()
-  })
-
-  document.querySelector('[data-action="confirm-cancel"]')?.addEventListener('click', () => {
-    state.confirmOpen = false
-    if (state.confirmAction) state.confirmAction(false)
-    state.confirmAction = null
-    render()
-  })
+  document.querySelector('[data-action="confirm-ok"]')?.addEventListener('click', () => answerConfirm(true))
+  document.querySelector('[data-action="confirm-cancel"]')?.addEventListener('click', () => answerConfirm(false))
 
   // Rating buttons (supports half stars)
   document.querySelectorAll('[data-action="set-rating"]').forEach(el => {
@@ -2088,6 +2084,7 @@ function onKeydown(e) {
   if (e.isComposing || e.keyCode === 229) return
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)
   if (e.key === 'Escape') {
+    if (state.confirmOpen) { answerConfirm(false); return }
     if (state.helpOpen) { state.helpOpen = false; render(); return }
     if (state.coverPickerOpen) { state.coverPickerOpen = false; state.coverOptions = []; render(); return }
     if (state.modalOpen) { state.modalOpen = false; state.modalStatus = null; render(); return }
