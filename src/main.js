@@ -765,97 +765,6 @@ function renderQuickAdd() {
   `
 }
 
-function renderDrawer() {
-  const b = state.selected
-  if (!b) return ''
-
-  const rating = b.rating || 0
-
-  return `
-    <div class="drawer-backdrop" data-action="close-drawer"></div>
-    <div class="drawer-panel">
-      <div class="drawer-header">
-        <h2>${esc(mediaLabel(mediumOf(b)).slice(0, -1))}</h2>
-        <button class="drawer-close" data-action="close-drawer">&times;</button>
-      </div>
-      <div class="drawer-content">
-        <div class="drawer-book">
-          <div class="drawer-cover">
-            <img class="drawer-cover-img" ${coverImgAttrs(b)} alt="Cover for ${esc(b.title)}">
-            ${state.readOnly ? '' : `
-            <button class="btn drawer-change-cover" data-action="open-cover-picker" ${state.savingCover ? 'disabled' : ''}>
-              ${state.savingCover ? '<span class="loading"></span>' : 'Change Cover'}
-            </button>`}
-          </div>
-          <div class="drawer-details">
-            <input class="drawer-title" data-field="title" value="${esc(b.title)}" data-original="${esc(b.title)}" placeholder="Title" ${state.readOnly ? 'readonly' : ''}>
-            <input class="drawer-author" data-field="author" value="${esc(b.author)}" data-original="${esc(b.author)}" placeholder="${esc(creatorLabel(mediumOf(b)))}" ${state.readOnly ? 'readonly' : ''}>
-            ${state.readOnly ? '' : `
-            <select class="drawer-medium" data-field="medium" data-original="${esc(mediumOf(b))}">
-              ${MEDIA.map(m => `<option value="${m.key}" ${mediumOf(b) === m.key ? 'selected' : ''}>${esc(m.label.slice(0, -1))}</option>`).join('')}
-            </select>`}
-            ${b.author ? `<button class="drawer-author-link" data-action="author-route">More by this author &rarr;</button>` : ''}
-            <div class="drawer-rating">
-              ${[1,2,3,4,5].map(star => {
-                const halfValue = star - 0.5
-                const fullValue = star
-                // Determine fill state: empty, half, or full
-                let fillClass = ''
-                if (rating >= fullValue) {
-                  fillClass = 'filled'
-                } else if (rating >= halfValue) {
-                  fillClass = 'half-filled'
-                }
-                return `
-                  <span class="star-wrapper">
-                    <span class="star-display ${fillClass}">★</span>
-                    ${state.readOnly ? '' : `
-                    <button class="star-hit star-hit-left" data-action="set-rating" data-rating="${halfValue}" title="${halfValue} stars"></button>
-                    <button class="star-hit star-hit-right" data-action="set-rating" data-rating="${fullValue}" title="${fullValue} stars"></button>`}
-                  </span>
-                `
-              }).join('')}
-              ${rating > 0 && !state.readOnly ? `<button class="star-clear" data-action="clear-rating">Clear</button>` : ''}
-              ${rating > 0 ? `<span class="rating-value">${rating}</span>` : ''}
-            </div>
-            ${state.readOnly ? `
-            <div class="drawer-tags">
-              ${(b.tags || []).map(t => `<span class="drawer-tag">${esc(t)}</span>`).join('')}
-            </div>` : `
-            <input class="drawer-tags-input" data-field="tags" value="${esc((b.tags || []).join(', '))}" data-original="${esc((b.tags || []).join(', '))}" placeholder="tags, comma, separated">`}
-            <div class="drawer-meta">
-              ${[
-                b.year ? esc(b.year) : null,
-                b.pages ? `${esc(b.pages)} pages` : null,
-                b.dateRead ? `read ${esc(b.dateRead)}` : null,
-                state.readOnly && b.isbn ? `ISBN ${esc(b.isbn)}` : null
-              ].filter(Boolean).join(' &bull; ') || '&nbsp;'}
-            </div>
-            ${state.readOnly ? '' : `
-            <div class="drawer-isbn-row">
-              <span>ISBN</span>
-              <input class="drawer-isbn" data-field="isbn" value="${esc(b.isbn)}" data-original="${esc(b.isbn)}" placeholder="—">
-            </div>`}
-            <div class="drawer-notes">
-              <label class="notes-label">Notes</label>
-              <textarea class="notes-input" data-action="notes" placeholder="${state.readOnly ? '' : 'Add your notes...'}" ${state.readOnly ? 'readonly' : ''}>${esc(b.notes)}</textarea>
-            </div>
-            <div class="drawer-links">
-              <a class="drawer-link" href="${esc(bookshopLink(b))}" target="_blank" rel="noreferrer">Bookshop.org search &rarr;</a>
-              <a class="drawer-link" href="${esc(amazonLink(b))}" target="_blank" rel="noreferrer">Amazon search &rarr;</a>
-              <a class="drawer-link" href="${esc(openLibraryLink(b))}" target="_blank" rel="noreferrer">Open Library search &rarr;</a>
-            </div>
-            ${state.readOnly ? '' : `
-            <div class="drawer-actions">
-              <button class="btn btn-danger" data-action="delete-book">Remove Book</button>
-            </div>`}
-          </div>
-        </div>
-      </div>
-    </div>
-  `
-}
-
 function renderCoverPicker() {
   const b = state.selected
   if (!b) return ''
@@ -865,7 +774,7 @@ function renderCoverPicker() {
       <div class="modal-panel cover-picker-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
           <h2>Choose Cover for "${esc(b.title)}"</h2>
-          <button class="drawer-close" data-action="close-cover-picker">&times;</button>
+          <button class="modal-close" data-action="close-cover-picker">&times;</button>
         </div>
         <div class="modal-body">
           ${state.coverLoading ? `
@@ -915,7 +824,7 @@ function renderModal() {
       <div class="modal-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
           <h2>Add Media</h2>
-          <button class="drawer-close" data-action="close-modal">&times;</button>
+          <button class="modal-close" data-action="close-modal">&times;</button>
         </div>
         ${state.modalStatus ? `<div class="status ${state.modalStatus.type}">${esc(state.modalStatus.message)}</div>` : ''}
         <div class="modal-body">
@@ -1197,7 +1106,7 @@ function renderSettingsModal() {
       <div class="modal-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
           <h2>Shelf Settings</h2>
-          <button class="drawer-close" data-action="close-settings">&times;</button>
+          <button class="modal-close" data-action="close-settings">&times;</button>
         </div>
         <div class="modal-body">
           <div class="form-group">
@@ -1243,7 +1152,7 @@ function renderLoginModal() {
       <div class="modal-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
           <h2>Log In</h2>
-          <button class="drawer-close" data-action="close-login">&times;</button>
+          <button class="modal-close" data-action="close-login">&times;</button>
         </div>
         ${state.loginError ? `<div class="status error">${esc(state.loginError)}</div>` : ''}
         <div class="modal-body">
@@ -1316,7 +1225,7 @@ function renderImportModal() {
       <div class="modal-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
           <h2>Import from Goodreads</h2>
-          <button class="drawer-close" data-action="close-import">&times;</button>
+          <button class="modal-close" data-action="close-import">&times;</button>
         </div>
         <div class="modal-body">
           <p class="form-hint">Export from Goodreads: My Books &rarr; Tools &rarr; Import and Export &rarr; Export Library</p>
