@@ -2,16 +2,7 @@ import './style.css'
 import embeddedBooks from 'virtual:bookshelf-data'
 import { parseGoodreadsCsv } from './goodreads.js'
 import { parseRoute, resolveRoute, slugify } from './routes.js'
-
-// Escape data for safe interpolation into HTML templates (element and attribute contexts)
-function esc(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
+import { esc } from './html.js'
 
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
