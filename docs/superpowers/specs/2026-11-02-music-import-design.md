@@ -215,7 +215,9 @@ Covers are found after the import, in the background, and on demand later.
   normal toast shown meanwhile appears briefly and the progress toast returns.
 - Found covers appear in the library at most every 15 seconds and when the run
   ends. The library isn't redrawn under an open detail (closing it shows
-  everything) or while the shelf is being dragged.
+  everything) or while the shelf is being
+  dragged or is still gliding to rest. Keyboard focus stays on the same tile,
+  row or shelf control across a redraw.
 - An unexpected failure ends the run with the same "Stopped finding covers"
   message, and Find missing covers can be run again.
 - Closing the tab stops the run. Items not reached keep the typographic cover
