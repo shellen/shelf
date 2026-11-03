@@ -9,6 +9,15 @@ describe('normKey', () => {
     expect(normKey('  Dune:  The   Novel! ')).toBe('dune the novel')
   })
 
+  it('treats tabs and line breaks as spaces between words', () => {
+    expect(normKey('Dune:\nThe\tNovel')).toBe('dune the novel')
+  })
+
+  it('gives decomposed and precomposed accents the same key', () => {
+    expect(normKey('Bjo\u0308rk')).toBe(normKey('Bj\u00f6rk'))
+    expect(normKey('\u1112\u1161\u11ab')).toBe(normKey('\ud55c'))
+  })
+
   it('treats a missing value as an empty key', () => {
     expect(normKey(null)).toBe('')
     expect(normKey(undefined)).toBe('')
