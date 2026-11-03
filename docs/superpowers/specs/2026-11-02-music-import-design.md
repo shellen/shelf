@@ -50,8 +50,12 @@ this far more often than book libraries.
 `normKey` becomes Unicode-aware: decompose (`NFKD`), drop combining diacritics
 (U+0300–U+036F) only where they follow a Latin letter (so "Björk" → "bjork",
 while Cyrillic й and Japanese voiced kana keep their marks), recompose (`NFC`), lowercase, and keep letters, numbers and the remaining
-combining marks in any script (`[^\p{L}\p{M}\p{N} ]` removed, so vowel signs in
-scripts such as Devanagari and Thai survive), then collapse spaces. The function moves to a shared
+combining marks in any script (`[^\p{L}\p{M}\p{N}\s]` removed, so vowel signs in
+scripts such as Devanagari and Thai survive), then collapse whitespace to single
+spaces, so a tab or line break still separates words. Arabic, Hebrew and Greek
+keep their optional vowel marks and accents too, so a title written with them
+and the same title written without them get different keys; Jason chose to
+accept that until his library shows it matters. The function moves to a shared
 module (`src/match.js`) so the server merge, the browser's album grouping and
 the cover matching all use the same key. Keys are computed on every import, so
 nothing stored needs migrating.
