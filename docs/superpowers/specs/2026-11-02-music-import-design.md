@@ -108,7 +108,9 @@ UTC, `<true/>`), and false booleans are simply absent. The root dictionary's
   it stays split.
 - Each group becomes one entry:
   - `title`: the album title as written on the group's first track.
-  - `author`: the most common album artist spelling in the group.
+  - `author`: the most common album artist spelling among the group's tracks
+    that carry `Album Artist` or `Compilation`, or among all its tracks when
+    none do.
   - `medium`: `album`.
   - `year`: the earliest `Year` in the group, or null.
   - `tags`: the most common non-empty `Genre`, lowercased (ties broken
