@@ -76,18 +76,24 @@ value siblings, values are typed (`<string>`, `<integer>`, `<date>` in ISO-8601
 UTC, `<true/>`), and false booleans are simply absent. The root dictionary's
 `Tracks` value holds one dictionary per track.
 
-- The exact key names are confirmed against Jason's own exported
-  `Library.xml` before the reader is written, and recorded here. The expected
-  keys are `Name`, `Artist`, `Album Artist`, `Album`, `Year`, `Genre`,
-  `Date Added`, `Album Rating`, `Album Rating Computed`, `Album Loved` (or
-  `Album Favorited` on newer macOS), `Compilation`, `Playlist Only`, `Podcast`,
-  `Movie`, `TV Show` and `Music Video`.
+- Key names confirmed against Jason's exported `Library.xml` on 2026-11-03
+  (16,106 tracks, 26 MB): `Name`, `Artist`, `Album Artist`, `Album`, `Year`
+  (integer), `Genre`, `Date Added` (ISO-8601 UTC), `Album Rating` (integer,
+  0–100), `Album Rating Computed`, `Album Loved`, `Compilation`,
+  `Playlist Only`, `Music Video`, `TV Show`, `Kind` (string) (flags are
+  `<true/>` or absent). `Tracks` falls in the first 4 KB and `Playlists`
+  occurs once. Not present in this library: `Podcast`, `Movie`,
+  `Album Favorited`; the reader still honours them. Every `Album Rating` in
+  this library is computed, so only its 4 loved albums arrive rated. Also
+  skipped, at Jason's choice: tracks whose `Kind` names a video or movie file,
+  or is "HLS media" (27 such tracks carry no video flag).
 - Performance: a large library file can be 50–100 MB. Cut the text at the
   first `<key>Playlists</key>` and append `</dict></plist>` so it stays
   well-formed (the playlists section is ignored and often large), then parse it
   once with `DOMParser`.
-- Skip tracks with no `Album`, and tracks marked `Playlist Only`, `Podcast`,
-  `Movie`, `TV Show` or `Music Video`.
+- Skip tracks with no `Album`, tracks marked `Playlist Only`, `Podcast`,
+  `Movie`, `TV Show` or `Music Video`, and tracks whose `Kind` contains
+  "video" or "movie" (any case) or is "HLS media".
 - A track's album artist is `Album Artist`; else "Various Artists" when
   `Compilation` is true; else `Artist`.
 - Group tracks by `normKey(album) | normKey(album artist)`. Each group becomes
