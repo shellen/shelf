@@ -1007,6 +1007,8 @@ function afterDetailRender(entrance, animate) {
 function setTagRoute(tag) {
   if (tag) {
     writeHash(`#/tags/${slugify(tag)}`)
+    // As the same hash typed in would: the tag replaces any other route
+    state.route = null
     state.tag = tag
     state.selectedIndex = -1
     if (state.view === 'shelf') state.view = 'covers'

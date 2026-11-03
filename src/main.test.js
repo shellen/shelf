@@ -703,6 +703,16 @@ describe('shelf view', () => {
       expect(document.querySelector('.shelf-foot').textContent).toBe('1 in Podcasts · 5 in the library')
     })
 
+    it('lets a tag number key on a medium tab show that tag across every medium', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      choose('album')
+      press('1')
+      expect(document.querySelector('.view-btn.active').dataset.view).toBe('covers')
+      expect(window.location.hash).toBe('#/tags/design')
+      expect([...document.querySelectorAll('.cover-tile')].map(t => t.dataset.id)).toEqual(['s2-design-of-everyday-things'])
+      expect(document.querySelector('.status-bar').textContent).not.toContain('medium')
+    })
+
     it('remembers where each tab was', async () => {
       await loadApp(MIXED, { view: 'shelf' })
       choose('all')
