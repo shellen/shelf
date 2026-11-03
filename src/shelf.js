@@ -150,7 +150,6 @@ export function mountShelf(root, {
 
   // The size of the item nearest position x, whose face is the one turned out there
   const sizeAt = x => geom.sizes[itemIndexAt(x, count)]
-  const stride = () => (sizeAt(target).spineWidth + geom.gap) || 1
   // Near the centre a face travels its stride plus the room it opens, per slot
   function centreTravel() {
     const { spineWidth, faceWidth } = sizeAt(target)
@@ -316,7 +315,7 @@ export function mountShelf(root, {
     }
     const dx = e.clientX - drag.x0
     if (!drag.moved && Math.abs(dx) > 5) drag.moved = true
-    if (drag.moved) setTarget(drag.t0 - dx / stride())
+    if (drag.moved) setTarget(geom.layout.moveBy(drag.t0, -dx))
   }
 
   // Ends the drag for its own pointer's release or cancel, or for anything without a pointer (a blur)
@@ -374,7 +373,7 @@ export function mountShelf(root, {
     e.preventDefault()
     const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1
     const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
-    setTarget(target + delta * unit / stride() * 0.5)
+    setTarget(geom.layout.moveBy(target, delta * unit * 0.5))
     clearTimeout(wheelTimer)
     wheelTimer = setTimeout(() => setTarget(Math.round(target)), 160)
   }, { passive: false })

@@ -625,6 +625,25 @@ describe('mountShelf', () => {
       expect(left()).toBe(`${-0.5 * 400 - 6}px`)
     })
 
+    // Book 0, Album 0, Book 1, Album 1, …: a book's stride is 117 at this size and an album's 66
+    const alternating = n => books(n).flatMap((book, i) => [book, albums(n)[i]])
+
+    it('turns a drag into travel along the actual spines, so the item under the finger stays under it', () => {
+      mountWith(alternating(5))
+      const press = (type, x, buttons) => new MouseEvent(type, { bubbles: true, clientX: x, clientY: 10, buttons })
+      document.querySelector('.shelf-stage-wrap').dispatchEvent(press('pointerdown', 400, 1))
+      // Half of Book 0's stride, all of Album 0's, then 35.5 into Book 1's: past halfway to Book 1
+      window.dispatchEvent(press('pointermove', 240, 1))
+      expect(caption()).toBe('Book 1')
+    })
+
+    it('turns a wheel notch into the same distance along the actual spines', () => {
+      mountWith(alternating(5), 1)
+      // Half a 240-pixel turn: half of Album 0's stride, then 87 into Book 1's, short of halfway to Album 1
+      document.querySelector('.shelf-view').dispatchEvent(Object.assign(new Event('wheel', { cancelable: true, bubbles: true }), { deltaY: 240, deltaX: 0, deltaMode: 0 }))
+      expect(caption()).toBe('Book 1')
+    })
+
     it('disconnects the observer when destroyed', () => {
       mountWith(books(10))
       control.destroy()
