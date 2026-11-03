@@ -1817,6 +1817,7 @@ function attachEventListeners() {
       closeImport()
       if (parseRoute(location.hash)) applyHash()
       showToast(`Imported: ${counts.added} added, ${counts.filled} filled, ${counts.skipped} skipped`)
+      findMissingCovers()
     } catch (e) {
       console.error('Import failed:', e)
       showToast('Import failed: ' + e.message, 'error')

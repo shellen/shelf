@@ -2225,6 +2225,12 @@ describe('finding covers', () => {
     expect(toast()).toBe(text)
   }
 
+  async function confirmImport() {
+    document.querySelector('[data-action="import"]').click()
+    await window.__loadImportText('Title,Author\nDune,Frank Herbert')
+    document.querySelector('[data-action="confirm-import"]').click()
+  }
+
   const findMissingCovers = () => {
     document.querySelector('[data-action="avatar-menu"]').click()
     document.querySelector('[data-action="find-covers"]').click()
@@ -2238,6 +2244,17 @@ describe('finding covers', () => {
   }
 
   afterEach(() => vi.useRealTimers())
+
+  it('finds covers for albums and podcasts without one after an import', async () => {
+    await start()
+    await confirmImport()
+    await toastSays('Found 2 covers')
+    expect(lookups().map(([u]) => new URL(String(u), 'http://shelf.test').searchParams.get('medium'))).toEqual(['album', 'podcast'])
+    expect(coverSaves().map(s => [s.id, s.coverUrl, s.year])).toEqual([
+      ['in-rainbows', 'https://art.example/in-rainbows.jpg', 2007],
+      ['radiolab', 'https://art.example/radiolab.jpg', 2002]
+    ])
+  })
 
   it('saves only the cover, plus the year when the item has none', async () => {
     await start()
