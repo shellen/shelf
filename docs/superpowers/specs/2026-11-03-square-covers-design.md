@@ -115,7 +115,7 @@ Each tile takes its item's shape:
   still stretches the full row height, so the grid's rules stay unbroken; only
   the cover box sits at the bottom of its tile, so covers in a row share a
   bottom edge and square covers sit lower with paper above them. Order and the
-  arrow keys stay row by row.
+  arrow keys stay row by row. The hover overlay keeps covering the whole tile.
 - The list view has no covers and does not change.
 
 ## The detail view
@@ -125,7 +125,9 @@ follow the shape:
 
 - the SVG viewBox
 - the clip rectangle
-- the `<image>` size, which uses `meet` on paper, as above
+- the `<image>` size, which uses `meet` on paper, as above. The paper
+  backing appears only once art has loaded (when the image gets its `href`),
+  so an item with no art still shows its record or type cover
 - the mask and filter regions
 - the ink blobs' positions, which are scaled into the square
 
@@ -183,6 +185,7 @@ an album's options are square (`.cover-option-img-wrap`, style.css ~1704).
   - a mixed wall puts each cover at the bottom of its tile
   - square art is never cropped
   - an album's detail poster is square, and its image uses `meet`
+  - an album with no art still shows the record in the poster
   - the cover picker's options are square for an album
 - **Manual, read-only:** the shelf (glide, drag, wheel), the wall and the detail
   view on Jason's real library, in the browser pane at desktop and phone sizes.
