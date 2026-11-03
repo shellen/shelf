@@ -29,30 +29,29 @@ function toastHtml(message, type = 'success') {
   return message ? `<div class="toast toast-${type}">${esc(message)}</div>` : ''
 }
 
-function paintBrief(message, type) {
-  const { brief, progress } = toastSlots()
+function paintBrief({ brief, progress }, message, type) {
   brief.innerHTML = toastHtml(message, type)
   progress.innerHTML = ''
 }
 
-function paintProgress(message) {
-  const { brief, progress } = toastSlots()
+function paintProgress({ brief, progress }, message) {
   brief.innerHTML = ''
   progress.innerHTML = toastHtml(message)
 }
 
 export function showToast(message, type = 'success') {
-  paintBrief(message, type)
+  const slots = toastSlots()
+  paintBrief(slots, message, type)
   clearTimeout(briefTimer)
   briefTimer = setTimeout(() => {
     briefTimer = null
-    paintProgress(progressMessage)
+    paintProgress(slots, progressMessage)
   }, BRIEF_MS)
 }
 
 export function showProgressToast(message) {
   progressMessage = message
-  if (!briefTimer) paintProgress(message)
+  if (!briefTimer) paintProgress(toastSlots(), message)
 }
 
 export function endProgressToast(message, type = 'success') {
