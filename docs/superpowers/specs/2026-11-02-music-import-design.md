@@ -186,11 +186,19 @@ Covers are found after the import, in the background, and on demand later.
   shows "Nothing left to look up."
 - **The query:** `GET /api/lookup?medium=<medium>&q=<query>`, where the query is
   "title creator" for albums and the title for podcasts.
-- **A match:** the first result whose normalised title equals the item's, after
-  removing iTunes' " - Single" and " - EP" suffixes, and, for albums, whose
-  normalised creator also equals the item's. Podcasts match on title alone,
-  because Spotify's publisher and iTunes' artist often differ. An empty
-  normalised title or creator never matches.
+- **A match:** the first result with artwork whose normalised title equals the
+  item's, after removing " - Single" and " - EP" from both titles, and, for
+  albums, whose normalised creator also equals the item's. Podcasts match on
+  title alone, because Spotify's publisher and iTunes' artist often differ. An
+  empty normalised title or creator never matches.
+- **Editions:** if no result matches exactly, try again with a trailing
+  bracketed edition note removed from both titles, so "Abbey Road" finds
+  "Abbey Road (Remastered)" and "Rumours (Super Deluxe)" finds "Rumours". Only
+  notes naming an edition count: remaster(ed), deluxe, expanded, anniversary,
+  collector's, bonus, special edition. "(Live)", "(Demo)", "(Mono)",
+  "(Disk 2)" and "(Taylor's Version)" stay part of the title, because their
+  covers differ. The creator must still match. At worst this gives a sibling
+  edition's cover for the same album by the same artist.
 - **Saving:** re-read the item from `state.books`. If its cover is still blank,
   `PUT /api/books/:id` with `{ ...item, coverUrl: result.coverUrl, year:
   item.year ?? result.year }`. Never overwrite a field that has a value.
@@ -240,7 +248,8 @@ Covers are found after the import, in the background, and on demand later.
 - Finding covers, with a stubbed lookup endpoint and fake timers
   (`vi.useFakeTimers()`, so the 3-second pace doesn't slow the suite): fills a blank cover and a
   missing year; never overwrites a cover set in the meantime; skips
-  non-matching results and empty keys; strips " - Single" / " - EP"; runs one
+  non-matching results and empty keys; strips " - Single" / " - EP"; prefers an
+  exact title and falls back to an allowed edition note; runs one
   at a time; stops after 3 consecutive failures with its message; reports
   progress and the final count; Find missing covers picks up items a previous
   run missed, and shows "Nothing missing. Looking sharp." or "Nothing left to
