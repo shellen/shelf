@@ -297,7 +297,6 @@ export function mountShelf(root, {
       onPointerUp(e)
       return
     }
-    drag.heard = performance.now()
     const dx = e.clientX - drag.x0
     if (!drag.moved && Math.abs(dx) > 5) drag.moved = true
     if (drag.moved) setTarget(drag.t0 - dx / stride())
@@ -337,10 +336,15 @@ export function mountShelf(root, {
     : null
 
   wrap.addEventListener('pointerdown', e => {
-    // A second press leaves a live drag alone, but takes over one whose pointer has gone quiet,
-    // as when a touch's pointerup and pointercancel were both lost
-    if (e.button > 0 || (drag && performance.now() - drag.heard < 500)) return
-    drag = { pointerId: e.pointerId, x0: e.clientX, t0: target, moved: false, heard: performance.now() }
+    if (e.button > 0) return
+    // A second finger leaves the drag alone. A new primary press means every earlier touch has
+    // ended, even one whose pointerup and pointercancel were lost, so it settles and replaces that drag.
+    // A mouse event without isPrimary counts as primary.
+    if (drag) {
+      if (e.isPrimary === false) return
+      if (drag.moved) setTarget(Math.round(target))
+    }
+    drag = { pointerId: e.pointerId, x0: e.clientX, t0: target, moved: false }
     wake()
   })
   wrap.addEventListener('click', e => {

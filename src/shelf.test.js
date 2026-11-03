@@ -366,25 +366,27 @@ describe('mountShelf', () => {
       expect(frames.scheduled()).toBe(false)
     })
 
-    it('lets a new press take over a drag whose pointer has gone quiet', () => {
+    it('keeps a drag with a still-held first finger when a second finger presses', () => {
       let now = 1000
       vi.spyOn(performance, 'now').mockImplementation(() => now)
       mountWith(books(10))
-      const pointer = (type, pointerId, x, buttons) => new PointerEvent(type, { bubbles: true, pointerId, clientX: x, clientY: 10, buttons })
-      wrap().dispatchEvent(pointer('pointerdown', 1, 100, 1))
-      window.dispatchEvent(pointer('pointermove', 1, 93, 1))
+      const pointer = (type, pointerId, x, buttons, isPrimary) => new PointerEvent(type, { bubbles: true, pointerId, clientX: x, clientY: 10, buttons, isPrimary })
+      wrap().dispatchEvent(pointer('pointerdown', 1, 100, 1, true))
+      window.dispatchEvent(pointer('pointermove', 1, 93, 1, true))
       expect(caption()).toBe('Book 7')
-      // Its pointerup and pointercancel were both lost
-      now += 600
-      wrap().dispatchEvent(pointer('pointerdown', 2, 300, 1))
-      window.dispatchEvent(pointer('pointermove', 2, 299, 1))
-      window.dispatchEvent(pointer('pointermove', 2, 292, 1))
-      expect(caption()).toBe('Book 5')
+      // A touch held still sends no moves, however long it rests
+      now += 2000
+      wrap().dispatchEvent(pointer('pointerdown', 2, 300, 1, false))
+      window.dispatchEvent(pointer('pointermove', 2, 290, 1, false))
+      window.dispatchEvent(pointer('pointerup', 2, 290, 0, false))
+      expect(caption()).toBe('Book 7')
+      window.dispatchEvent(pointer('pointermove', 1, 92, 1, true))
+      expect(caption()).toBe('Book 8')
     })
 
     it('keeps a drag when a second pointer presses the stage', () => {
       mountWith(books(10))
-      const pointer = (type, pointerId, x, buttons) => new PointerEvent(type, { bubbles: true, pointerId, clientX: x, clientY: 10, buttons })
+      const pointer = (type, pointerId, x, buttons) => new PointerEvent(type, { bubbles: true, pointerId, clientX: x, clientY: 10, buttons, isPrimary: pointerId === 1 })
       wrap().dispatchEvent(pointer('pointerdown', 1, 100, 1))
       window.dispatchEvent(pointer('pointermove', 1, 93, 1))
       expect(caption()).toBe('Book 7')
@@ -502,6 +504,24 @@ describe('mountShelf', () => {
       }
       expect(x()).toBe(0)
       expect(before).toBeLessThan(0.6)
+    })
+
+    it('settles a drag on a whole slot when a new primary press takes over after its events were lost', () => {
+      const frames = holdFrames()
+      mountWith(books(10))
+      const pointer = (type, pointerId, x, buttons) => new PointerEvent(type, { bubbles: true, pointerId, clientX: x, clientY: 10, buttons, isPrimary: true })
+      const centred = () => [...document.querySelectorAll('.tape')].filter(t => /translate3d\(0px/.test(t.style.transform)).map(t => t.dataset.id)
+      document.querySelector('.shelf-stage-wrap').dispatchEvent(pointer('pointerdown', 1, 400, 1))
+      // A slot and a half to the right: 117px a slot at this size
+      window.dispatchEvent(pointer('pointermove', 1, 224.5, 1))
+      frames.settle()
+      expect(centred()).toEqual([])
+      // Its pointerup and pointercancel were both lost; a new primary press means it has ended
+      document.querySelector('.shelf-stage-wrap').dispatchEvent(pointer('pointerdown', 2, 300, 1))
+      window.dispatchEvent(pointer('pointerup', 2, 300, 0))
+      frames.settle()
+      expect(centred()).toEqual(['b2'])
+      expect(caption()).toBe('Book 2')
     })
 
     it('disconnects the observer when destroyed', () => {
