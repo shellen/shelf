@@ -3,6 +3,8 @@
 
 import { normKey } from './match.js'
 
+const PACE_MS = 3000
+
 // iTunes names singles and EPs "Title - Single" and "Title - EP"
 const releaseTitle = title => String(title || '').replace(/ - (Single|EP)$/, '')
 
@@ -32,3 +34,19 @@ export function matchCover(item, results) {
     && titleKey(r.title) === title
     && (!isAlbum || normKey(r.author) === creator)) || null
 }
+
+// The item as saved with a found cover, or null when it is gone or has a cover by now.
+// A field that has a value is never overwritten.
+export function coverUpdate(current, result) {
+  if (!current || current.coverUrl) return null
+  return { ...current, coverUrl: result.coverUrl, year: current.year ?? result.year }
+}
+
+const plural = (n, noun) => `${n} ${noun}${n === 1 ? '' : 's'}`
+
+export function coverProgressText(done, total) {
+  const minutes = Math.max(1, Math.round((total - done) * PACE_MS / 60_000))
+  return `Finding covers ${done} / ${total} · about ${minutes} min left`
+}
+
+export const coversFoundText = found => `Found ${plural(found, 'cover')}`

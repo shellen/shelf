@@ -2,7 +2,7 @@
 // ABOUTME: iTunes results, the update that saves a cover, and the paced, one-at-a-time run.
 
 import { describe, it, expect } from 'vitest'
-import { missingCover, canFindCover, coverQuery, matchCover } from './covers.js'
+import { missingCover, canFindCover, coverQuery, matchCover, coverUpdate, coverProgressText, coversFoundText } from './covers.js'
 
 const album = (fields = {}) => ({ id: 'in-rainbows', title: 'In Rainbows', author: 'Radiohead', medium: 'album', coverUrl: null, year: null, tags: [], ...fields })
 const podcast = (fields = {}) => ({ id: 'radiolab', title: 'Radiolab', author: 'WNYC Studios', medium: 'podcast', coverUrl: null, year: null, tags: [], ...fields })
@@ -109,5 +109,39 @@ describe('matchCover', () => {
 
   it('finds nothing in no results', () => {
     expect(matchCover(album(), [])).toBeNull()
+  })
+})
+
+describe('coverUpdate', () => {
+  it('adds the cover, and the year when the item has none', () => {
+    expect(coverUpdate(album(), result())).toEqual({ ...album(), coverUrl: 'https://art.example/in-rainbows.jpg', year: 2007 })
+  })
+
+  it('keeps a year the item already has', () => {
+    expect(coverUpdate(album({ year: 2008 }), result()).year).toBe(2008)
+  })
+
+  it('is null when the item has a cover by now', () => {
+    expect(coverUpdate(album({ coverUrl: 'https://art.example/mine.jpg' }), result())).toBeNull()
+  })
+
+  it('is null when the item is gone', () => {
+    expect(coverUpdate(undefined, result())).toBeNull()
+  })
+})
+
+describe('progress text', () => {
+  it('counts the items tried and estimates the minutes left at 3 seconds each', () => {
+    expect(coverProgressText(12, 140)).toBe('Finding covers 12 / 140 · about 6 min left')
+  })
+
+  it('never says less than a minute is left', () => {
+    expect(coverProgressText(139, 140)).toBe('Finding covers 139 / 140 · about 1 min left')
+  })
+
+  it('reports the covers found', () => {
+    expect(coversFoundText(131)).toBe('Found 131 covers')
+    expect(coversFoundText(1)).toBe('Found 1 cover')
+    expect(coversFoundText(0)).toBe('Found 0 covers')
   })
 })
