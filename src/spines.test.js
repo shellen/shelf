@@ -185,12 +185,41 @@ describe('the record cover', () => {
     expect([rect.getAttribute('width'), rect.getAttribute('height'), rect.getAttribute('fill')]).toEqual(['600', '600', spinePalette('ok-computer').bg])
   })
 
-  it('draws a near-black disc 14% in from each edge, a paper label, and a spindle hole showing the sleeve', () => {
+  it('draws a near-black disc 14% in from each edge, its rim, a paper label, and a spindle hole in the disc colour', () => {
     expect(circles(draw(ALBUM))).toEqual([
       ['300', '300', '216', '#141414'],
+      ['300', '300', '214', 'none'],
       ['300', '300', '100', '#EDE3CC'],
-      ['300', '300', '7', spinePalette('ok-computer').bg],
+      ['300', '300', '7', '#141414'],
     ])
+  })
+
+  it('edges the disc with a thin rim in the sleeve\'s light colour', () => {
+    const rim = [...draw(ALBUM).querySelectorAll('circle')].find(c => c.getAttribute('r') === '214')
+    expect([rim.getAttribute('fill'), rim.getAttribute('stroke'), rim.getAttribute('stroke-opacity'), rim.getAttribute('stroke-width')])
+      .toEqual(['none', spinePalette('ok-computer').fg, '.45', '4'])
+  })
+
+  it('draws the rim just inside the disc, before the label', () => {
+    const radii = [...draw(ALBUM).querySelectorAll('circle')].map(c => c.getAttribute('r'))
+    expect(radii.slice(0, 3)).toEqual(['216', '214', '100'])
+  })
+
+  it('cuts a single word too long for the label with an ellipsis', () => {
+    const lines = [...draw({ ...ALBUM, title: 'Supercalifragilisticexpialidocious' }).querySelectorAll('tspan')].map(t => t.textContent)
+    expect(lines).toHaveLength(1)
+    expect(lines[0].length).toBeLessThanOrEqual(14)
+    expect(lines[0].endsWith('…')).toBe(true)
+  })
+
+  it('cuts a long unspaced title in a script without spaces', () => {
+    const lines = [...draw({ ...ALBUM, title: '宇多田ヒカルファーストラブアルバム初回限定盤' }).querySelectorAll('tspan')].map(t => t.textContent)
+    expect(lines.every(l => l.length <= 14)).toBe(true)
+    expect(lines.at(-1).endsWith('…')).toBe(true)
+  })
+
+  it('keeps every line of a normal title as it was', () => {
+    expect([...draw({ ...ALBUM, title: 'Kind of Blue' }).querySelectorAll('tspan')].map(t => t.textContent)).toEqual(['KIND OF BLUE'])
   })
 
   it('carries the artist and the short title on the label, in ink', () => {

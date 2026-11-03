@@ -66,7 +66,9 @@ const CREATOR_CHARS = 30
 const RECORD_INK = '#141414'
 const LABEL_PAPER = '#EDE3CC'
 const LABEL_TITLE_ROOM = 140
-const LABEL_CREATOR_CHARS = 18
+const LABEL_MIN_TITLE_SIZE = 12
+// The most characters a label line can hold at the smallest title size
+const LABEL_LINE_CHARS = Math.floor(LABEL_TITLE_ROOM / (LABEL_MIN_TITLE_SIZE * TITLE_CHAR_WIDTH))
 
 // The largest title size, up to 62 and no smaller than 24, at which the longest line fits
 function titleSize(lines) {
@@ -78,28 +80,30 @@ function shortCreator(name, max = CREATOR_CHARS) {
   return name.length > max ? `${name.slice(0, max - 1).trimEnd()}…` : name
 }
 
-// A title on the record's label keeps to two lines, the second ending with an ellipsis when text is left over
+// A title on the record's label keeps to two lines, the second ending with an ellipsis when text is left over;
+// a line too long for the label is cut with an ellipsis
 function labelLines(title) {
   const lines = wrapWords(title, 12)
-  return lines.length <= 2 ? lines : [lines[0], `${lines[1]}…`]
+  return (lines.length <= 2 ? lines : [lines[0], `${lines[1]}…`]).map(l => shortCreator(l, LABEL_LINE_CHARS))
 }
 
-// A record in its sleeve: the cloth colour fills the square, a near-black disc sits 84 units (14%)
+// A record in its sleeve: the cloth colour fills the square, a near-black disc with a light rim sits 84 units (14%)
 // in from each edge, and the paper label carries the artist above the spindle hole and the short title below it
 function recordSvg(book) {
-  const { bg } = spinePalette(book.id)
+  const { bg, fg } = spinePalette(book.id)
   const lines = labelLines((spineTitle(book.title) || 'Untitled').toUpperCase())
   const longest = Math.max(1, ...lines.map(l => l.length))
-  const size = Math.max(12, Math.min(26, Math.floor(LABEL_TITLE_ROOM / (longest * TITLE_CHAR_WIDTH))))
+  const size = Math.max(LABEL_MIN_TITLE_SIZE, Math.min(26, Math.floor(LABEL_TITLE_ROOM / (longest * TITLE_CHAR_WIDTH))))
   const tspans = lines.map((l, k) =>
     `<tspan x="300" y="${(318 + size * 0.8 + k * size * 1.1).toFixed(1)}">${esc(l)}</tspan>`
   ).join('')
   return `<rect width="600" height="600" fill="${bg}"/>
     <circle cx="300" cy="300" r="216" fill="${RECORD_INK}"/>
+    <circle cx="300" cy="300" r="214" fill="none" stroke="${fg}" stroke-opacity=".45" stroke-width="4"/>
     <circle cx="300" cy="300" r="100" fill="${LABEL_PAPER}"/>
-    <text x="300" y="272" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="600" font-size="12" letter-spacing="2.4" fill="${RECORD_INK}">${esc(shortCreator((book.author || '').toUpperCase(), LABEL_CREATOR_CHARS))}</text>
+    <text x="300" y="272" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="600" font-size="12" letter-spacing="2.4" fill="${RECORD_INK}">${esc(shortCreator((book.author || '').toUpperCase(), LABEL_LINE_CHARS))}</text>
     <text text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="${size}" fill="${RECORD_INK}">${tspans}</text>
-    <circle cx="300" cy="300" r="7" fill="${bg}"/>`
+    <circle cx="300" cy="300" r="7" fill="${RECORD_INK}"/>`
 }
 
 // The size of the page a cover is drawn on: square for a square item, 2:3 otherwise
