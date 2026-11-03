@@ -730,6 +730,13 @@ describe('shelf view', () => {
       expect(active()).toBe('album')
     })
 
+    it('drops a medium route with nothing in it, so the URL names the tab shown', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      await goTo('#/medium/movie')
+      expect(window.location.hash).toBe('')
+      expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+    })
+
     it('remembers where each tab was', async () => {
       await loadApp(MIXED, { view: 'shelf' })
       choose('all')

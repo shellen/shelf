@@ -1076,6 +1076,13 @@ function applyHash() {
   const resolved = resolveRoute(route, state.books)
   // The open item's own link: the detail already shows it, from whichever view opened it
   if (state.detailOpen && resolved.open && resolved.open.id === state.selected?.id) return
+  // A medium with nothing in it has no tab, so its route goes rather than name a tab not shown
+  if (route.kind === 'medium' && !resolved.books.length) {
+    state.route = null
+    clearHash()
+    render()
+    return
+  }
   // Any route but a medium filter shows results, which the shelf view doesn't
   if (route.kind !== 'medium' && state.view === 'shelf') state.view = 'covers'
   if (resolved.canonical && location.hash !== resolved.canonical) {
