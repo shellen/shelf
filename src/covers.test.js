@@ -292,13 +292,18 @@ describe('findCovers', () => {
   })
 
   it('moves on when a save fails, leaving that item for the next run', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const failure = new Error('Failed to update book')
     const save = vi.fn()
-      .mockRejectedValueOnce(new Error('Failed to update book'))
+      .mockRejectedValueOnce(failure)
       .mockResolvedValueOnce(true)
     const lookup = lookupFrom({ 'In Rainbows Radiohead': [result()] })
     const run = findCovers([album({ id: 'a' }), album({ id: 'b' })], { lookup, save, progress: () => {} })
     await vi.runAllTimersAsync()
     expect(await run).toEqual({ found: 1, stopped: false })
+    expect(logged).toHaveBeenCalledTimes(1)
+    expect(logged).toHaveBeenCalledWith('Cover not saved:', failure)
+    logged.mockRestore()
   })
 
   it('reports progress before each lookup', async () => {

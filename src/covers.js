@@ -89,6 +89,7 @@ export async function findCovers(items, { lookup, save, progress }) {
       if (match && await save(item, match)) found++
     } catch (e) {
       // A failed save leaves the item without a cover for the next run to find
+      console.error('Cover not saved:', e)
     }
   }
   return { found, stopped: false }
