@@ -1436,8 +1436,10 @@ describe('hash routes', () => {
     const enter = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }))
     const caption = () => document.querySelector('.shelf-caption-title')?.textContent
 
-    async function openOnAlbumShelf() {
-      await loadApp(MIXED, { view: 'shelf' })
+    const TWO_ALBUMS = [...MIXED, { ...MIXED[3], id: 'blue', title: 'Blue', author: 'Joni Mitchell', coverUrl: null }]
+
+    async function openOnAlbumShelf(library = MIXED) {
+      await loadApp(library, { view: 'shelf' })
       document.querySelector('.media-tab[data-medium="album"]').click()
       await flush()
       enter()
@@ -1457,7 +1459,7 @@ describe('hash routes', () => {
     })
 
     it('after removing the open item', async () => {
-      await openOnAlbumShelf()
+      await openOnAlbumShelf(TWO_ALBUMS)
       document.querySelector('[data-action="delete-book"]').click()
       document.querySelector('[data-action="confirm-ok"]').click()
       await vi.waitFor(() => {
@@ -1466,6 +1468,21 @@ describe('hash routes', () => {
       expect(window.location.hash).toBe('#/medium/album')
       await flush()
       expect(document.querySelector('.view-btn.active').dataset.view).toBe('shelf')
+      expect(caption()).toBe('Blue')
+    })
+
+    it('unless removing the open item leaves that route with nothing to show', async () => {
+      await openOnAlbumShelf()
+      document.querySelector('[data-action="delete-book"]').click()
+      document.querySelector('[data-action="confirm-ok"]').click()
+      await vi.waitFor(() => {
+        if (document.querySelector('.detail')) throw new Error('detail still open')
+      })
+      expect(window.location.hash).toBe('')
+      await flush()
+      expect(document.querySelector('.view-btn.active').dataset.view).toBe('shelf')
+      expect(document.querySelector('.shelf-empty')).toBeNull()
+      expect(document.querySelector('.media-tab.active').dataset.medium).toBe('')
     })
 
     it('from an author route in covers, after stepping', async () => {

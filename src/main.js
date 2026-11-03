@@ -1759,7 +1759,14 @@ function attachEventListeners() {
       state.detailOpen = false
       state.selected = null
       if (removedAt >= 0) state.shelf.index = removedAt < list.length - 1 ? removedAt : Math.max(0, removedAt - 1)
-      // The removed item's own link would now resolve to nothing
+      // The removed item's own link would now resolve to nothing, and so may the route it was
+      // opened from once it was that route's last item; then the detail closes to no route at all
+      const origin = parseRoute(state.detailOrigin)
+      if (origin && !resolveRoute(origin, state.books).books.length) {
+        state.detailOrigin = ''
+        state.route = null
+        state.tag = ''
+      }
       restoreDetailOrigin()
 
       showToast(`"${book.title}" removed`)
