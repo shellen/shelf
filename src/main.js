@@ -1285,6 +1285,58 @@ function closeImport() {
   render()
 }
 
+// Quick add: Enter appends a pending item without re-rendering (the input keeps focus)
+function queueQuickAdd(e) {
+  if (e.key !== 'Enter') return
+  e.preventDefault()
+  const input = e.target
+  const title = input.value.trim()
+  if (!title) return
+  const item = { title, medium: activeMedium() }
+  state.quickQueue.push(item)
+  input.value = ''
+  const quickBar = input.closest('.quick-add')
+  quickBar.insertAdjacentHTML('beforebegin', quickPendingRow(item))
+  const btn = quickBar.querySelector('[data-action="resolve-quick"]')
+  btn.classList.remove('hidden')
+  btn.textContent = `Resolve ${state.quickQueue.length} pending`
+}
+
+async function resolveQuickQueue() {
+  const queue = [...state.quickQueue]
+  if (!queue.length) return
+  let added = 0
+  let misses = 0
+  for (const q of queue) {
+    let payload = { title: q.title, medium: q.medium, tags: [] }
+    try {
+      const res = await fetch(`/api/lookup?medium=${encodeURIComponent(q.medium)}&q=${encodeURIComponent(q.title)}`)
+      const best = res.ok ? (await res.json()).results[0] : null
+      if (best) {
+        payload = {
+          title: best.title, author: best.author || undefined, isbn: best.isbn || undefined,
+          year: best.year || undefined, coverUrl: best.coverUrl || undefined,
+          medium: q.medium, tags: []
+        }
+      } else {
+        misses++
+      }
+    } catch (e) {
+      misses++
+    }
+    try {
+      const created = await api.createBook(payload)
+      state.books.push(created)
+      added++
+    } catch (e) {
+      console.error('Quick add failed:', e)
+    }
+  }
+  state.quickQueue = []
+  render()
+  showToast(`Added ${added}${misses ? ` · ${misses} unmatched (kept as typed)` : ''}`)
+}
+
 function openAddModal() {
   state.modalOpen = true
   state.modalStatus = null
@@ -1501,6 +1553,16 @@ function attachEventListeners() {
       openAddModal()
       return
     }
+    const mediumLink = e.target.closest('[data-medium-link]')
+    if (mediumLink) {
+      history.replaceState(null, '', `#/medium/${mediumLink.dataset.mediumLink}`)
+      applyHash()
+      return
+    }
+    if (e.target.closest('[data-action="resolve-quick"]')) {
+      resolveQuickQueue()
+      return
+    }
     const sortBtn = e.target.closest('[data-sort]')
     if (sortBtn) {
       setSort(sortBtn.dataset.sort)
@@ -1511,6 +1573,10 @@ function attachEventListeners() {
   })
 
   document.querySelector('#results')?.addEventListener('keydown', e => {
+    if (e.target.closest('[data-action="quick-add"]')) {
+      queueQuickAdd(e)
+      return
+    }
     if (e.key !== 'Enter' && e.key !== ' ') return
     const el = e.target.closest('[data-action="open-book"]')
     if (!el) return
@@ -1523,7 +1589,7 @@ function attachEventListeners() {
   document.querySelector('[data-action="detail-prev"]')?.addEventListener('click', () => stepDetail(-1))
   document.querySelector('[data-action="detail-next"]')?.addEventListener('click', () => stepDetail(1))
 
-  // Media tabs and section heading links
+  // Media tabs
   document.querySelectorAll('.media-tab').forEach(el => {
     el.addEventListener('click', () => {
       const key = el.dataset.medium
@@ -1535,12 +1601,6 @@ function attachEventListeners() {
         clearHash()
         render()
       }
-    })
-  })
-  document.querySelectorAll('[data-medium-link]').forEach(el => {
-    el.addEventListener('click', () => {
-      history.replaceState(null, '', `#/medium/${el.dataset.mediumLink}`)
-      applyHash()
     })
   })
 
@@ -1638,58 +1698,6 @@ function attachEventListeners() {
     } catch (e) {
       box.innerHTML = '<span class="form-hint">Lookup failed.</span>'
     }
-  })
-
-  // Quick add: Enter appends a pending item without re-rendering (the input keeps focus)
-  document.querySelector('[data-action="quick-add"]')?.addEventListener('keydown', e => {
-    if (e.key !== 'Enter') return
-    e.preventDefault()
-    const input = e.target
-    const title = input.value.trim()
-    if (!title) return
-    const item = { title, medium: activeMedium() }
-    state.quickQueue.push(item)
-    input.value = ''
-    const quickBar = input.closest('.quick-add')
-    quickBar.insertAdjacentHTML('beforebegin', quickPendingRow(item))
-    const btn = quickBar.querySelector('[data-action="resolve-quick"]')
-    btn.classList.remove('hidden')
-    btn.textContent = `Resolve ${state.quickQueue.length} pending`
-  })
-
-  document.querySelector('[data-action="resolve-quick"]')?.addEventListener('click', async () => {
-    const queue = [...state.quickQueue]
-    if (!queue.length) return
-    let added = 0
-    let misses = 0
-    for (const q of queue) {
-      let payload = { title: q.title, medium: q.medium, tags: [] }
-      try {
-        const res = await fetch(`/api/lookup?medium=${encodeURIComponent(q.medium)}&q=${encodeURIComponent(q.title)}`)
-        const best = res.ok ? (await res.json()).results[0] : null
-        if (best) {
-          payload = {
-            title: best.title, author: best.author || undefined, isbn: best.isbn || undefined,
-            year: best.year || undefined, coverUrl: best.coverUrl || undefined,
-            medium: q.medium, tags: []
-          }
-        } else {
-          misses++
-        }
-      } catch (e) {
-        misses++
-      }
-      try {
-        const created = await api.createBook(payload)
-        state.books.push(created)
-        added++
-      } catch (e) {
-        console.error('Quick add failed:', e)
-      }
-    }
-    state.quickQueue = []
-    render()
-    showToast(`Added ${added}${misses ? ` · ${misses} unmatched (kept as typed)` : ''}`)
   })
 
   // Inline field editing - save on blur, Enter commits, Escape reverts

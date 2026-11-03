@@ -536,6 +536,18 @@ describe('shelf media', () => {
     expect(img.getAttribute('src')).toContain('data:image/svg+xml')
   })
 
+  it('keeps the landing media headings working after the results re-render', async () => {
+    await loadApp(MIXED)
+    const search = document.querySelector('[data-action="search"]')
+    search.value = 'd'
+    search.dispatchEvent(new Event('input', { bubbles: true }))
+    search.value = ''
+    search.dispatchEvent(new Event('input', { bubbles: true }))
+    document.querySelector('[data-medium-link="book"]').click()
+    expect(window.location.hash).toBe('#/medium/book')
+    expect(document.querySelectorAll('.cover-tile').length).toBe(3)
+  })
+
   it('saves landing settings from the Shelf Settings modal', async () => {
     await loadApp(MIXED)
     document.querySelector('[data-action="shelf-settings"]').click()
@@ -1244,6 +1256,22 @@ describe('quick add', () => {
     expect(document.querySelector('[data-action="resolve-quick"]').textContent).toContain('2')
     expect(document.querySelector('[data-action="quick-add"]')).toBe(input)
     expect(input.value).toBe('')
+  })
+
+  it('keeps the quick row working after the results re-render', async () => {
+    document.querySelector('[data-view="list"]').click()
+    const search = document.querySelector('[data-action="search"]')
+    search.value = 'd'
+    search.dispatchEvent(new Event('input', { bubbles: true }))
+    search.value = ''
+    search.dispatchEvent(new Event('input', { bubbles: true }))
+    enter(document.querySelector('[data-action="quick-add"]'), 'Snow Crash')
+    expect(document.querySelectorAll('.quick-pending').length).toBe(1)
+    document.querySelector('[data-action="resolve-quick"]').click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.quick-pending')) throw new Error('still pending')
+    })
+    expect(fetch.mock.calls.some(([u, o]) => String(u).endsWith('/api/books') && o?.method === 'POST')).toBe(true)
   })
 
   it('resolves pending items via lookup and keeps misses as typed', async () => {
