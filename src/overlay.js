@@ -2,10 +2,11 @@
 // ABOUTME: Markup plus entrance/exit motion and the cover's ink reveal; editing wiring stays in main.js.
 
 import { esc } from './html.js'
-import { coverTypeSvg } from './spines.js'
-import { singular } from './showcase.js'
+import { coverTypeSvg, coverSize } from './spines.js'
+import { singular, coverShape } from './showcase.js'
 
 const STARS = [1, 2, 3, 4, 5]
+// Where the ink blobs land on a 600×900 poster, with their delays; a square poster scales their heights into it
 const INK_BLOBS = [[190, 330, 0], [430, 600, 120], [316, 120, 220], [114, 760, 300], [506, 250, 360], [329, 860, 420], [291, 470, 180]]
 export const canAnimate = el => typeof el.animate === 'function'
 
@@ -28,26 +29,29 @@ function starsHtml(rating, readOnly) {
     </div>`
 }
 
+// A square item's art is shown whole on its square page; a tall item's fills its page
 function posterHtml(book, settled) {
   const radius = settled ? 900 : 0
+  const shape = coverShape(book)
+  const { width, height } = coverSize(book)
   return `
-    <div class="detail-poster">
-      <svg viewBox="0 0 600 900" aria-hidden="true">
+    <div class="detail-poster shape-${shape}">
+      <svg viewBox="0 0 ${width} ${height}" aria-hidden="true">
         <defs>
-          <filter id="detail-ink-filter" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1000" height="1300">
+          <filter id="detail-ink-filter" filterUnits="userSpaceOnUse" x="-200" y="-200" width="${width + 400}" height="${height + 400}">
             <feTurbulence type="fractalNoise" baseFrequency=".011" numOctaves="3" seed="7" result="t"/>
             <feDisplacementMap in="SourceGraphic" in2="t" scale="120" xChannelSelector="R" yChannelSelector="G"/>
           </filter>
-          <mask id="detail-ink" maskUnits="userSpaceOnUse" x="-200" y="-200" width="1000" height="1300">
+          <mask id="detail-ink" maskUnits="userSpaceOnUse" x="-200" y="-200" width="${width + 400}" height="${height + 400}">
             <g filter="url(#detail-ink-filter)" fill="#fff">
-              ${INK_BLOBS.map(([cx, cy, delay]) => `<circle class="detail-ink-blob" cx="${cx}" cy="${cy}" r="${radius}" data-delay="${delay}"/>`).join('')}
+              ${INK_BLOBS.map(([cx, cy, delay]) => `<circle class="detail-ink-blob" cx="${cx}" cy="${Math.round(cy * height / 900)}" r="${radius}" data-delay="${delay}"/>`).join('')}
             </g>
           </mask>
-          <clipPath id="detail-clip"><rect width="600" height="900" rx="4"/></clipPath>
+          <clipPath id="detail-clip"><rect width="${width}" height="${height}" rx="4"/></clipPath>
         </defs>
         <g clip-path="url(#detail-clip)"><g mask="url(#detail-ink)">
           ${coverTypeSvg(book)}
-          <image class="detail-cover-image" width="600" height="900" preserveAspectRatio="xMidYMid slice"/>
+          <image class="detail-cover-image" width="${width}" height="${height}" preserveAspectRatio="xMidYMid ${shape === 'square' ? 'meet' : 'slice'}"/>
         </g></g>
       </svg>
     </div>`

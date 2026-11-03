@@ -1527,6 +1527,11 @@ body.is-shelf #results {
   aspect-ratio: 2 / 3;
 }
 
+.detail-poster.shape-square {
+  width: min(100%, min(100vh - 166px, 78vh));
+  aspect-ratio: 1 / 1;
+}
+
 .detail-poster svg {
   display: block;
   width: 100%;
@@ -1617,6 +1622,7 @@ body.is-shelf #results {
   .detail-close { left: 16px; top: 24px; }
   .detail-step { right: 16px; top: 24px; }
   .detail-poster { order: -1; width: min(100%, calc(46svh * 2 / 3)); }
+  .detail-poster.shape-square { width: min(100%, 46svh); }
   .detail-text { max-height: none; overflow: visible; justify-self: center; }
   .detail-title { font-size: 40px; }
 }

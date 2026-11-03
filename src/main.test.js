@@ -306,6 +306,19 @@ describe('detail overlay', () => {
   })
 })
 
+describe('detail poster shape', () => {
+  it('gives an album a square poster and a book a 2:3 one', async () => {
+    useStylesheet()
+    await loadApp(MIXED)
+    const posterRatio = () => getComputedStyle(document.querySelector('.detail-poster')).aspectRatio
+    document.querySelector('.cover-tile[data-id="abbey-road"]').click()
+    expect(posterRatio()).toBe('1 / 1')
+    document.querySelector('[data-action="close-detail"]').click()
+    document.querySelector('.cover-tile[data-id="s2-dune"]').click()
+    expect(posterRatio()).toBe('2 / 3')
+  })
+})
+
 describe('detail motion', () => {
   const ON_SCREEN = { left: 100, top: 100, right: 300, bottom: 400, width: 200, height: 300, x: 100, y: 100 }
   const OFF_SCREEN = { left: 100, top: 2000, right: 300, bottom: 2300, width: 200, height: 300, x: 100, y: 2000 }

@@ -73,6 +73,42 @@ describe('renderDetail — poster', () => {
   })
 })
 
+describe('renderDetail — poster shape', () => {
+  const ALBUM = { ...DUNE, id: 'abbey-road', title: 'Abbey Road', author: 'The Beatles', medium: 'album' }
+  const attrs = (sel, names) => names.map(name => $(sel).getAttribute(name))
+  const blobs = () => [...document.querySelectorAll('.detail-ink-blob')].map(b => [b.getAttribute('cx'), b.getAttribute('cy')])
+
+  it('draws a book\'s poster on a 600 by 900 page, its art filling the page', () => {
+    show(DUNE)
+    expect($('.detail-poster').className).toBe('detail-poster shape-tall')
+    expect($('.detail-poster svg').getAttribute('viewBox')).toBe('0 0 600 900')
+    expect(attrs('#detail-clip rect', ['width', 'height'])).toEqual(['600', '900'])
+    expect(attrs('.detail-cover-image', ['width', 'height', 'preserveAspectRatio'])).toEqual(['600', '900', 'xMidYMid slice'])
+    expect(attrs('#detail-ink', ['x', 'y', 'width', 'height'])).toEqual(['-200', '-200', '1000', '1300'])
+    expect(attrs('#detail-ink-filter', ['x', 'y', 'width', 'height'])).toEqual(['-200', '-200', '1000', '1300'])
+    expect(blobs()).toEqual([['190', '330'], ['430', '600'], ['316', '120'], ['114', '760'], ['506', '250'], ['329', '860'], ['291', '470']])
+  })
+
+  it('draws a square item\'s poster on a 600 by 600 page, its art whole within it', () => {
+    show(ALBUM)
+    expect($('.detail-poster').className).toBe('detail-poster shape-square')
+    expect($('.detail-poster svg').getAttribute('viewBox')).toBe('0 0 600 600')
+    expect(attrs('#detail-clip rect', ['width', 'height'])).toEqual(['600', '600'])
+    expect(attrs('.detail-cover-image', ['width', 'height', 'preserveAspectRatio'])).toEqual(['600', '600', 'xMidYMid meet'])
+    expect(attrs('#detail-ink', ['x', 'y', 'width', 'height'])).toEqual(['-200', '-200', '1000', '1000'])
+    expect(attrs('#detail-ink-filter', ['x', 'y', 'width', 'height'])).toEqual(['-200', '-200', '1000', '1000'])
+    // The blobs land at the same places, with their heights scaled into the square
+    expect(blobs()).toEqual([['190', '220'], ['430', '400'], ['316', '80'], ['114', '507'], ['506', '167'], ['329', '573'], ['291', '313']])
+  })
+
+  it('draws an album\'s record under its art', () => {
+    show(ALBUM)
+    const inked = $('.detail-poster [mask]')
+    expect(inked.querySelectorAll('circle')).toHaveLength(4)
+    expect(inked.lastElementChild.classList.contains('detail-cover-image')).toBe(true)
+  })
+})
+
 describe('renderDetail — signed in', () => {
   it('offers medium, tags and ISBN inputs', () => {
     show(DUNE)
