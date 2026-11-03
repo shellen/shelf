@@ -587,10 +587,10 @@ input, select, button, textarea {
 /* A square item's cover is square, and its art is never cropped: tall art sits whole on paper */
 .cover-tile.shape-square .cover-aspect { aspect-ratio: 1 / 1; }
 
-.cover-tile.shape-square .cover-img {
-  object-fit: contain;
-  background: var(--paper);
-}
+.cover-tile.shape-square .cover-img { object-fit: contain; }
+
+/* The paper shows only once art has loaded, so the drawn cover behind the image shows until then */
+.cover-tile.shape-square .cover-img.has-art { background: var(--paper); }
 
 .cover-overlay {
   position: absolute;

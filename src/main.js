@@ -316,9 +316,15 @@ window.__nextCover = (img) => {
   img.dataset.fallbacks = rest.join('\n')
 }
 
+// Marks an image that has loaded real art. The generated placeholder is always the last
+// candidate, so an image with candidates left to try is showing art.
+window.__coverLoaded = (img) => {
+  if (img.dataset.fallbacks) img.classList.add('has-art')
+}
+
 function coverImgAttrs(book) {
   const cands = coverCandidates(book)
-  return `src="${esc(cands[0])}" data-fallbacks="${esc(cands.slice(1).join('\n'))}" onerror="window.__nextCover(this)"`
+  return `src="${esc(cands[0])}" data-fallbacks="${esc(cands.slice(1).join('\n'))}" onerror="window.__nextCover(this)" onload="window.__coverLoaded(this)"`
 }
 
 // Walks the cover chain with real image loads and settles on the first that works.

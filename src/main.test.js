@@ -751,9 +751,32 @@ describe('cover shapes on the wall', () => {
     searchFor('r')
     const img = id => getComputedStyle(tile(id).querySelector('.cover-img'))
     for (const id of ['abbey-road', 'radiolab', 'dune-audiobook']) {
+      window.__coverLoaded(tile(id).querySelector('.cover-img'))
       expect([img(id).objectFit, img(id).backgroundColor]).toEqual(['contain', '#EDEBE6'])
     }
     expect(img('s2-dune').objectFit).toBe('cover')
+  })
+
+  it('keeps the placeholder showing through a square cover until its art has loaded', async () => {
+    useStylesheet()
+    await loadApp(MIXED)
+    const img = tile('abbey-road').querySelector('.cover-img')
+    expect(getComputedStyle(img).backgroundColor).not.toBe('#EDEBE6')
+    expect(img.classList.contains('has-art')).toBe(false)
+    window.__coverLoaded(img)
+    expect(img.classList.contains('has-art')).toBe(true)
+    expect(getComputedStyle(img).backgroundColor).toBe('#EDEBE6')
+  })
+
+  it('does not count the generated placeholder, which loads last, as art', async () => {
+    useStylesheet()
+    await loadApp(MIXED)
+    const img = tile('abbey-road').querySelector('.cover-img')
+    // Every candidate for art has failed, leaving the placeholder
+    while (img.dataset.fallbacks) window.__nextCover(img)
+    window.__coverLoaded(img)
+    expect(img.classList.contains('has-art')).toBe(false)
+    expect(getComputedStyle(img).backgroundColor).not.toBe('#EDEBE6')
   })
 })
 
