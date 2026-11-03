@@ -2031,7 +2031,7 @@ function attachEventListeners() {
       if (!state.selected) return
       const rating = parseFloat(el.dataset.rating)
       try {
-        const updatedBook = await api.updateBook(state.selected.id, { ...state.selected, rating })
+        const updatedBook = await api.updateBook(state.selected.id, { rating })
         updateBookInState(updatedBook)
         showToast(`Rating saved: ${rating} stars`)
       } catch (e) {
@@ -2044,7 +2044,7 @@ function attachEventListeners() {
   document.querySelector('[data-action="clear-rating"]')?.addEventListener('click', async () => {
     if (!state.selected) return
     try {
-      const updatedBook = await api.updateBook(state.selected.id, { ...state.selected, rating: null })
+      const updatedBook = await api.updateBook(state.selected.id, { rating: null })
       updateBookInState(updatedBook)
       showToast('Rating cleared')
     } catch (e) {
@@ -2058,7 +2058,7 @@ function attachEventListeners() {
     const notes = e.target.value.trim()
     if (notes === (state.selected.notes || '')) return // No change
     try {
-      const updatedBook = await api.updateBook(state.selected.id, { ...state.selected, notes: notes || null })
+      const updatedBook = await api.updateBook(state.selected.id, { notes: notes || null })
       updateBookInState(updatedBook)
       showToast('Notes saved')
     } catch (e) {

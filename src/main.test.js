@@ -444,7 +444,8 @@ describe('inline editing', () => {
       if (!fetch.mock.calls.some(([, o]) => o?.method === 'PUT')) throw new Error('no PUT yet')
     })
     const put = fetch.mock.calls.find(([, o]) => o?.method === 'PUT')
-    expect(JSON.parse(put[1].body).rating).toBe(4)
+    expect(put[0]).toBe('/api/books/s2-dune')
+    expect(JSON.parse(put[1].body)).toEqual({ rating: 4 })
     await vi.waitFor(() => {
       if (document.querySelector('.detail .rating-value')?.textContent !== '4') throw new Error('rating not shown yet')
     })
@@ -457,7 +458,8 @@ describe('inline editing', () => {
       if (!fetch.mock.calls.some(([, o]) => o?.method === 'PUT')) throw new Error('no PUT yet')
     })
     const put = fetch.mock.calls.find(([, o]) => o?.method === 'PUT')
-    expect(JSON.parse(put[1].body).rating).toBeNull()
+    expect(put[0]).toBe('/api/books/s2-dune')
+    expect(JSON.parse(put[1].body)).toEqual({ rating: null })
     await vi.waitFor(() => {
       if (document.querySelector('.detail .rating-value')) throw new Error('rating still shown')
     })
@@ -472,7 +474,8 @@ describe('inline editing', () => {
       if (!fetch.mock.calls.some(([, o]) => o?.method === 'PUT')) throw new Error('no PUT yet')
     })
     const put = fetch.mock.calls.find(([, o]) => o?.method === 'PUT')
-    expect(JSON.parse(put[1].body).notes).toBe('Read it twice.')
+    expect(put[0]).toBe('/api/books/s2-dune')
+    expect(JSON.parse(put[1].body)).toEqual({ notes: 'Read it twice.' })
   })
 
   it('e focuses the title field for the selected book', () => {
@@ -2415,6 +2418,29 @@ describe('finding covers', () => {
     answerInRainbows(found(ITUNES['In Rainbows Radiohead']))
     await toastSays('Found 1 cover')
     expect(coverSaves().map(s => s.id)).toEqual(['radiolab'])
+  })
+
+  it('sends only the rating for a rating chosen while a cover save for that item is out', async () => {
+    await start()
+    // Holds the run's cover save for In Rainbows; every other request is answered at once
+    const respond = fetch.getMockImplementation()
+    let releaseCoverSave
+    fetch.mockImplementation((url, opts = {}) => {
+      if (opts.method === 'PUT' && String(url).endsWith('/in-rainbows') && 'coverUrl' in JSON.parse(opts.body)) {
+        return new Promise(r => { releaseCoverSave = () => r(respond(url, opts)) })
+      }
+      return respond(url, opts)
+    })
+    document.querySelector('.cover-tile[data-id="in-rainbows"]').click()
+    findMissingCovers()
+    await vi.waitFor(() => { if (!releaseCoverSave) throw new Error('no cover save yet') })
+
+    document.querySelector('[data-action="set-rating"][data-rating="4"]').click()
+    await vi.waitFor(() => { if (coverPuts().length < 2) throw new Error('rating not sent yet') })
+    expect(coverPuts().at(-1)).toEqual(['in-rainbows', { rating: 4 }])
+
+    releaseCoverSave()
+    await toastSays('Found 2 covers')
   })
 
   it('runs only once at a time', async () => {
