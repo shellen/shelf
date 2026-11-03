@@ -2,7 +2,7 @@
 // ABOUTME: Colour choice must be deterministic per id and spread across the palette.
 
 import { describe, it, expect } from 'vitest'
-import { SPINE_PALETTE, spinePalette, spineTitle, spineCreator, wrapWords, coverTypeSvg } from './spines.js'
+import { SPINE_PALETTE, spinePalette, spineTitle, spineCreator, wrapWords, coverTypeSvg, coverSize } from './spines.js'
 
 describe('spinePalette', () => {
   it('always gives the same id the same palette entry', () => {
@@ -140,5 +140,37 @@ describe('coverTypeSvg', () => {
     const doc = draw({ id: 'h', title: '<b>Bold</b> & Co', author: '"Q"' })
     expect(doc.querySelector('b')).toBeNull()
     expect([...doc.querySelectorAll('tspan')].map(t => t.textContent).join(' ')).toBe('<B>BOLD</B> & CO')
+  })
+
+  it('sets a tall item\'s cover on a 600 by 900 page, line for line', () => {
+    const book = { id: 's2-dune', title: 'The Left Hand of Darkness', author: 'Ursula K. Le Guin', year: 1969, medium: 'book' }
+    expect(coverTypeSvg(book)).toBe([
+      '<rect width="600" height="900" fill="#6B3A4B"/>',
+      '<text x="300" y="90" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="600" font-size="18" letter-spacing="3.6" fill="#EDE3CC">URSULA K. LE GUIN</text>',
+      '<text text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="47" fill="#EDE3CC"><tspan x="300" y="424.1">THE LEFT HAND</tspan><tspan x="300" y="475.8">OF DARKNESS</tspan></text>',
+      '<text x="300" y="830" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="500" font-size="20" letter-spacing="2.8" fill="#EDE3CC">1969</text>',
+    ].join('\n    '))
+  })
+
+  it.each(['podcast', 'audiobook'])('sets the creator, short title and year of a %s on a square page', medium => {
+    const doc = draw({ id: 'radiolab', title: 'Radiolab: Season One', author: 'WNYC Studios', year: 2002, medium })
+    const { bg, fg } = spinePalette('radiolab')
+    const rect = doc.querySelector('rect')
+    expect([rect.getAttribute('height'), rect.getAttribute('fill')]).toEqual(['600', bg])
+    expect([...doc.querySelectorAll('text')].map(t => [t.textContent, t.getAttribute('fill')])).toEqual([
+      ['WNYC STUDIOS', fg], ['RADIOLAB', fg], ['2002', fg],
+    ])
+    // The title is centred on the square and the year sits as far from its foot as on a tall cover
+    expect(doc.querySelector('tspan').getAttribute('y')).toBe('300.0')
+    expect(doc.querySelectorAll('text')[2].getAttribute('y')).toBe('530')
+  })
+})
+
+describe('coverSize', () => {
+  it('is 600 by 900 for a tall item and 600 by 600 for a square one', () => {
+    expect(coverSize({ medium: 'book' })).toEqual({ width: 600, height: 900 })
+    expect(coverSize({})).toEqual({ width: 600, height: 900 })
+    expect(coverSize({ medium: 'podcast' })).toEqual({ width: 600, height: 600 })
+    expect(coverSize({ medium: 'album' })).toEqual({ width: 600, height: 600 })
   })
 })

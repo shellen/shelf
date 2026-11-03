@@ -2,6 +2,7 @@
 // ABOUTME: Colours are deterministic per item id so a spine keeps its colour across renders.
 
 import { esc } from './html.js'
+import { coverShape } from './showcase.js'
 
 export const SPINE_PALETTE = [
   { bg: '#1B1A18', fg: '#EDE3CC' },
@@ -72,17 +73,23 @@ function shortCreator(name) {
   return name.length > CREATOR_CHARS ? `${name.slice(0, CREATOR_CHARS - 1).trimEnd()}…` : name
 }
 
-// The typographic cover for an item with no art, as shapes for a 600×900 SVG:
+// The size of the page a cover is drawn on: square for a square item, 2:3 otherwise
+export function coverSize(book) {
+  return { width: 600, height: coverShape(book) === 'square' ? 600 : 900 }
+}
+
+// The typographic cover for an item with no art, as shapes for an SVG of coverSize(book):
 // its cloth colour behind its creator, its short title and its year
 export function coverTypeSvg(book) {
+  const { height } = coverSize(book)
   const { bg, fg } = spinePalette(book.id)
   const lines = wrapWords((spineTitle(book.title) || 'Untitled').toUpperCase(), 13)
   const size = titleSize(lines)
   const tspans = lines.map((l, k) =>
-    `<tspan x="300" y="${(450 - (lines.length - 1) * size * 0.55 + k * size * 1.1).toFixed(1)}">${esc(l)}</tspan>`
+    `<tspan x="300" y="${(height / 2 - (lines.length - 1) * size * 0.55 + k * size * 1.1).toFixed(1)}">${esc(l)}</tspan>`
   ).join('')
-  return `<rect width="600" height="900" fill="${bg}"/>
+  return `<rect width="600" height="${height}" fill="${bg}"/>
     <text x="300" y="90" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="600" font-size="18" letter-spacing="3.6" fill="${fg}">${esc(shortCreator((book.author || '').toUpperCase()))}</text>
     <text text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="${size}" fill="${fg}">${tspans}</text>
-    <text x="300" y="830" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="500" font-size="20" letter-spacing="2.8" fill="${fg}">${esc(book.year || '')}</text>`
+    <text x="300" y="${height - 70}" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="500" font-size="20" letter-spacing="2.8" fill="${fg}">${esc(book.year || '')}</text>`
 }
