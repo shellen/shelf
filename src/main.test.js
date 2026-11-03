@@ -1946,10 +1946,63 @@ describe('import box', () => {
     document.querySelector('[data-action="import"]').click()
   })
 
+  // Drops a file on the Import box as a browser does; text() is all the app reads from it
+  function dropImportFile(text) {
+    const drop = new Event('drop', { bubbles: true, cancelable: true })
+    const file = { text: typeof text === 'function' ? text : async () => text }
+    Object.defineProperty(drop, 'dataTransfer', { value: { files: [file] } })
+    document.querySelector('.drop-zone').dispatchEvent(drop)
+  }
+
+  // The drop zone stops saying "Reading file" once the file is read and previewed
+  const fileRead = () => vi.waitFor(() => {
+    if (document.querySelector('.drop-zone .loading')) throw new Error('still reading')
+  })
+
+  const confirmButton = () => document.querySelector('[data-action="confirm-import"]')
+
+  const SPOTIFY = JSON.stringify({
+    albums: [{ artist: 'Radiohead', album: 'In Rainbows', uri: 'spotify:album:1' }],
+    tracks: [{ artist: 'Robyn', album: 'Body Talk', track: 'Dancing On My Own', uri: 'spotify:track:1' }],
+    shows: [{ name: 'Radiolab', publisher: 'WNYC Studios', uri: 'spotify:show:1' }],
+    other: []
+  })
+
   it('offers every file type it reads', () => {
     expect(document.querySelector('.modal-header h2').textContent).toBe('Import')
     expect(document.querySelector('.drop-zone').textContent.trim()).toBe('Drop a Goodreads CSV, an Apple Music Library.xml or Spotify\'s YourLibrary.json here, or click to choose')
     expect(document.getElementById('import-file').getAttribute('accept')).toBe('.csv,.xml,.json')
+  })
+
+  it('names a Goodreads library and its book count above the preview counts', async () => {
+    dropImportFile('Title,Author\nDune,Frank Herbert\nFlow,Mihaly Csikszentmihalyi')
+    await fileRead()
+    expect(document.querySelector('.import-source').textContent).toBe('Goodreads library: 2 books')
+    expect(document.querySelector('.import-preview').textContent).toContain('1 new')
+    expect(confirmButton().disabled).toBe(false)
+  })
+
+  it('names a Spotify library and its album and podcast counts', async () => {
+    dropImportFile(SPOTIFY)
+    await fileRead()
+    expect(document.querySelector('.import-source').textContent).toBe('Spotify library: 2 albums, 1 podcast')
+    expect(document.querySelector('.import-preview').textContent).toContain('1 new')
+  })
+
+  it('confirms a Spotify library by posting its albums and podcasts', async () => {
+    dropImportFile(SPOTIFY)
+    await fileRead()
+    confirmButton().click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.modal-panel')) throw new Error('modal open')
+    })
+    const call = fetch.mock.calls.find(([u, o]) => String(u).endsWith('/api/import') && !JSON.parse(o.body).dryRun)
+    const blank = { isbn: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null }
+    expect(JSON.parse(call[1].body).books).toEqual([
+      { ...blank, title: 'In Rainbows', author: 'Radiohead', medium: 'album', tags: ['spotify'] },
+      { ...blank, title: 'Body Talk', author: 'Robyn', medium: 'album', tags: ['spotify'] },
+      { ...blank, title: 'Radiolab', author: 'WNYC Studios', medium: 'podcast', tags: ['spotify'] }
+    ])
   })
 
   it('tells how to export a library from each source', () => {

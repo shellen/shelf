@@ -4,6 +4,7 @@
 import './style.css'
 import embeddedBooks from 'virtual:bookshelf-data'
 import { parseGoodreadsCsv } from './goodreads.js'
+import { parseSpotifyLibrary, detectImportFile } from './musicimport.js'
 import { parseRoute, resolveRoute, slugify } from './routes.js'
 import { esc } from './html.js'
 import { shelfTabs, mediumOf, singular } from './showcase.js'
@@ -213,6 +214,8 @@ const state = {
   importFailed: [],
   importPreview: null,
   importLoading: false,
+  // The line naming the import file's source and what was read from it
+  importSummary: '',
   coverPickerOpen: false,
   coverOptions: [],
   coverLoading: false,
@@ -1305,6 +1308,7 @@ function renderImportModal() {
           </div>
           <input type="file" accept=".csv,.xml,.json" id="import-file" class="hidden">
           ${p ? `
+            <p class="form-hint import-source">${esc(state.importSummary)}</p>
             <div class="import-preview">
               ${p.added} new &bull; ${p.filled} update${p.filled === 1 ? '' : 's'} &bull; ${p.skipped} already complete${failed.length ? ` &bull; ${failed.length} unparseable (rows ${failed.join(', ')})` : ''}
             </div>
@@ -1341,10 +1345,31 @@ async function postImportChunks(books, dryRun) {
   return totals
 }
 
+// The readers for each import file type, and the name the Import box gives its source
+const IMPORT_SOURCES = {
+  goodreads: { name: 'Goodreads library', read: parseGoodreadsCsv },
+  spotify: { name: 'Spotify library', read: parseSpotifyLibrary }
+}
+
+const counted = (n, noun) => `${n} ${noun}${n === 1 ? '' : 's'}`
+
+// "Spotify library: 380 albums, 12 podcasts"
+function importSummary(type, books) {
+  const counts = type === 'goodreads'
+    ? [counted(books.length, 'book')]
+    : ['album', 'podcast']
+      .map(medium => [medium, books.filter(b => b.medium === medium).length])
+      .filter(([, n]) => n)
+      .map(([medium, n]) => counted(n, medium))
+  return `${IMPORT_SOURCES[type].name}: ${counts.join(', ')}`
+}
+
 async function loadImportText(text) {
-  const { books, failed } = parseGoodreadsCsv(text)
+  const type = detectImportFile(text)
+  const { books, failed } = IMPORT_SOURCES[type].read(text)
   state.importBooks = books
   state.importFailed = failed
+  state.importSummary = importSummary(type, books)
   state.importLoading = false
   try {
     state.importPreview = await postImportChunks(books, true)
@@ -1360,6 +1385,7 @@ function closeImport() {
   state.importBooks = []
   state.importFailed = []
   state.importPreview = null
+  state.importSummary = ''
   state.importLoading = false
   render()
 }
