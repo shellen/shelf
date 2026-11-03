@@ -328,7 +328,7 @@ export function mountShelf(root, {
     : null
 
   wrap.addEventListener('pointerdown', e => {
-    if (e.button > 0) return
+    if (e.button > 0 || drag) return
     drag = { pointerId: e.pointerId, x0: e.clientX, t0: target, moved: false }
     wake()
   })

@@ -347,6 +347,19 @@ describe('mountShelf', () => {
       expect(frames.scheduled()).toBe(false)
     })
 
+    it('keeps a drag when a second pointer presses the stage', () => {
+      mountWith(books(10))
+      const pointer = (type, pointerId, x, buttons) => new PointerEvent(type, { bubbles: true, pointerId, clientX: x, clientY: 10, buttons })
+      wrap().dispatchEvent(pointer('pointerdown', 1, 100, 1))
+      window.dispatchEvent(pointer('pointermove', 1, 93, 1))
+      expect(caption()).toBe('Book 7')
+      wrap().dispatchEvent(pointer('pointerdown', 2, 300, 1))
+      window.dispatchEvent(pointer('pointermove', 2, 290, 1))
+      expect(caption()).toBe('Book 7')
+      window.dispatchEvent(pointer('pointermove', 1, 92, 1))
+      expect(caption()).toBe('Book 8')
+    })
+
     it('wakes when a cover arrives', async () => {
       const frames = holdFrames()
       let arrive
