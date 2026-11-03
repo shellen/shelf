@@ -106,3 +106,42 @@ describe('endProgressToast', () => {
     expect(shown().classList.contains('toast-error')).toBe(true)
   })
 })
+
+describe('screen reader announcements', () => {
+  const announcer = () => document.querySelector('#toast-root [role="status"]')
+  const announced = () => announcer().textContent.trim()
+
+  it('announces a brief toast from a status region that is already in the page', () => {
+    toast.showToast('Saved')
+    const region = announcer()
+    expect(announced()).toBe('Saved')
+    vi.advanceTimersByTime(3000)
+    toast.showToast('Notes saved', 'error')
+    expect(announcer()).toBe(region)
+    expect(announced()).toBe('Notes saved')
+  })
+
+  it('keeps the progress toast out of the status region, so its updates are not announced', () => {
+    toast.showProgressToast('Finding covers 1 / 9 · about 1 min left')
+    toast.showProgressToast('Finding covers 2 / 9 · about 1 min left')
+    expect(shown().textContent).toBe('Finding covers 2 / 9 · about 1 min left')
+    expect(shown().closest('[role], [aria-live]')).toBeNull()
+    expect(announced()).toBe('')
+  })
+
+  it('announces the toast that ends the progress', () => {
+    toast.showProgressToast('Finding covers 1 / 2 · about 1 min left')
+    toast.endProgressToast('Found 2 covers')
+    expect(announced()).toBe('Found 2 covers')
+    expect(document.querySelectorAll('.toast')).toHaveLength(1)
+  })
+
+  it('shows one toast at a time when a brief one covers the progress', () => {
+    toast.showProgressToast('Finding covers 3 / 9 · about 1 min left')
+    toast.showToast('Saved')
+    expect(document.querySelectorAll('.toast')).toHaveLength(1)
+    vi.advanceTimersByTime(3000)
+    expect(announced()).toBe('')
+    expect(shown().textContent).toBe('Finding covers 3 / 9 · about 1 min left')
+  })
+})
