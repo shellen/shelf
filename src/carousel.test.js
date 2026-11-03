@@ -167,6 +167,55 @@ describe('shelfLayout', () => {
     })
   })
 
+  describe('moveBy', () => {
+    it('moves a shelf of books one item per stride', () => {
+      const layout = shelfLayout(Array(5).fill(BOOK), GAP)
+      expect(layout.moveBy(0, 22)).toBe(1)
+      for (const pos of POSITIONS) {
+        for (const px of [-70, -22, -5, 0, 7, 22, 61]) expect(layout.moveBy(pos, px)).toBeCloseTo(pos + px / 22, 9)
+      }
+    })
+
+    it('moves a shelf of albums one item per album stride', () => {
+      const layout = shelfLayout(Array(5).fill(ALBUM), GAP)
+      expect(layout.moveBy(0, 12)).toBeCloseTo(1, 9)
+      expect(layout.moveBy(3, -24)).toBeCloseTo(1, 9)
+    })
+
+    it('moves one item for the stride between neighbours on a mixed shelf', () => {
+      const layout = shelfLayout([BOOK, ALBUM, BOOK, ALBUM, BOOK], GAP)
+      // Half a book's stride and half an album's apart
+      expect(layout.moveBy(0, 17)).toBeCloseTo(1, 9)
+      expect(layout.moveBy(1, 17)).toBeCloseTo(2, 9)
+      expect(layout.moveBy(0, 34)).toBeCloseTo(2, 9)
+      expect(layout.moveBy(2, -34)).toBeCloseTo(0, 9)
+      // Within a book's stretch a pixel is a 22nd of an item, within an album's a 12th
+      expect(layout.moveBy(0, 5.5)).toBeCloseTo(0.25, 9)
+      expect(layout.moveBy(1, 3)).toBeCloseTo(1.25, 9)
+    })
+
+    it('comes back to where it started when moved back', () => {
+      const layout = shelfLayout([BOOK, ALBUM, BOOK, ALBUM, BOOK], GAP)
+      for (const pos of POSITIONS) {
+        for (const px of [-40, -9, 3, 26]) expect(layout.moveBy(layout.moveBy(pos, px), -px)).toBeCloseTo(pos, 9)
+      }
+    })
+
+    it('carries on into the next copy of a long shelf', () => {
+      const sizes = [BOOK, ALBUM, BOOK, BOOK, ALBUM, BOOK, BOOK, ALBUM]
+      const layout = shelfLayout(sizes, GAP)
+      expect(layout.moveBy(7, 17)).toBeCloseTo(8, 9)
+      expect(layout.moveBy(0, -17)).toBeCloseTo(-1, 9)
+      expect(layout.moveBy(2, 5 * 22 + 3 * 12)).toBeCloseTo(10, 9)
+    })
+
+    it('moves one item per pixel on a shelf not laid out yet', () => {
+      const layout = shelfLayout(Array(5).fill({ spineWidth: 0, faceWidth: 0 }), 0)
+      expect(layout.moveBy(3, 7)).toBe(10)
+      expect(layout.moveBy(3, -2)).toBe(1)
+    })
+  })
+
   it('knows its widest face', () => {
     expect(shelfLayout([BOOK, ALBUM, BOOK], GAP).widestFace).toBe(150)
     expect(shelfLayout([BOOK, BOOK], GAP).widestFace).toBe(100)

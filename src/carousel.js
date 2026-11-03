@@ -73,9 +73,27 @@ export function shelfLayout(sizes, gap) {
     return rooms[mod(j, count)] * faceOut(t) + rooms[mod(j + 1, count)] * faceOut(1 - t)
   }
 
+  // The position whose distance along the row of spines is p: the last stretch starting at or
+  // before p, found by halving, and the share of that stretch p reaches into
+  function positionAlong(p) {
+    const copies = Math.floor(p / total)
+    const rest = p - copies * total
+    let lo = 0
+    let hi = count - 1
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi) / 2)
+      if (starts[mid] <= rest) lo = mid
+      else hi = mid - 1
+    }
+    return copies * count + lo - 0.5 + (rest - starts[lo]) / strides[lo]
+  }
+
   return {
     widestFace: Math.max(...sizes.map(s => s.faceWidth)),
     // Pixels from the centre to the slot r away from position pos
     offset: (r, pos) => along(pos + r) - along(pos) + room(pos) * spread(r),
+    // The position `pixels` further along the row of spines than pos, for a drag or a wheel turn.
+    // A shelf not laid out yet has no widths, so it moves one item per pixel.
+    moveBy: (pos, pixels) => total > 0 ? positionAlong(along(pos) + pixels) : pos + pixels,
   }
 }
