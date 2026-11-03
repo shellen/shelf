@@ -628,6 +628,64 @@ describe('shelf media', () => {
   })
 })
 
+describe('cover shapes on the wall', () => {
+  const tile = id => document.querySelector(`.cover-tile[data-id="${id}"]`)
+  const searchFor = q => {
+    const search = document.querySelector('[data-action="search"]')
+    search.value = q
+    search.dispatchEvent(new Event('input', { bubbles: true }))
+  }
+
+  it('draws each item\'s placeholder on a page of its own shape', async () => {
+    await loadApp(MIXED)
+    const placeholderOf = id => {
+      const last = tile(id).querySelector('.cover-img').dataset.fallbacks.split('\n').at(-1)
+      const svg = decodeURIComponent(last.replace('data:image/svg+xml;charset=utf-8,', ''))
+      return new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement
+    }
+    const page = el => ['width', 'height', 'viewBox'].map(name => el.getAttribute(name))
+    expect(page(placeholderOf('s2-dune'))).toEqual(['600', '900', '0 0 600 900'])
+    expect(page(placeholderOf('radiolab'))).toEqual(['600', '600', '0 0 600 600'])
+    expect(page(placeholderOf('abbey-road'))).toEqual(['600', '600', '0 0 600 600'])
+    expect(placeholderOf('abbey-road').querySelectorAll('circle')).toHaveLength(4)
+  })
+
+  it('gives an Albums wall square tiles', async () => {
+    useStylesheet()
+    await loadApp(MIXED)
+    document.querySelector('.media-tab[data-medium="album"]').click()
+    const tiles = [...document.querySelectorAll('.cover-tile')]
+    expect(tiles.map(t => t.dataset.id)).toEqual(['abbey-road'])
+    expect(tiles.every(t => t.classList.contains('shape-square'))).toBe(true)
+    expect(getComputedStyle(tiles[0].querySelector('.cover-aspect')).aspectRatio).toBe('1 / 1')
+  })
+
+  it('keeps books 2:3 and squares square on a mixed wall, each cover at the bottom of its tile', async () => {
+    useStylesheet()
+    await loadApp(MIXED)
+    searchFor('r')
+    expect(['s2-dune', 'abbey-road', 'radiolab'].every(id => tile(id))).toBe(true)
+    expect(getComputedStyle(tile('s2-dune').querySelector('.cover-aspect')).aspectRatio).toBe('2 / 3')
+    expect(getComputedStyle(tile('radiolab').querySelector('.cover-aspect')).aspectRatio).toBe('1 / 1')
+    for (const t of document.querySelectorAll('.cover-tile')) {
+      const style = getComputedStyle(t)
+      expect([style.display, style.flexDirection, style.justifyContent]).toEqual(['flex', 'column', 'flex-end'])
+    }
+  })
+
+  it('never crops square art: tall art in a square frame sits whole on paper', async () => {
+    useStylesheet()
+    const audiobook = { ...BOOKS[1], id: 'dune-audiobook', tags: [], medium: 'audiobook' }
+    await loadApp([...MIXED, audiobook])
+    searchFor('r')
+    const img = id => getComputedStyle(tile(id).querySelector('.cover-img'))
+    for (const id of ['abbey-road', 'radiolab', 'dune-audiobook']) {
+      expect([img(id).objectFit, img(id).backgroundColor]).toEqual(['contain', '#EDEBE6'])
+    }
+    expect(img('s2-dune').objectFit).toBe('cover')
+  })
+})
+
 describe('shelf view', () => {
   const READING_BOOKS = BOOKS.map(b => ({ ...b, tags: b.id === 's1-flow' ? ['psychology', 'currently-reading'] : [...b.tags] }))
   const caption = () => document.querySelector('.shelf-caption-title')?.textContent

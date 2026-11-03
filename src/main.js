@@ -7,10 +7,10 @@ import { parseGoodreadsCsv } from './goodreads.js'
 import { parseSpotifyLibrary, parseAppleLibrary, detectImportFile } from './musicimport.js'
 import { parseRoute, resolveRoute, slugify } from './routes.js'
 import { esc } from './html.js'
-import { shelfTabs, mediumOf, singular, counted } from './showcase.js'
+import { shelfTabs, mediumOf, singular, counted, coverShape } from './showcase.js'
 import { renderShelfView, mountShelf, TILT_DEG } from './shelf.js'
 import { renderDetail, playEntrance, playExit, canAnimate } from './overlay.js'
-import { coverTypeSvg } from './spines.js'
+import { coverTypeSvg, coverSize } from './spines.js'
 import { showToast, showProgressToast, endProgressToast } from './toast.js'
 import { missingCover, canFindCover, coverQuery, coverUpdate, findCovers, coverProgressText, coversFoundText, COVERS_STOPPED } from './covers.js'
 
@@ -347,7 +347,8 @@ function resolveCover(book) {
 
 // The same typographic cover the shelf and the detail draw, as an image for the wall and the list
 function generatePlaceholder(book) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900">${coverTypeSvg(book)}</svg>`
+  const { width, height } = coverSize(book)
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${coverTypeSvg(book)}</svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
 
@@ -690,7 +691,7 @@ function renderCoversView(books, offset = 0) {
   return `
     <div class="wall">
       ${books.map((b, i) => `
-        <div class="cover-tile medium-${esc(mediumOf(b))} ${offset + i === state.selectedIndex ? 'kb-selected' : ''}" data-action="open-book" data-id="${esc(b.id)}" tabindex="0" role="button" aria-label="${esc(b.title)}${b.author ? ` by ${esc(b.author)}` : ''}">
+        <div class="cover-tile shape-${coverShape(b)} ${offset + i === state.selectedIndex ? 'kb-selected' : ''}" data-action="open-book" data-id="${esc(b.id)}" tabindex="0" role="button" aria-label="${esc(b.title)}${b.author ? ` by ${esc(b.author)}` : ''}">
           <div class="cover-aspect" style="background-image:url('${generatePlaceholder(b).replace(/'/g, "\\'")}')">
             <img class="cover-img" ${coverImgAttrs(b)} alt="Cover for ${esc(b.title)}" loading="lazy">
           </div>

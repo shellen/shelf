@@ -391,13 +391,6 @@ input, select, button, textarea {
   margin-left: 0.3rem;
 }
 
-/* Square art (albums, podcasts) letterboxed in the standard cell */
-.cover-tile.medium-album .cover-img,
-.cover-tile.medium-podcast .cover-img {
-  object-fit: contain;
-  background: var(--ink);
-}
-
 /* ---------- Lookup results (add modal) ---------- */
 
 .lookup-results { margin-bottom: 0.8rem; }
@@ -557,8 +550,12 @@ input, select, button, textarea {
 @media (min-width: 1280px) { .wall { grid-template-columns: repeat(10, 1fr); } }
 @media (min-width: 1536px) { .wall { grid-template-columns: repeat(12, 1fr); } }
 
+/* A tile fills its row; its cover sits at the bottom, so covers in a row share a bottom edge */
 .cover-tile {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   cursor: pointer;
   border-right: var(--rule);
   border-bottom: var(--rule);
@@ -585,6 +582,14 @@ input, select, button, textarea {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* A square item's cover is square, and its art is never cropped: tall art sits whole on paper */
+.cover-tile.shape-square .cover-aspect { aspect-ratio: 1 / 1; }
+
+.cover-tile.shape-square .cover-img {
+  object-fit: contain;
+  background: var(--paper);
 }
 
 .cover-overlay {
