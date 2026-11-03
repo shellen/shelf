@@ -348,4 +348,56 @@ describe('parseAppleLibrary', () => {
   it('does not count a loved song as a loved album', () => {
     expect(apple([song({ Loved: true })])[0].rating).toBe(null)
   })
+
+  it('rejoins an album whose album artist is set on only some tracks', () => {
+    const books = apple([
+      song({ Album: 'The College Dropout', Artist: 'Kanye West', 'Album Artist': 'Kanye West', Year: 2004, 'Date Added': '2010-05-05T00:00:00Z' }),
+      song({ Album: 'The College Dropout', Artist: 'Kanye West', 'Album Artist': 'Kanye West', Year: 2004, 'Date Added': '2010-05-05T00:00:00Z' }),
+      song({ Album: 'The College Dropout', Artist: 'Kanye West feat. Twista', Year: 2004, 'Date Added': '2009-01-01T00:00:00Z' })
+    ])
+    expect(books.map(b => [b.title, b.author, b.dateAdded])).toEqual([['The College Dropout', 'Kanye West', '2009-01-01']])
+  })
+
+  it('rejoins a compilation whose Compilation flag is set on only some tracks', () => {
+    const books = apple([
+      song({ Album: 'Friday', Artist: 'Ice Cube', Compilation: true, Year: 1995 }),
+      song({ Album: 'Friday', Artist: 'Dr. Dre', Compilation: true, Year: 1995 }),
+      song({ Album: 'Friday', Artist: 'East Compton Clovers', Year: 1995 })
+    ])
+    expect(books.map(b => [b.title, b.author])).toEqual([['Friday', 'Various Artists']])
+  })
+
+  it('credits a rejoined album to the album artist even when most tracks lack it', () => {
+    const books = apple([
+      song({ Album: 'Graduation', Artist: 'Kanye West', 'Album Artist': 'Kanye West', Year: 2007 }),
+      song({ Album: 'Graduation', Artist: 'Kanye West feat. T-Pain', Year: 2007 }),
+      song({ Album: 'Graduation', Artist: 'Kanye West feat. T-Pain', Year: 2007 })
+    ])
+    expect(books.map(b => [b.title, b.author])).toEqual([['Graduation', 'Kanye West']])
+  })
+
+  it('keeps apart albums that share a title but not a year', () => {
+    const books = apple([
+      song({ Album: 'Greatest Hits', Artist: 'Queen', 'Album Artist': 'Queen', Year: 1981 }),
+      song({ Album: 'Greatest Hits', Artist: 'The Cure', Year: 2001 })
+    ])
+    expect(books.map(b => [b.title, b.author])).toEqual([['Greatest Hits', 'Queen'], ['Greatest Hits', 'The Cure']])
+  })
+
+  it('keeps an album apart when more than one album with its title shares its year', () => {
+    const books = apple([
+      song({ Album: 'Demo', Artist: 'Band A', 'Album Artist': 'Band A', Year: 2010 }),
+      song({ Album: 'Demo', Artist: 'Band B', 'Album Artist': 'Band B', Year: 2010 }),
+      song({ Album: 'Demo', Artist: 'Band C', Year: 2010 })
+    ])
+    expect(books.map(b => b.author)).toEqual(['Band A', 'Band B', 'Band C'])
+  })
+
+  it('keeps an album with no year apart', () => {
+    const books = apple([
+      song({ Album: 'Untitled', Artist: 'Band A', 'Album Artist': 'Band A', Year: 2010 }),
+      song({ Album: 'Untitled', Artist: 'Band B' })
+    ])
+    expect(books.map(b => b.author)).toEqual(['Band A', 'Band B'])
+  })
 })

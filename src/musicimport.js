@@ -57,7 +57,29 @@ function mostCommon(values) {
 const albumArtist = track => clean(track['Album Artist'])
   || (track.Compilation ? 'Various Artists' : clean(track.Artist))
 
+// A track that names its album's artist, through Album Artist or Compilation
+const isCredited = track => Boolean(clean(track['Album Artist']) || track.Compilation)
+
+const yearsOf = tracks => new Set(tracks.map(t => t.Year).filter(y => y > 0))
+
+// Music splits an album when only some of its tracks carry Album Artist or Compilation.
+// A group with no credited track joins the credited group with its title that shares a
+// year with it, when there is exactly one; otherwise it stays apart.
+function rejoinSplitAlbums(groups) {
+  const credited = groups.filter(g => g.some(isCredited)).map(g => ({ tracks: g, title: normKey(g[0].Album), years: yearsOf(g) }))
+  return groups.filter(group => {
+    if (group.some(isCredited)) return true
+    const title = normKey(group[0].Album)
+    const years = yearsOf(group)
+    const matches = credited.filter(c => c.title === title && [...c.years].some(y => years.has(y)))
+    if (matches.length !== 1) return true
+    matches[0].tracks.push(...group)
+    return false
+  })
+}
+
 function appleAlbum(tracks) {
+  const credited = tracks.filter(isCredited)
   const years = tracks.map(t => t.Year).filter(y => y > 0)
   const genre = mostCommon(tracks.map(t => clean(t.Genre).toLowerCase()).filter(Boolean))
   const ratings = tracks.filter(t => !t['Album Rating Computed'] && t['Album Rating'] > 0).map(t => t['Album Rating'])
@@ -65,7 +87,7 @@ function appleAlbum(tracks) {
   const firstAdded = tracks.map(t => t['Date Added']).filter(Boolean).sort()[0]
   return entry({
     title: clean(tracks[0].Album),
-    author: mostCommon(tracks.map(albumArtist).filter(Boolean)) || null,
+    author: mostCommon((credited.length ? credited : tracks).map(albumArtist).filter(Boolean)) || null,
     medium: 'album',
     year: years.length ? Math.min(...years) : null,
     tags: genre ? [genre, 'apple-music'] : ['apple-music'],
@@ -93,7 +115,7 @@ export function parseAppleLibrary(text) {
     if (!albums.has(key)) albums.set(key, [])
     albums.get(key).push(track)
   }
-  return { books: [...albums.values()].map(appleAlbum), failed: [] }
+  return { books: rejoinSplitAlbums([...albums.values()]).map(appleAlbum), failed: [] }
 }
 
 // Which reader an import file needs, from its contents: 'apple', 'spotify', 'goodreads' or null.
