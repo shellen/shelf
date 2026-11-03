@@ -297,6 +297,7 @@ export function mountShelf(root, {
       onPointerUp(e)
       return
     }
+    drag.heard = performance.now()
     const dx = e.clientX - drag.x0
     if (!drag.moved && Math.abs(dx) > 5) drag.moved = true
     if (drag.moved) setTarget(drag.t0 - dx / stride())
@@ -336,8 +337,10 @@ export function mountShelf(root, {
     : null
 
   wrap.addEventListener('pointerdown', e => {
-    if (e.button > 0 || drag) return
-    drag = { pointerId: e.pointerId, x0: e.clientX, t0: target, moved: false }
+    // A second press leaves a live drag alone, but takes over one whose pointer has gone quiet,
+    // as when a touch's pointerup and pointercancel were both lost
+    if (e.button > 0 || (drag && performance.now() - drag.heard < 500)) return
+    drag = { pointerId: e.pointerId, x0: e.clientX, t0: target, moved: false, heard: performance.now() }
     wake()
   })
   wrap.addEventListener('click', e => {

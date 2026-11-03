@@ -366,6 +366,22 @@ describe('mountShelf', () => {
       expect(frames.scheduled()).toBe(false)
     })
 
+    it('lets a new press take over a drag whose pointer has gone quiet', () => {
+      let now = 1000
+      vi.spyOn(performance, 'now').mockImplementation(() => now)
+      mountWith(books(10))
+      const pointer = (type, pointerId, x, buttons) => new PointerEvent(type, { bubbles: true, pointerId, clientX: x, clientY: 10, buttons })
+      wrap().dispatchEvent(pointer('pointerdown', 1, 100, 1))
+      window.dispatchEvent(pointer('pointermove', 1, 93, 1))
+      expect(caption()).toBe('Book 7')
+      // Its pointerup and pointercancel were both lost
+      now += 600
+      wrap().dispatchEvent(pointer('pointerdown', 2, 300, 1))
+      window.dispatchEvent(pointer('pointermove', 2, 299, 1))
+      window.dispatchEvent(pointer('pointermove', 2, 292, 1))
+      expect(caption()).toBe('Book 5')
+    })
+
     it('keeps a drag when a second pointer presses the stage', () => {
       mountWith(books(10))
       const pointer = (type, pointerId, x, buttons) => new PointerEvent(type, { bubbles: true, pointerId, clientX: x, clientY: 10, buttons })
