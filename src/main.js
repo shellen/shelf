@@ -577,7 +577,7 @@ function renderResults(filtered) {
     const tabs = railTabs()
     const tab = activeShelfTab(tabs)
     return renderShelfView({
-      groups: tabs,
+      tabs,
       activeKey: tab?.key,
       index: tab ? shelfIndex(tab) : 0,
       total: state.books.length,
@@ -951,7 +951,7 @@ function openBook(id, { from = null, source = 'results', entrance = true } = {})
 
 const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches
 
-// The list the detail steps through: the shelf group it was opened from, or the current results
+// The list the detail steps through: the shelf tab it was opened from, or the current results
 function detailList() {
   if (state.detailSource === 'shelf') return activeShelfTab()?.items || []
   return getFilteredSorted()
@@ -1391,8 +1391,8 @@ function openAddModal() {
 
 // Shelf rail: switch tab. A medium tab shows through its route; a group or All clears it.
 // A mouse click releases focus so Enter opens the centred item.
-function selectShelfGroup(tab, e) {
-  const key = tab.dataset.shelfGroup
+function selectShelfTab(tab, e) {
+  const key = tab.dataset.shelfTab
   if (key === activeShelfTab()?.key) {
     if (e.detail > 0) tab.blur()
     return
@@ -1408,7 +1408,7 @@ function selectShelfGroup(tab, e) {
     }
     render()
   }
-  if (e.detail === 0) document.querySelector(`[data-shelf-group="${key}"]`)?.focus()
+  if (e.detail === 0) document.querySelector(`[data-shelf-tab="${key}"]`)?.focus()
 }
 
 function attachEventListeners() {
@@ -1594,9 +1594,9 @@ function attachEventListeners() {
       resetFilters()
       return
     }
-    const tab = e.target.closest('[data-shelf-group]')
+    const tab = e.target.closest('[data-shelf-tab]')
     if (tab) {
-      selectShelfGroup(tab, e)
+      selectShelfTab(tab, e)
       return
     }
     if (e.target.closest('[data-action="add-book"]')) {

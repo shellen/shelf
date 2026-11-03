@@ -7,13 +7,13 @@ import { renderShelfView, mountShelf } from './shelf.js'
 const books = n => Array.from({ length: n }, (_, i) => ({
   id: `b${i}`, title: `Book ${i}`, author: `Author ${i}`, tags: [], rating: null, dateRead: null, year: 2000 + i,
 }))
-const group = (items, key = 'reading', label = 'Reading') => ({ key, label, items })
+const tab = (items, key = 'reading', label = 'Reading') => ({ key, label, items })
 const text = sel => document.querySelector(sel)?.textContent
 const caption = () => text('.shelf-caption-title')
 
 let control = null
 function mountWith(items, index = 0, handlers = {}) {
-  document.body.innerHTML = renderShelfView({ groups: [group(items)], activeKey: 'reading', index, total: 81, canAdd: false })
+  document.body.innerHTML = renderShelfView({ tabs: [tab(items)], activeKey: 'reading', index, total: 81, canAdd: false })
   control = mountShelf(document.querySelector('.shelf-view'), { items, index, reducedMotion: true, ...handlers })
   return control
 }
@@ -54,49 +54,49 @@ afterEach(() => {
 })
 
 describe('renderShelfView', () => {
-  it('lists every group in the rail with its count and marks the active one', () => {
+  it('lists every tab in the rail with its count and marks the active one', () => {
     document.body.innerHTML = renderShelfView({
-      groups: [group(books(2)), group(books(3), 'favorites', 'Favorites')],
+      tabs: [tab(books(2)), tab(books(3), 'favorites', 'Favorites')],
       activeKey: 'favorites', index: 0, total: 81, canAdd: false,
     })
-    const tabs = [...document.querySelectorAll('[data-shelf-group]')]
+    const tabs = [...document.querySelectorAll('[data-shelf-tab]')]
     expect(tabs.map(t => t.textContent.replace(/\s+/g, ' ').trim())).toEqual(['Reading 2', 'Favorites 3'])
-    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
     expect(tabs.map(t => t.getAttribute('aria-pressed'))).toEqual(['false', 'true'])
     expect(document.querySelector('.shelf-stage').getAttribute('aria-hidden')).toBe('true')
   })
 
   it('captions the item with its short title, creator, state and stars', () => {
     const dune = { id: 'd', title: 'Dune: Deluxe Edition', author: 'Frank Herbert', tags: ['currently-reading'], rating: 4.5 }
-    document.body.innerHTML = renderShelfView({ groups: [group([dune])], activeKey: 'reading', index: 0, total: 81, canAdd: false })
+    document.body.innerHTML = renderShelfView({ tabs: [tab([dune])], activeKey: 'reading', index: 0, total: 81, canAdd: false })
     expect(caption()).toBe('Dune')
     expect(text('.shelf-caption-line')).toBe('Frank Herbert · Reading')
     expect(text('.shelf-caption-stars')).toBe('★★★★½')
   })
 
-  it('counts the group and the library in the footer', () => {
-    document.body.innerHTML = renderShelfView({ groups: [group(books(2))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
+  it('counts the tab and the library in the footer', () => {
+    document.body.innerHTML = renderShelfView({ tabs: [tab(books(2))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
     expect(text('.shelf-foot')).toBe('2 in Reading · 81 in the library')
   })
 
-  it('falls back to the first group when the active key is unknown', () => {
-    document.body.innerHTML = renderShelfView({ groups: [group(books(2))], activeKey: 'gone', index: 5, total: 2, canAdd: false })
-    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('reading')
+  it('falls back to the first tab when the active key is unknown', () => {
+    document.body.innerHTML = renderShelfView({ tabs: [tab(books(2))], activeKey: 'gone', index: 5, total: 2, canAdd: false })
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('reading')
     expect(caption()).toBe('Book 1')
   })
 
   it('renders item data as text', () => {
     const hostile = { id: 'h', title: '<b>Bold</b>', author: '<i>x</i>', tags: [] }
-    document.body.innerHTML = renderShelfView({ groups: [group([hostile])], activeKey: 'reading', index: 0, total: 1, canAdd: false })
+    document.body.innerHTML = renderShelfView({ tabs: [tab([hostile])], activeKey: 'reading', index: 0, total: 1, canAdd: false })
     expect(caption()).toBe('<b>Bold</b>')
     expect(document.querySelector('.shelf-caption b')).toBeNull()
   })
 
   it('shows an empty shelf, offering Add Media only when it can', () => {
-    document.body.innerHTML = renderShelfView({ groups: [], activeKey: '', index: 0, total: 0, canAdd: true })
+    document.body.innerHTML = renderShelfView({ tabs: [], activeKey: '', index: 0, total: 0, canAdd: true })
     expect(text('.shelf-empty')).toContain('Nothing on this shelf yet.')
     expect(document.querySelector('.shelf-empty [data-action="add-book"]')).not.toBeNull()
-    document.body.innerHTML = renderShelfView({ groups: [], activeKey: '', index: 0, total: 0, canAdd: false })
+    document.body.innerHTML = renderShelfView({ tabs: [], activeKey: '', index: 0, total: 0, canAdd: false })
     expect(document.querySelector('[data-action="add-book"]')).toBeNull()
   })
 })
@@ -145,7 +145,7 @@ describe('mountShelf', () => {
     })
 
     it('names the open button in its markup', () => {
-      document.body.innerHTML = renderShelfView({ groups: [group(books(3))], activeKey: 'reading', index: 1, total: 3, canAdd: false })
+      document.body.innerHTML = renderShelfView({ tabs: [tab(books(3))], activeKey: 'reading', index: 1, total: 3, canAdd: false })
       expect(openName()).toBe('Open Book 1')
     })
 
@@ -200,8 +200,8 @@ describe('mountShelf', () => {
   })
 
   it('scrolls a rail too wide for its screen to centre the active tab', () => {
-    const groups = ['reading', 'favorites', 'book', 'album', 'all'].map(key => group(books(3), key, key))
-    document.body.innerHTML = renderShelfView({ groups, activeKey: 'album', index: 0, total: 3, canAdd: false })
+    const tabs = ['reading', 'favorites', 'book', 'album', 'all'].map(key => tab(books(3), key, key))
+    document.body.innerHTML = renderShelfView({ tabs, activeKey: 'album', index: 0, total: 3, canAdd: false })
     const rail = document.querySelector('.shelf-rail')
     const active = document.querySelector('.shelf-tab.active')
     Object.defineProperty(rail, 'clientWidth', { configurable: true, value: 300 })
@@ -476,7 +476,7 @@ describe('mountShelf', () => {
       vi.resetModules()
       const frames = holdFrames()
       const fresh = await import('./shelf.js')
-      document.body.innerHTML = fresh.renderShelfView({ groups: [group(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
+      document.body.innerHTML = fresh.renderShelfView({ tabs: [tab(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
       control = fresh.mountShelf(document.querySelector('.shelf-view'), { items: books(10), reducedMotion: false })
       frames.settle()
       const before = frames.requests()
@@ -564,7 +564,7 @@ describe('mountShelf', () => {
     vi.resetModules()
     const frames = holdFrames()
     const fresh = await import('./shelf.js')
-    document.body.innerHTML = fresh.renderShelfView({ groups: [group(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
+    document.body.innerHTML = fresh.renderShelfView({ tabs: [tab(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
     control = fresh.mountShelf(document.querySelector('.shelf-view'), { items: books(10), reducedMotion: true })
     const cursor = document.querySelector('.shelf-cursor')
     expect(cursor.style.visibility).toBe('hidden')
@@ -581,7 +581,7 @@ describe('mountShelf', () => {
       vi.resetModules()
       const frames = holdFrames()
       const fresh = await import('./shelf.js')
-      document.body.innerHTML = '<div class="header"></div>' + fresh.renderShelfView({ groups: [group(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
+      document.body.innerHTML = '<div class="header"></div>' + fresh.renderShelfView({ tabs: [tab(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
       const view = document.querySelector('.shelf-view')
       control = fresh.mountShelf(view, { items: books(10), reducedMotion })
       return { view, frames }
@@ -614,7 +614,7 @@ describe('mountShelf', () => {
       const { view } = await mountFresh()
       moveOver(view, 30, 40)
       control.destroy()
-      document.body.innerHTML = '<div class="header"></div>' + renderShelfView({ groups: [group(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
+      document.body.innerHTML = '<div class="header"></div>' + renderShelfView({ tabs: [tab(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
       const again = document.querySelector('.shelf-view')
       control = (await import('./shelf.js')).mountShelf(again, { items: books(10), reducedMotion: true })
       expect(again.classList.contains('has-pointer')).toBe(true)

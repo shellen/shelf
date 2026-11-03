@@ -107,7 +107,7 @@ function typeInSearch(chars) {
 const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
 
 // Chooses a shelf rail tab with the mouse
-const chooseTab = key => document.querySelector(`[data-shelf-group="${key}"]`).dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
+const chooseTab = key => document.querySelector(`[data-shelf-tab="${key}"]`).dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
 
 // Navigates as a browser does: the hash changes and one hashchange follows as a task
 async function goTo(hash) {
@@ -625,18 +625,18 @@ describe('shelf view', () => {
 
   it('shows the showcase groups, the media and All in the rail', async () => {
     await loadApp(READING_BOOKS, { view: 'shelf' })
-    const tabs = [...document.querySelectorAll('[data-shelf-group]')].map(t => t.dataset.shelfGroup)
+    const tabs = [...document.querySelectorAll('[data-shelf-tab]')].map(t => t.dataset.shelfTab)
     expect(tabs).toEqual(['reading', 'favorites', 'book', 'all'])
     expect(caption()).toBe('Flow')
   })
 
   describe('rail', () => {
-    const tabs = () => [...document.querySelectorAll('[data-shelf-group]')]
+    const tabs = () => [...document.querySelectorAll('[data-shelf-tab]')]
     const choose = chooseTab
 
     it('lists the showcase groups, then each medium present in media order, then All', async () => {
       await loadApp(MIXED, { view: 'shelf' })
-      expect(tabs().map(t => t.dataset.shelfGroup)).toEqual(['favorites', 'book', 'podcast', 'album', 'all'])
+      expect(tabs().map(t => t.dataset.shelfTab)).toEqual(['favorites', 'book', 'podcast', 'album', 'all'])
       expect(tabs().map(t => t.firstChild.textContent.trim())).toEqual(['Favorites', 'Books', 'Podcasts', 'Albums', 'All'])
     })
 
@@ -691,14 +691,14 @@ describe('shelf view', () => {
       expect(window.location.hash).toBe('#/medium/album')
       expect([...document.querySelectorAll('.cover-tile')].map(t => t.dataset.id)).toEqual(['abbey-road'])
       document.querySelector('[data-view="shelf"]').click()
-      expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('album')
+      expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('album')
     })
 
     it('opens on a medium route\'s tab when entering the shelf', async () => {
       await loadApp(MIXED)
       await goTo('#/medium/podcast')
       document.querySelector('[data-view="shelf"]').click()
-      expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('podcast')
+      expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('podcast')
       expect(caption()).toBe('Radiolab')
       expect(document.querySelector('.shelf-foot').textContent).toBe('1 in Podcasts · 5 in the library')
     })
@@ -716,7 +716,7 @@ describe('shelf view', () => {
     it('goes Home to the tab last used, naming a medium tab in the URL', async () => {
       await loadApp(MIXED, { view: 'shelf' })
       const home = () => document.querySelector('[data-action="home"]').click()
-      const active = () => document.querySelector('.shelf-tab.active').dataset.shelfGroup
+      const active = () => document.querySelector('.shelf-tab.active').dataset.shelfTab
       choose('all')
       home()
       expect(active()).toBe('all')
@@ -734,7 +734,7 @@ describe('shelf view', () => {
       await loadApp(MIXED, { view: 'shelf' })
       await goTo('#/medium/movie')
       expect(window.location.hash).toBe('')
-      expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+      expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
     })
 
     it('remembers where each tab was', async () => {
@@ -754,11 +754,11 @@ describe('shelf view', () => {
     })
   })
 
-  it('switches groups from the rail', async () => {
+  it('switches tabs from the rail', async () => {
     await loadApp(READING_BOOKS, { view: 'shelf' })
-    document.querySelector('[data-shelf-group="favorites"]').click()
+    document.querySelector('[data-shelf-tab="favorites"]').click()
     expect(caption()).toBe('Dune')
-    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
   })
 
   it('shows an empty shelf for an empty library', async () => {
@@ -770,7 +770,7 @@ describe('shelf view', () => {
     await loadApp(MIXED, { view: 'shelf', settings: { landing: ['book'] } })
     await goTo('#/medium/album')
     expect(document.querySelector('.shelf-view')).not.toBeNull()
-    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('album')
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('album')
     expect(caption()).toBe('Abbey Road')
   })
 
@@ -791,7 +791,7 @@ describe('shelf view', () => {
     })
   }
 
-  it('starts a fallback group at its first item', async () => {
+  it('starts a tab it falls back to at its first item', async () => {
     const library = BOOKS.map(b => ({ ...b, rating: 5, tags: b.id === 's2-dune' ? [...b.tags] : [...b.tags, 'currently-reading'] }))
     await loadApp(library, { view: 'shelf' })
     document.querySelector('[data-shelf-step="1"]').click()
@@ -799,7 +799,7 @@ describe('shelf view', () => {
 
     library.forEach(b => { b.tags = b.tags.filter(t => t !== 'currently-reading') })
     await refreshViaImport()
-    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
     expect(caption()).toBe('Dune')
   })
 
@@ -850,7 +850,7 @@ describe('shelf view', () => {
     press('Escape')
     expect(window.location.hash).toBe('')
     expect(activeView()).toBe('shelf')
-    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
   })
 
   it('a medium change by hash starts the new medium at its first item', async () => {
@@ -911,7 +911,7 @@ describe('shelf view', () => {
 
     expect(window.location.hash).toBe('')
     expect(document.querySelector('.shelf-view')).not.toBeNull()
-    expect([...document.querySelectorAll('[data-shelf-group]')].map(t => t.dataset.shelfGroup)).toEqual(['reading', 'favorites', 'book', 'all'])
+    expect([...document.querySelectorAll('[data-shelf-tab]')].map(t => t.dataset.shelfTab)).toEqual(['reading', 'favorites', 'book', 'all'])
     document.querySelector('[data-view="covers"]').click()
     expect(document.querySelectorAll('.cover-tile').length).toBe(3)
   })
@@ -972,7 +972,7 @@ describe('shelf view', () => {
 
   const TWO_READING = BOOKS.map(b => ({ ...b, tags: b.id === 's1-flow' || b.id === 's2-dune' ? [...b.tags, 'currently-reading'] : [...b.tags] }))
 
-  it('left and right move the shelf, stopping at the ends of a short group', async () => {
+  it('left and right move the shelf, stopping at the ends of a short tab', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
     expect(caption()).toBe('Dune')
     press('ArrowRight')
@@ -992,7 +992,7 @@ describe('shelf view', () => {
 
   it('Enter on a focused rail tab does not open the centred item', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
-    document.querySelector('[data-shelf-group="favorites"]').focus()
+    document.querySelector('[data-shelf-tab="favorites"]').focus()
     press('Enter')
     expect(document.querySelector('[data-field="title"]')).toBeNull()
   })
@@ -1000,7 +1000,7 @@ describe('shelf view', () => {
   it('pressing the active rail tab again keeps the place on the shelf', async () => {
     const library = BOOKS.map(b => ({ ...b, rating: 5, tags: b.id === 's2-dune' ? [...b.tags] : [...b.tags, 'currently-reading'] }))
     await loadApp(library, { view: 'shelf' })
-    const favorites = () => document.querySelector('[data-shelf-group="favorites"]')
+    const favorites = () => document.querySelector('[data-shelf-tab="favorites"]')
     favorites().click()
     press('ArrowRight')
     press('ArrowRight')
@@ -1033,9 +1033,9 @@ describe('shelf view', () => {
 
   it('keeps focus on a rail tab chosen from the keyboard', async () => {
     await loadApp(READING_BOOKS, { view: 'shelf' })
-    document.querySelector('[data-shelf-group="favorites"]').dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }))
-    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
-    expect(document.activeElement?.dataset.shelfGroup).toBe('favorites')
+    document.querySelector('[data-shelf-tab="favorites"]').dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }))
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
+    expect(document.activeElement?.dataset.shelfTab).toBe('favorites')
   })
 
   // Holds every PUT until the returned release() is called
@@ -1064,8 +1064,8 @@ describe('shelf view', () => {
     document.querySelector('[data-action="close-detail"]').click()
     release()
     await saved()
-    document.querySelector('[data-shelf-group="favorites"]').click()
-    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+    document.querySelector('[data-shelf-tab="favorites"]').click()
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
     expect(caption()).toBe('Dune')
   })
 
@@ -1100,7 +1100,7 @@ describe('shelf view', () => {
     expect(document.querySelector('[data-field="title"]')).not.toBeNull()
   })
 
-  it('steps through the shelf group from the detail and re-centres the shelf on close', async () => {
+  it('steps through the shelf tab from the detail and re-centres the shelf on close', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
     press('Enter')
     expect(document.querySelector('[data-field="title"]').value).toBe('Dune')
@@ -1170,14 +1170,14 @@ describe('shelf view', () => {
 
   it('leaves Enter on a focused rail tab to the tab', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
-    document.querySelector('[data-shelf-group="favorites"]').focus()
+    document.querySelector('[data-shelf-tab="favorites"]').focus()
     const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
     document.dispatchEvent(enter)
     expect(document.querySelector('.detail')).toBeNull()
     expect(enter.defaultPrevented).toBe(false)
   })
 
-  it('does not step when the open item has left the group it was opened from', async () => {
+  it('does not step when the open item has left the tab it was opened from', async () => {
     const FAVORITES = BOOKS.map(b => ({ ...b, tags: [...b.tags], rating: b.id === 's1-flow' ? 5 : b.rating }))
     await loadApp(FAVORITES, { view: 'shelf' })
     expect(caption()).toBe('Dune')
@@ -1190,7 +1190,7 @@ describe('shelf view', () => {
     expect(document.querySelector('[data-field="title"]').value).toBe('Dune')
   })
 
-  it('re-centres on the item before one removed after its edit moved it to the end of its group', async () => {
+  it('re-centres on the item before one removed after its edit moved it to the end of its tab', async () => {
     const ALL_READING = BOOKS.map(b => ({ ...b, tags: [...b.tags, 'currently-reading'] }))
     await loadApp(ALL_READING, { view: 'shelf' })
     expect(caption()).toBe('Dune')
@@ -1603,7 +1603,7 @@ describe('hash routes', () => {
       await flush()
       expect(document.querySelector('.view-btn.active').dataset.view).toBe('shelf')
       expect(document.querySelector('.shelf-empty')).toBeNull()
-      expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+      expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
     })
 
     it('from an author route in covers, after stepping', async () => {

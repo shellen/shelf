@@ -50,27 +50,27 @@ function tapeHtml(book) {
     </div>`
 }
 
-export function renderShelfView({ groups, activeKey, index, total, canAdd }) {
-  if (!groups.length) {
+export function renderShelfView({ tabs, activeKey, index, total, canAdd }) {
+  if (!tabs.length) {
     return `
       <div class="shelf-view shelf-empty">
         <p class="shelf-empty-text">Nothing on this shelf yet.</p>
         ${canAdd ? '<button class="btn" data-action="add-book">Add Media</button>' : ''}
       </div>`
   }
-  const group = groups.find(g => g.key === activeKey) || groups[0]
-  const book = group.items[Math.max(0, Math.min(index, group.items.length - 1))]
+  const tab = tabs.find(t => t.key === activeKey) || tabs[0]
+  const book = tab.items[Math.max(0, Math.min(index, tab.items.length - 1))]
   return `
     <div class="shelf-view">
       <nav class="shelf-rail" aria-label="Showcase">
-        ${groups.map(g => `<button class="shelf-tab ${g.key === group.key ? 'active' : ''}" aria-pressed="${g.key === group.key}" data-shelf-group="${esc(g.key)}">${esc(g.label)} <span class="shelf-tab-count">${g.items.length}</span></button>`).join('')}
+        ${tabs.map(t => `<button class="shelf-tab ${t.key === tab.key ? 'active' : ''}" aria-pressed="${t.key === tab.key}" data-shelf-tab="${esc(t.key)}">${esc(t.label)} <span class="shelf-tab-count">${t.items.length}</span></button>`).join('')}
       </nav>
       <div class="shelf-stage-wrap"><div class="shelf-stage" aria-hidden="true"></div></div>
       <button class="shelf-open" data-shelf-open aria-label="${esc(openLabel(book))}">${PLAY}</button>
       <div class="shelf-caption" aria-live="polite">${captionHtml(book)}</div>
       <button class="shelf-arrow shelf-prev" data-shelf-step="-1" aria-label="Previous">${ARROW_PREV}</button>
       <button class="shelf-arrow shelf-next" data-shelf-step="1" aria-label="Next">${ARROW_NEXT}</button>
-      <div class="shelf-foot">${group.items.length} in ${esc(group.label)} &middot; ${total} in the library</div>
+      <div class="shelf-foot">${tab.items.length} in ${esc(tab.label)} &middot; ${total} in the library</div>
       <div class="shelf-cursor" aria-hidden="true"><span class="shelf-cursor-ring"></span><span class="shelf-cursor-dot"></span><span class="shelf-cursor-label">Open</span></div>
     </div>`
 }
