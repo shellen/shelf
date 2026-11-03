@@ -123,8 +123,10 @@ using the contents, not the file name. It checks in this order, so a large XML
 file is never run through `JSON.parse` or the CSV parser:
 
 - `apple`: the first 4 KB contain `<plist` and `<key>Tracks</key>`.
-- `spotify`: the text parses as JSON with at least one of `albums`, `tracks`
-  or `shows` as an array.
+- `spotify`: the first 4 KB, after leading whitespace, start with `{` and
+  contain an `"albums"`, `"tracks"` or `"shows"` key. The file isn't parsed to
+  name it, so a Spotify file that is cut short is still recognised and then
+  reported as damaged.
 - `goodreads`: a CSV whose header row contains `Title`, which is what the
   Goodreads parser requires today.
 
@@ -133,6 +135,11 @@ file is never run through `JSON.parse` or the CSV parser:
 - The modal title becomes "Import". The drop zone reads "Drop a Goodreads CSV,
   an Apple Music Library.xml or Spotify's YourLibrary.json here, or click to
   choose", and the file input accepts `.csv`, `.xml` and `.json`.
+- The Goodreads-only export hint becomes one line per source:
+  - "Goodreads: My Books → Import and export → Export library."
+  - "Apple Music: in the Music app, File → Library → Export Library…"
+  - "Spotify: Account → Privacy settings → Download your data, then unzip it and
+    use YourLibrary.json."
 - After detection the matching reader runs, and the existing preview shows its
   counts with today's labels (new / updates / already complete). A line above
   them names the source and what was read: "Apple Music library: 412 albums",
@@ -164,7 +171,10 @@ Covers are found after the import, in the background, and on demand later.
 - **Which items:** after Confirm, once the library has reloaded, every album or
   podcast whose cover is blank. **Find missing covers**, a new item in the
   signed-in avatar menu, runs the same process at any time. A second run while
-  one is going does nothing.
+  one is going does nothing. When no album or podcast is missing a cover, the
+  menu item shows "Nothing missing. Looking sharp." When some are missing one
+  but none can be looked up (no creator for an album, or an empty title), it
+  shows "Nothing left to look up."
 - **The query:** `GET /api/lookup?medium=<medium>&q=<query>`, where the query is
   "title creator" for albums and the title for podcasts.
 - **A match:** the first result whose normalised title equals the item's, after
@@ -182,6 +192,11 @@ Covers are found after the import, in the background, and on demand later.
   140 · about 6 min left". It ends with "Found 131 covers", which then clears
   like a normal toast. `showToast` gains this persistent, updatable mode; a
   normal toast shown meanwhile appears briefly and the progress toast returns.
+- Found covers appear in the library at most every 15 seconds and when the run
+  ends. The library isn't redrawn under an open detail (closing it shows
+  everything) or while the shelf is being dragged.
+- An unexpected failure ends the run with the same "Stopped finding covers"
+  message, and Find missing covers can be run again.
 - Closing the tab stops the run. Items not reached keep the typographic cover
   until the next run.
 - Known limit: items that never match are tried again on every run, at about
@@ -219,7 +234,9 @@ Covers are found after the import, in the background, and on demand later.
   non-matching results and empty keys; strips " - Single" / " - EP"; runs one
   at a time; stops after 3 consecutive failures with its message; reports
   progress and the final count; Find missing covers picks up items a previous
-  run missed.
+  run missed, and shows "Nothing missing. Looking sharp." or "Nothing left to
+  look up." when there is nothing for it to do.
+- The Import box shows the three export hints.
 - Manual: import Jason's real `Library.xml` (and `YourLibrary.json` when it
   arrives) in the browser and note the parse time.
 
