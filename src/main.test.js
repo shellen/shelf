@@ -1,5 +1,5 @@
-// ABOUTME: Frontend tests for the bookshelf app.
-// ABOUTME: Covers initial render and search interaction behavior.
+// ABOUTME: Tests of the whole app rendered in happy-dom against a stubbed fetch: views, shelf, detail, editing.
+// ABOUTME: Also covers routes, search, sorting, keyboard shortcuts, sign-in, settings, adding and importing.
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 

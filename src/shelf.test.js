@@ -1,5 +1,5 @@
 // ABOUTME: Tests for the shelf view's markup and its carousel controller under happy-dom.
-// ABOUTME: Motion is not asserted; caption, index reporting, input wiring and covers are.
+// ABOUTME: Motion values are not asserted; caption, controls, input wiring, covers and when frames run are.
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderShelfView, mountShelf } from './shelf.js'

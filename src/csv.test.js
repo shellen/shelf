@@ -1,4 +1,5 @@
 // ABOUTME: Tests for the RFC-4180 CSV parser.
+// ABOUTME: Covers quoting, embedded newlines, doubled quotes, CRLF endings and Excel-armored values.
 import { describe, it, expect } from 'vitest'
 import { parseCsv } from './csv.js'
 

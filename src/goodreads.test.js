@@ -1,4 +1,5 @@
 // ABOUTME: Tests for Goodreads CSV row -> book mapping.
+// ABOUTME: Covers ratings, ISBN armor, year fallbacks, untitled rows and failed-row numbering.
 import { describe, it, expect } from 'vitest'
 import { mapGoodreadsRow, parseGoodreadsCsv } from './goodreads.js'
 

@@ -1,4 +1,4 @@
-// ABOUTME: Tests for deriving a book spine's colour, short title, subtitle and creator name.
+// ABOUTME: Tests for deriving a book spine's colour, short title and creator name, and for wrapping cover titles.
 // ABOUTME: Colour choice must be deterministic per id and spread across the palette.
 
 import { describe, it, expect } from 'vitest'

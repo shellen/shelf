@@ -1,4 +1,5 @@
 // ABOUTME: Tests for hash-route parsing and resolution.
+// ABOUTME: Covers slugs and the author, title, tags, medium and isbn routes, including ambiguous matches.
 import { describe, it, expect } from 'vitest'
 import { slugify, parseRoute, resolveRoute } from './routes.js'
 

@@ -1,3 +1,6 @@
+// ABOUTME: The Shelf app's entry point: global state, string-template rendering and event wiring.
+// ABOUTME: Loads items from the API or the embedded read-only data, and mounts the shelf and the detail overlay.
+
 import './style.css'
 import embeddedBooks from 'virtual:bookshelf-data'
 import { parseGoodreadsCsv } from './goodreads.js'

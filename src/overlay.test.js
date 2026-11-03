@@ -1,4 +1,4 @@
-// ABOUTME: Tests for the detail overlay's markup (parity with the drawer it replaces) and geometry.
+// ABOUTME: Tests that the detail overlay's markup matches the spec's parity checklist, plus its geometry and motion.
 // ABOUTME: Signed-in and signed-out renders are checked separately against the spec's checklist.
 
 import { describe, it, expect, afterEach } from 'vitest'
@@ -147,7 +147,7 @@ describe('playExit', () => {
     document.querySelectorAll('.detail-ghost').forEach(g => g.remove())
   })
 
-  it('leaves an inert, hidden, id-independent copy to animate out', () => {
+  it('leaves an inert, hidden copy without the ink mask to animate out', () => {
     show(DUNE)
     HTMLElement.prototype.animate = function () { return {} }
     playExit($('.detail'), null)
