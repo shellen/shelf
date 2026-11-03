@@ -15,6 +15,12 @@ export const TILT_DEG = -4.5
 // and only if the pointer was over the shelf rather than the header.
 let lastPointer = null
 
+// Eases `value` towards `goal` by `amount`, landing on it once within `epsilon`
+function approach(value, goal, amount, epsilon) {
+  const next = value + (goal - value) * amount
+  return Math.abs(goal - next) < epsilon ? goal : next
+}
+
 function captionHtml(book) {
   const line = [book.author, captionState(book)].filter(Boolean).map(esc).join(' &middot; ')
   return `<span class="shelf-caption-title">${esc(spineTitle(book.title))}</span>`
@@ -138,9 +144,17 @@ export function mountShelf(root, {
     )
   }
 
+  // The frame loop stops once nothing is moving; anything that can move it again restarts it
+  function wake() {
+    if (raf || destroyed || !root.isConnected) return
+    last = performance.now()
+    raf = requestAnimationFrame(tick)
+  }
+
   function setTarget(x) {
     const dir = x >= target ? 1 : -1
     target = clampPosition(x, count)
+    wake()
     const i = itemIndexAt(target, count)
     if (i === shown) return
     shown = i
@@ -151,7 +165,6 @@ export function mountShelf(root, {
   function step(delta) {
     setTarget(Math.round(target) + delta)
   }
-
 
   function centreRect() {
     let best = null
@@ -169,6 +182,7 @@ export function mountShelf(root, {
   }
 
   function tick(now) {
+    raf = 0
     const dt = last ? Math.max(0, Math.min(0.05, (now - last) / 1000)) : 1
     last = now
     const k = drag?.moved ? 18 : 5.2
@@ -193,19 +207,20 @@ export function mountShelf(root, {
     const safeH = h || 1
     const safeFace = faceWidth || 1
     const follow = 1 - Math.exp(-16 * dt)
-    pointer.cx += (pointer.x - pointer.cx) * follow
-    pointer.cy += (pointer.y - pointer.cy) * follow
+    pointer.cx = approach(pointer.cx, pointer.x, follow, 0.05)
+    pointer.cy = approach(pointer.cy, pointer.y, follow, 0.05)
 
     const onCover = pointerKnown && h > 0 && Math.abs(pointer.x - cx) < 0.55 * faceWidth && Math.abs(pointer.y - cy) < 0.55 * h && Math.abs(target - pos) < 0.3
     const goalY = reducedMotion ? 0 : onCover ? (pointer.x - cx) / (0.55 * safeFace) * 9 : pointerKnown ? (pointer.x - cx) / (innerWidth || 1) * 5 : 0
     const goalX = reducedMotion || !onCover ? 0 : -(pointer.y - cy) / (safeH / 2) * 6
     const ease = 1 - Math.exp(-7 * dt)
-    tiltY += (goalY - tiltY) * ease
-    tiltX += (goalX - tiltX) * ease
+    tiltY = approach(tiltY, goalY, ease, 1e-3)
+    tiltX = approach(tiltX, goalX, ease, 1e-3)
 
     const liftEase = reducedMotion ? 1 : 1 - Math.exp(-12 * dt)
     const limit = innerWidth / 2 + 1.5 * faceWidth
     let hoverSpine = false
+    let lifting = false
     tapes.forEach((t, v) => {
       const r = relativePosition(v, pos, count)
       const x = slotOffset(r, geom)
@@ -217,7 +232,8 @@ export function mountShelf(root, {
       if (!visible) return
       const lifted = hover === v && Math.abs(r) > 0.5 ? 1 : 0
       if (lifted) hoverSpine = true
-      t.lift += (lifted - t.lift) * liftEase
+      t.lift = approach(t.lift, lifted, liftEase, 1e-3)
+      if (t.lift !== lifted) lifting = true
       const o = faceOut(r)
       const y = -o * 0.025 * h - t.lift * 0.045 * h
       t.el.style.transform = `translate3d(${x}px,${y}px,${o * 0.2 * h}px) rotateZ(${TILT_DEG * o}deg) rotateX(${tiltX * o}deg) rotateY(${-90 * o + tiltY * o}deg)`
@@ -237,7 +253,9 @@ export function mountShelf(root, {
       cursor.style.transform = `translate3d(${pointer.cx}px,${pointer.cy}px,0)`
       cursor.dataset.state = overButton ? 'button' : onCover ? 'open' : hoverSpine ? 'spine' : ''
     }
-    if (!destroyed && root.isConnected) raf = requestAnimationFrame(tick)
+    const moving = drag || pos !== target || lifting || tiltX !== goalX || tiltY !== goalY
+      || pointer.cx !== pointer.x || pointer.cy !== pointer.y
+    if (moving && !destroyed && root.isConnected) raf = requestAnimationFrame(tick)
   }
 
   function onPointerMove(e) {
@@ -251,6 +269,7 @@ export function mountShelf(root, {
     pointerInside = e.target instanceof Node && root.contains(e.target)
     lastPointer = { x: pointer.x, y: pointer.y, inside: pointerInside }
     syncCursor()
+    wake()
     if (!drag) return
     const dx = e.clientX - drag.x0
     if (!drag.moved && Math.abs(dx) > 5) drag.moved = true
@@ -269,6 +288,7 @@ export function mountShelf(root, {
 
   function onResize() {
     geom = measure()
+    wake()
   }
 
   // The container can change size without the window doing so (header fonts settling, the setup
@@ -283,6 +303,7 @@ export function mountShelf(root, {
   wrap.addEventListener('pointerdown', e => {
     if (e.button > 0) return
     drag = { x0: e.clientX, t0: target, moved: false }
+    wake()
   })
   wrap.addEventListener('click', e => {
     if (!suppressClick) return
@@ -302,13 +323,18 @@ export function mountShelf(root, {
     pointerInside = false
     if (lastPointer) lastPointer.inside = false
     syncCursor()
+    wake()
   })
   root.addEventListener('pointerover', e => {
     overButton = !!e.target.closest?.('button, a')
     const tape = e.target.closest?.('.tape')
     hover = tape ? tapes.findIndex(t => t.el === tape) : -1
+    wake()
   })
-  stage.addEventListener('pointerleave', () => { hover = -1 })
+  stage.addEventListener('pointerleave', () => {
+    hover = -1
+    wake()
+  })
   stage.addEventListener('click', e => {
     const tape = e.target.closest('.tape')
     if (!tape) return
@@ -339,11 +365,14 @@ export function mountShelf(root, {
         t.cover.style.backgroundImage = `url("${url.replace(/"/g, '%22')}")`
         t.cover.classList.add('has-image')
       })
+      wake()
     })
   })
 
   syncCursor()
   tick(performance.now())
+  // The mount can run ahead of layout, so the loop goes on to draw at least one real frame
+  wake()
 
   return {
     step,

@@ -21,8 +21,28 @@ function mountWith(items, index = 0, handlers = {}) {
 // Holds animation frames back so a test can run them at a time it chooses.
 function holdFrames() {
   let pending = null
-  vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { pending = callback; return 1 })
-  return { run: time => pending(time) }
+  let lastId = 0
+  const request = vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
+    pending = { id: ++lastId, callback }
+    return lastId
+  })
+  vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(id => {
+    if (pending?.id === id) pending = null
+  })
+  const run = time => {
+    const { callback } = pending
+    pending = null
+    callback(time)
+  }
+  return {
+    run,
+    scheduled: () => pending !== null,
+    requests: () => request.mock.calls.length,
+    // Runs frames 16ms apart until the loop stops asking for them, or gives up after 500
+    settle(from = performance.now()) {
+      for (let k = 1; k <= 500 && pending; k++) run(from + k * 16)
+    },
+  }
 }
 
 afterEach(() => {
@@ -136,11 +156,93 @@ describe('mountShelf', () => {
   })
 
   it('stops its animation loop when destroyed', () => {
-    const cancel = vi.spyOn(window, 'cancelAnimationFrame')
+    const frames = holdFrames()
+    mountWith(books(10))
+    expect(frames.scheduled()).toBe(true)
+    control.destroy()
+    expect(frames.scheduled()).toBe(false)
+  })
+
+  it('asks for no frame once destroyed, whatever moves', () => {
+    const frames = holdFrames()
     mountWith(books(10))
     control.destroy()
-    expect(cancel).toHaveBeenCalled()
-    cancel.mockRestore()
+    const requests = frames.requests()
+    control.step(1)
+    document.querySelector('.shelf-view').dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: 10, clientY: 20 }))
+    expect(frames.requests()).toBe(requests)
+    expect(frames.scheduled()).toBe(false)
+  })
+
+  describe('at rest', () => {
+    it('stops asking for frames once it has settled', () => {
+      const frames = holdFrames()
+      mountWith(books(10), 0, { reducedMotion: false })
+      expect(frames.scheduled()).toBe(true)
+      frames.settle()
+      expect(frames.scheduled()).toBe(false)
+    })
+
+    it('settles again after a step glides to its slot', () => {
+      const frames = holdFrames()
+      mountWith(books(10), 0, { reducedMotion: false })
+      frames.settle()
+      control.step(1)
+      expect(frames.scheduled()).toBe(true)
+      frames.settle()
+      expect(frames.scheduled()).toBe(false)
+    })
+
+    it('wakes for a pointer moving over it', () => {
+      const frames = holdFrames()
+      mountWith(books(10))
+      frames.settle()
+      document.querySelector('.shelf-view').dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: 10, clientY: 20 }))
+      expect(frames.scheduled()).toBe(true)
+    })
+
+    it('wakes for a pointer entering a spine and for one leaving the shelf', () => {
+      const frames = holdFrames()
+      mountWith(books(10))
+      frames.settle()
+      document.querySelectorAll('.tape')[12].dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
+      expect(frames.scheduled()).toBe(true)
+      frames.settle()
+      document.querySelector('.shelf-stage').dispatchEvent(new Event('pointerleave'))
+      expect(frames.scheduled()).toBe(true)
+      frames.settle()
+      document.querySelector('.shelf-view').dispatchEvent(new Event('pointerleave'))
+      expect(frames.scheduled()).toBe(true)
+    })
+
+    it('wakes for a wheel turn', () => {
+      const frames = holdFrames()
+      mountWith(books(10))
+      frames.settle()
+      const turn = Object.assign(new Event('wheel', { cancelable: true, bubbles: true }), { deltaY: 1.2, deltaX: 0, deltaMode: 0 })
+      document.querySelector('.shelf-view').dispatchEvent(turn)
+      expect(frames.scheduled()).toBe(true)
+    })
+
+    it('wakes for a drag starting on the stage', () => {
+      const frames = holdFrames()
+      mountWith(books(10))
+      frames.settle()
+      document.querySelector('.shelf-stage-wrap').dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, clientX: 100 }))
+      expect(frames.scheduled()).toBe(true)
+    })
+
+    it('wakes when a cover arrives', async () => {
+      const frames = holdFrames()
+      let arrive
+      const resolveCover = book => book.id === 'b0' ? new Promise(r => { arrive = r }) : Promise.resolve(null)
+      mountWith(books(10), 0, { resolveCover })
+      await new Promise(r => setTimeout(r, 0))
+      frames.settle()
+      arrive('https://covers.example/b0.jpg')
+      await new Promise(r => setTimeout(r, 0))
+      expect(frames.scheduled()).toBe(true)
+    })
   })
 
   describe('measuring its own box', () => {
@@ -195,6 +297,15 @@ describe('mountShelf', () => {
       expect(stageHeight()).toBe('600px')
       fire(1200, 800)
       expect(stageHeight()).toBe('480px')
+    })
+
+    it('wakes to draw at the new size', () => {
+      const frames = holdFrames()
+      mountWith(books(10))
+      frames.settle()
+      shelfHeight = 480
+      fire(1200, 800)
+      expect(frames.scheduled()).toBe(true)
     })
 
     it('disconnects the observer when destroyed', () => {
