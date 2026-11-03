@@ -29,7 +29,7 @@ function starsHtml(rating, readOnly) {
     </div>`
 }
 
-// A square item's art is shown whole on its square page; a tall item's fills its page
+// A square item's art is shown whole, on paper, on its square page; a tall item's fills its page
 function posterHtml(book, settled) {
   const radius = settled ? 900 : 0
   const shape = coverShape(book)
@@ -51,6 +51,7 @@ function posterHtml(book, settled) {
         </defs>
         <g clip-path="url(#detail-clip)"><g mask="url(#detail-ink)">
           ${coverTypeSvg(book)}
+          ${shape === 'square' ? `<rect class="detail-cover-paper" width="${width}" height="${height}"/>` : ''}
           <image class="detail-cover-image" width="${width}" height="${height}" preserveAspectRatio="xMidYMid ${shape === 'square' ? 'meet' : 'slice'}"/>
         </g></g>
       </svg>

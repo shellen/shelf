@@ -319,6 +319,45 @@ describe('detail poster shape', () => {
   })
 })
 
+describe('detail poster art', () => {
+  const IN_RAINBOWS = { id: 'in-rainbows', title: 'In Rainbows', author: 'Radiohead', tags: [], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: 2007, medium: 'album' }
+  const poster = () => document.querySelector('.detail-poster')
+  const paperVisibility = () => getComputedStyle(document.querySelector('.detail-cover-paper')).visibility
+
+  beforeEach(() => {
+    // Stands in for the network: art on https:// loads, nothing else does
+    vi.stubGlobal('Image', class {
+      set src(url) {
+        queueMicrotask(() => {
+          if (url.startsWith('https://')) { this.naturalWidth = 600; this.onload?.() } else this.onerror?.()
+        })
+      }
+    })
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('shows an album\'s art on paper once it loads', async () => {
+    useStylesheet()
+    await loadApp(MIXED)
+    document.querySelector('.cover-tile[data-id="abbey-road"]').click()
+    await vi.waitFor(() => expect(document.querySelector('.detail-cover-image').getAttribute('href')).toBe('https://art.example/abbey.jpg'))
+    expect(poster().classList.contains('has-art')).toBe(true)
+    expect(paperVisibility()).toBe('visible')
+  })
+
+  it('keeps an album\'s record showing while it has no art', async () => {
+    useStylesheet()
+    await loadApp([...MIXED, IN_RAINBOWS])
+    document.querySelector('.cover-tile[data-id="in-rainbows"]').click()
+    // Its one candidate, the local cover, fails to load
+    await new Promise(r => setTimeout(r, 0))
+    expect(document.querySelector('.detail-cover-image').hasAttribute('href')).toBe(false)
+    expect(poster().classList.contains('has-art')).toBe(false)
+    expect(paperVisibility()).toBe('hidden')
+    expect(poster().querySelectorAll('[mask] circle')).toHaveLength(4)
+  })
+})
+
 describe('detail motion', () => {
   const ON_SCREEN = { left: 100, top: 100, right: 300, bottom: 400, width: 200, height: 300, x: 100, y: 100 }
   const OFF_SCREEN = { left: 100, top: 2000, right: 300, bottom: 2300, width: 200, height: 300, x: 100, y: 2000 }

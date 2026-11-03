@@ -1053,7 +1053,11 @@ function afterDetailRender(entrance, animate) {
   el.toggleAttribute('inert', state.confirmOpen || state.coverPickerOpen)
   resolveCover(book).then(url => {
     const img = document.querySelector('.detail-cover-image')
-    if (url && img && state.selected?.id === book.id) img.setAttribute('href', url)
+    if (url && img && state.selected?.id === book.id) {
+      img.setAttribute('href', url)
+      // The paper behind square art shows only once there is art on it
+      img.closest('.detail-poster').classList.add('has-art')
+    }
   })
   if (animate) playEntrance(el, entrance.from, { reducedMotion: prefersReducedMotion() })
   if (entrance) el.querySelector('.detail-close')?.focus({ preventScroll: true })

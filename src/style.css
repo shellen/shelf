@@ -1539,6 +1539,10 @@ body.is-shelf #results {
   overflow: visible;
 }
 
+/* The paper behind a square item's art; until art loads, the drawn cover shows instead */
+.detail-cover-paper { fill: var(--paper); visibility: hidden; }
+.detail-poster.has-art .detail-cover-paper { visibility: visible; }
+
 .star-wrapper {
   position: relative;
   display: inline-block;

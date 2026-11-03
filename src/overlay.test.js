@@ -109,6 +109,20 @@ describe('renderDetail — poster shape', () => {
   })
 })
 
+describe('renderDetail — paper behind square art', () => {
+  it('lays paper the size of a square page between the drawn cover and the art', () => {
+    show({ ...DUNE, medium: 'podcast' })
+    const paper = $('.detail-cover-paper')
+    expect(['width', 'height'].map(name => paper.getAttribute(name))).toEqual(['600', '600'])
+    expect(paper.nextElementSibling.classList.contains('detail-cover-image')).toBe(true)
+  })
+
+  it('lays no paper under a book\'s art, which fills its page', () => {
+    show(DUNE)
+    expect($('.detail-cover-paper')).toBeNull()
+  })
+})
+
 describe('renderDetail — signed in', () => {
   it('offers medium, tags and ISBN inputs', () => {
     show(DUNE)
