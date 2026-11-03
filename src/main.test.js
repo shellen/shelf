@@ -1961,6 +1961,10 @@ describe('import box', () => {
 
   const confirmButton = () => document.querySelector('[data-action="confirm-import"]')
 
+  const importError = () => document.querySelector('.import-error')?.textContent
+
+  const UNRECOGNISED = 'Shelf can\'t import this file. Drop a Goodreads CSV, an Apple Music Library.xml, or the YourLibrary.json from Spotify\'s zip (unzip it first).'
+
   const SPOTIFY = JSON.stringify({
     albums: [{ artist: 'Radiohead', album: 'In Rainbows', uri: 'spotify:album:1' }],
     tracks: [{ artist: 'Robyn', album: 'Body Talk', track: 'Dancing On My Own', uri: 'spotify:track:1' }],
@@ -2011,6 +2015,75 @@ describe('import box', () => {
       'Apple Music: in the Music app, File → Library → Export Library…',
       'Spotify: Account → Privacy settings → Download your data, then unzip it and use YourLibrary.json.'
     ])
+  })
+
+  it('says so when it does not recognise the file, and keeps Confirm disabled', async () => {
+    dropImportFile('<?xml version="1.0"?><rss><channel><title>Feed</title></channel></rss>')
+    await fileRead()
+    expect(importError()).toBe(UNRECOGNISED)
+    expect(confirmButton().disabled).toBe(true)
+    expect(fetch.mock.calls.some(([u]) => String(u).endsWith('/api/import'))).toBe(false)
+  })
+
+  it('says a Spotify library that is cut short looks damaged', async () => {
+    dropImportFile('{"albums": [{"artist": "Radiohead", "album": "In Rai')
+    await fileRead()
+    expect(importError()).toBe('This file looks damaged. Export it again and retry.')
+    expect(confirmButton().disabled).toBe(true)
+  })
+
+  it('says so when a recognised file has nothing to import', async () => {
+    dropImportFile('{"albums": [], "tracks": [], "shows": []}')
+    await fileRead()
+    expect(importError()).toBe('Nothing to import in this file.')
+    expect(confirmButton().disabled).toBe(true)
+  })
+
+  it('shows the server\'s message when the preview fails, and keeps Confirm disabled', async () => {
+    const respond = fetch.getMockImplementation()
+    fetch.mockImplementation(async (url, opts = {}) => String(url).endsWith('/api/import')
+      ? { ok: false, status: 500, json: async () => ({ error: 'Failed to import books: database is locked' }) }
+      : respond(url, opts))
+    dropImportFile(SPOTIFY)
+    await fileRead()
+    expect(importError()).toBe('Failed to import books: database is locked')
+    expect(confirmButton().disabled).toBe(true)
+  })
+
+  it('stops reading and says the file looks damaged when the browser cannot read it', async () => {
+    dropImportFile(async () => { throw new Error('NotReadableError') })
+    await fileRead()
+    expect(importError()).toBe('This file looks damaged. Export it again and retry.')
+  })
+
+  it('clears the message when another file is chosen', async () => {
+    dropImportFile('Name,Artist\nIn Rainbows,Radiohead')
+    await fileRead()
+    dropImportFile(SPOTIFY)
+    await fileRead()
+    expect(importError()).toBeUndefined()
+    expect(confirmButton().disabled).toBe(false)
+  })
+
+  it('clears the message when the box closes', async () => {
+    dropImportFile('Name,Artist\nIn Rainbows,Radiohead')
+    await fileRead()
+    expect(importError()).toBe(UNRECOGNISED)
+    document.querySelector('.modal-close[data-action="close-import"]').click()
+    document.querySelector('[data-action="import"]').click()
+    expect(importError()).toBeUndefined()
+  })
+
+  it('forgets the previous file when the next one cannot be read', async () => {
+    dropImportFile(SPOTIFY)
+    await fileRead()
+    expect(document.querySelector('.import-source').textContent).toBe('Spotify library: 2 albums, 1 podcast')
+    dropImportFile('<?xml version="1.0"?><rss><channel><title>Feed</title></channel></rss>')
+    await fileRead()
+    expect(document.querySelector('.import-source')).toBeNull()
+    expect(document.querySelector('.import-preview')).toBeNull()
+    expect(importError()).toBe(UNRECOGNISED)
+    expect(confirmButton().disabled).toBe(true)
   })
 })
 

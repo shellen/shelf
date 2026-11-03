@@ -216,6 +216,8 @@ const state = {
   importLoading: false,
   // The line naming the import file's source and what was read from it
   importSummary: '',
+  // Why the chosen file can't be imported; Confirm stays disabled while it is set
+  importError: null,
   coverPickerOpen: false,
   coverOptions: [],
   coverLoading: false,
@@ -1307,6 +1309,7 @@ function renderImportModal() {
             ${state.importLoading ? '<span class="loading"></span> Reading file...' : 'Drop a Goodreads CSV, an Apple Music Library.xml or Spotify\'s YourLibrary.json here, or click to choose'}
           </div>
           <input type="file" accept=".csv,.xml,.json" id="import-file" class="hidden">
+          ${state.importError ? `<div class="status error import-error">${esc(state.importError)}</div>` : ''}
           ${p ? `
             <p class="form-hint import-source">${esc(state.importSummary)}</p>
             <div class="import-preview">
@@ -1316,7 +1319,7 @@ function renderImportModal() {
         </div>
         <div class="modal-actions">
           <button class="btn" data-action="close-import">Cancel</button>
-          <button class="btn btn-primary" data-action="confirm-import" ${p && state.importBooks.length ? '' : 'disabled'}>Confirm Import</button>
+          <button class="btn btn-primary" data-action="confirm-import" ${p && state.importBooks.length && !state.importError ? '' : 'disabled'}>Confirm Import</button>
         </div>
       </div>
     </div>
@@ -1364,28 +1367,67 @@ function importSummary(type, books) {
   return `${IMPORT_SOURCES[type].name}: ${counts.join(', ')}`
 }
 
-async function loadImportText(text) {
+const IMPORT_ERRORS = {
+  unrecognised: 'Shelf can\'t import this file. Drop a Goodreads CSV, an Apple Music Library.xml, or the YourLibrary.json from Spotify\'s zip (unzip it first).',
+  damaged: 'This file looks damaged. Export it again and retry.',
+  empty: 'Nothing to import in this file.'
+}
+
+// Reads an import file into entries, or throws with the message the Import box shows
+function readImportText(text) {
   const type = detectImportFile(text)
-  const { books, failed } = IMPORT_SOURCES[type].read(text)
-  state.importBooks = books
-  state.importFailed = failed
-  state.importSummary = importSummary(type, books)
-  state.importLoading = false
+  const source = IMPORT_SOURCES[type]
+  if (!source) throw new Error(IMPORT_ERRORS.unrecognised)
+  let parsed
   try {
+    parsed = source.read(text)
+  } catch (e) {
+    throw new Error(IMPORT_ERRORS.damaged)
+  }
+  const { books, failed } = parsed
+  if (!books.length) throw new Error(IMPORT_ERRORS.empty)
+  return { books, failed, summary: importSummary(type, books) }
+}
+
+async function loadImportText(text) {
+  clearImportFile()
+  try {
+    const { books, failed, summary } = readImportText(text)
+    state.importBooks = books
+    state.importFailed = failed
+    state.importSummary = summary
     state.importPreview = await postImportChunks(books, true)
   } catch (e) {
-    state.importPreview = null
+    state.importError = e.message
   }
+  state.importLoading = false
   render()
 }
 if (import.meta.env?.MODE === 'test') window.__loadImportText = loadImportText
 
-function closeImport() {
-  state.importOpen = false
+// Forgets everything the Import box showed for the last file
+function clearImportFile() {
   state.importBooks = []
   state.importFailed = []
   state.importPreview = null
   state.importSummary = ''
+  state.importError = null
+}
+
+function chooseImportFile(file) {
+  clearImportFile()
+  state.importLoading = true
+  render()
+  file.text().then(loadImportText, () => {
+    state.importError = IMPORT_ERRORS.damaged
+    state.importLoading = false
+    render()
+  })
+}
+
+function closeImport() {
+  state.importOpen = false
+  clearImportFile()
   state.importLoading = false
   render()
 }
@@ -1667,20 +1709,14 @@ function attachEventListeners() {
   document.querySelector('[data-action="pick-import-file"]')?.addEventListener('click', () => importFile?.click())
   importFile?.addEventListener('change', () => {
     const file = importFile.files?.[0]
-    if (!file) return
-    state.importLoading = true
-    render()
-    file.text().then(loadImportText)
+    if (file) chooseImportFile(file)
   })
   const dropZone = document.querySelector('.drop-zone')
   dropZone?.addEventListener('dragover', e => e.preventDefault())
   dropZone?.addEventListener('drop', e => {
     e.preventDefault()
     const file = e.dataTransfer?.files?.[0]
-    if (!file) return
-    state.importLoading = true
-    render()
-    file.text().then(loadImportText)
+    if (file) chooseImportFile(file)
   })
 
   // Import modal: confirm
