@@ -1036,7 +1036,8 @@ function closeDetail() {
   const route = parseRoute(location.hash)
   if (route && (route.kind === 'title' || route.kind === 'isbn')) clearHash()
   render()
-  if (source !== 'shelf') resultTile(id)?.focus({ preventScroll: true })
+  const opener = source === 'shelf' ? document.querySelector('.shelf-open') : resultTile(id)
+  opener?.focus({ preventScroll: true })
   if (el && canAnimate() && !prefersReducedMotion()) playExit(el, detailOrigin(source, id))
 }
 

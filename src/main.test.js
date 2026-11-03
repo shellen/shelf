@@ -933,6 +933,36 @@ describe('shelf view', () => {
     expect(caption()).toBe('Flow')
   })
 
+  describe('closing a detail opened from the shelf', () => {
+    const original = Element.prototype.animate
+    afterEach(() => {
+      if (original) Element.prototype.animate = original
+      else delete Element.prototype.animate
+    })
+
+    it('returns focus to the shelf\'s open button', async () => {
+      await loadApp(TWO_READING, { view: 'shelf' })
+      press('Enter')
+      press('Escape')
+      expect(document.activeElement?.classList.contains('shelf-open')).toBe(true)
+    })
+
+    it('lets Enter on that button open the detail again, once', async () => {
+      await loadApp(TWO_READING, { view: 'shelf' })
+      press('Enter')
+      press('Escape')
+      Element.prototype.animate = vi.fn(() => ({ finished: Promise.resolve(), cancel() {}, onfinish: null }))
+      const button = document.querySelector('.shelf-open')
+      expect(document.activeElement).toBe(button)
+      // A browser presses a focused button for Enter after the keydown has gone by
+      button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }))
+      button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }))
+      expect(document.querySelector('[data-field="title"]').value).toBe('Dune')
+      const entrances = Element.prototype.animate.mock.contexts.filter(el => el.classList.contains('detail'))
+      expect(entrances).toHaveLength(1)
+    })
+  })
+
   it('stays on the shelf when the hash changes to the item already open', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
     press('Enter')
