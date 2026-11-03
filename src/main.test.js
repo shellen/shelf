@@ -1416,6 +1416,73 @@ describe('hash routes', () => {
     expect(window.location.hash).toBe('')
   })
 
+  describe('closing puts back the route the item was opened from', () => {
+    // happy-dom queues a hashchange for replaceState, which a browser never sends
+    const flush = () => new Promise(r => setTimeout(r, 0))
+    const escape = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    const enter = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }))
+    const caption = () => document.querySelector('.shelf-caption-title')?.textContent
+
+    async function openOnAlbumShelf() {
+      await loadApp(MIXED, { view: 'shelf' })
+      document.querySelector('.media-tab[data-medium="album"]').click()
+      await flush()
+      enter()
+      expect(document.querySelector('[data-field="title"]').value).toBe('Abbey Road')
+      expect(window.location.hash).toBe('#/title/abbey-road')
+      await flush()
+    }
+
+    it('from a medium shelf', async () => {
+      await openOnAlbumShelf()
+      escape()
+      expect(window.location.hash).toBe('#/medium/album')
+      await flush()
+      expect(document.querySelector('.view-btn.active').dataset.view).toBe('shelf')
+      expect(caption()).toBe('Abbey Road')
+      expect(document.activeElement?.classList.contains('shelf-open')).toBe(true)
+    })
+
+    it('after removing the open item', async () => {
+      await openOnAlbumShelf()
+      document.querySelector('[data-action="delete-book"]').click()
+      document.querySelector('[data-action="confirm-ok"]').click()
+      await vi.waitFor(() => {
+        if (document.querySelector('.detail')) throw new Error('detail still open')
+      })
+      expect(window.location.hash).toBe('#/medium/album')
+      await flush()
+      expect(document.querySelector('.view-btn.active').dataset.view).toBe('shelf')
+    })
+
+    it('from an author route in covers, after stepping', async () => {
+      const library = BOOKS.map(b => ({ ...b, tags: [...b.tags], author: b.id === 's1-flow' ? 'Frank Herbert' : b.author }))
+      await loadApp(library)
+      goTo('#/author/herbert')
+      await flush()
+      expect(window.location.hash).toBe('#/author/frank-herbert')
+      document.querySelector('[data-id="s2-dune"]').click()
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+      expect(document.querySelector('[data-field="title"]').value).toBe('Flow')
+      expect(window.location.hash).toBe('#/title/flow')
+      await flush()
+      escape()
+      expect(window.location.hash).toBe('#/author/frank-herbert')
+      await flush()
+      expect(document.querySelectorAll('.cover-tile')).toHaveLength(2)
+      expect(document.activeElement?.dataset.id).toBe('s1-flow')
+    })
+
+    it('to no hash after a cold deep link', async () => {
+      await loadApp()
+      goTo('#/title/dune')
+      await flush()
+      expect(document.querySelector('.detail-title').value).toBe('Dune')
+      escape()
+      expect(window.location.hash).toBe('')
+    })
+  })
+
   it('routes tag filters through the hash', async () => {
     await loadApp()
     document.dispatchEvent(new KeyboardEvent('keydown', { key: '1', bubbles: true }))

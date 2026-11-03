@@ -195,6 +195,8 @@ const state = {
   detailOpen: false,
   selected: null,
   detailSource: 'results',
+  // The hash showing when the detail opened, put back when it closes
+  detailOrigin: '',
   detailEntrance: null,
   modalOpen: false,
   modalLoading: false,
@@ -900,6 +902,7 @@ function bookHash(book) {
 function openBook(id, { from = null, source = 'results', entrance = true } = {}) {
   const book = state.books.find(b => b.id === id)
   if (!book) return
+  if (!state.detailOpen) state.detailOrigin = location.hash
   state.selected = book
   state.detailOpen = true
   state.detailSource = source
@@ -1001,14 +1004,20 @@ function setTagRoute(tag) {
   }
 }
 
+// Puts back the route the detail was opened from, or no hash after a cold deep link
+function restoreDetailOrigin() {
+  if (location.hash === state.detailOrigin) return
+  if (state.detailOrigin) history.replaceState(null, '', state.detailOrigin)
+  else clearHash()
+}
+
 function closeDetail() {
   const el = document.querySelector('.detail')
   const source = state.detailSource
   const id = state.selected?.id
   state.detailOpen = false
   state.selected = null
-  const route = parseRoute(location.hash)
-  if (route && (route.kind === 'title' || route.kind === 'isbn')) clearHash()
+  restoreDetailOrigin()
   render()
   const opener = source === 'shelf' ? document.querySelector('.shelf-open') : resultTile(id)
   opener?.focus({ preventScroll: true })
@@ -1051,6 +1060,7 @@ function applyHash() {
     state.selected = state.books.find(b => b.id === resolved.open.id) || null
     state.detailOpen = !!state.selected
     state.detailSource = 'results'
+    state.detailOrigin = ''
     state.detailEntrance = { from: null }
     render()
     return
@@ -1067,11 +1077,27 @@ function applyHash() {
   render()
 }
 
+// Whether the page already shows this route, as it does after writing the hash itself.
+// Browsers send no hashchange for replaceState, but happy-dom does.
+function showsRoute(route) {
+  if (state.detailOpen) return false
+  if (route.kind === 'tags') return !state.route && state.tag === resolveRoute(route, state.books).tag
+  if (state.route?.kind !== route.kind) return false
+  const ids = resolveRoute(route, state.books).books.map(b => b.id)
+  return ids.length === state.route.ids.size && ids.every(id => state.route.ids.has(id))
+}
+
+function onHashchange() {
+  const route = parseRoute(location.hash)
+  if (route && showsRoute(route)) return
+  applyHash()
+}
+
 // Single hashchange listener; the window guard keeps test module
 // reloads and Vite HMR from stacking handlers.
 if (window.__bookshelfHashchange) window.removeEventListener('hashchange', window.__bookshelfHashchange)
-window.__bookshelfHashchange = applyHash
-window.addEventListener('hashchange', applyHash)
+window.__bookshelfHashchange = onHashchange
+window.addEventListener('hashchange', onHashchange)
 
 function renderSettingsModal() {
   const landing = state.settings.landing || []
@@ -1728,7 +1754,7 @@ function attachEventListeners() {
       state.selected = null
       if (removedAt >= 0) state.shelf.index = removedAt < list.length - 1 ? removedAt : Math.max(0, removedAt - 1)
       // The removed item's own link would now resolve to nothing
-      if (['title', 'isbn'].includes(parseRoute(location.hash)?.kind)) clearHash()
+      restoreDetailOrigin()
 
       showToast(`"${book.title}" removed`)
       render()
