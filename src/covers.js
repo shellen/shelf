@@ -48,11 +48,13 @@ export function matchCover(item, results) {
   return find(titleKey) || find(editionlessTitleKey) || null
 }
 
-// The item as saved with a found cover, or null when it is gone or has a cover by now.
-// A field that has a value is never overwritten.
+// The fields to save for a found cover: the cover, plus the result's year when the item has
+// none. Null when the item is gone or has a cover by now. A field that has a value is never overwritten.
 export function coverUpdate(current, result) {
   if (!current || current.coverUrl) return null
-  return { ...current, coverUrl: result.coverUrl, year: current.year ?? result.year }
+  const update = { coverUrl: result.coverUrl }
+  if (current.year == null && result.year != null) update.year = result.year
+  return update
 }
 
 const plural = (n, noun) => `${n} ${noun}${n === 1 ? '' : 's'}`
@@ -69,7 +71,7 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 // Looks up each item in turn and saves the matches. lookup(item) resolves to results or
 // rejects; save(item, match) resolves true when it stored a cover; progress(done, total)
 // is told before each lookup. Stops early after 3 lookups in a row fail, or quietly
-// before a lookup when keepGoing() says no.
+// before a lookup or a save when keepGoing() says no.
 export async function findCovers(items, { lookup, save, progress, keepGoing = () => true }) {
   let found = 0
   let failures = 0
@@ -86,6 +88,7 @@ export async function findCovers(items, { lookup, save, progress, keepGoing = ()
       if (failures === FAILURES_BEFORE_STOPPING) return { found, stopped: true }
       continue
     }
+    if (!keepGoing()) break
     const match = matchCover(item, results)
     try {
       if (match && await save(item, match)) found++

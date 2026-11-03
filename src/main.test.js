@@ -2212,6 +2212,10 @@ describe('finding covers', () => {
   const coverSaves = () => fetch.mock.calls
     .filter(([u, o]) => o?.method === 'PUT' && /\/api\/books\//.test(String(u)))
     .map(([u, o]) => ({ id: String(u).split('/').pop(), ...JSON.parse(o.body) }))
+  // Each cover save as the id it was sent to and the exact body sent
+  const coverPuts = () => fetch.mock.calls
+    .filter(([u, o]) => o?.method === 'PUT' && /\/api\/books\//.test(String(u)))
+    .map(([u, o]) => [String(u).split('/').pop(), JSON.parse(o.body)])
   const toast = () => document.querySelector('.toast')?.textContent
   const tileCover = id => document.querySelector(`.cover-tile[data-id="${id}"] img`).getAttribute('src')
 
@@ -2235,11 +2239,22 @@ describe('finding covers', () => {
 
   afterEach(() => vi.useRealTimers())
 
-  it('saves the whole item with the cover, so nothing else changes', async () => {
+  it('saves only the cover, plus the year when the item has none', async () => {
     await start()
     findMissingCovers()
     await toastSays('Found 2 covers')
-    expect(coverSaves()[0]).toEqual({ ...ALBUMS[0], coverUrl: 'https://art.example/in-rainbows.jpg', year: 2007 })
+    expect(coverPuts()).toEqual([
+      ['in-rainbows', { coverUrl: 'https://art.example/in-rainbows.jpg', year: 2007 }],
+      ['radiolab', { coverUrl: 'https://art.example/radiolab.jpg', year: 2002 }]
+    ])
+  })
+
+  it('saves only the cover when the item has a year', async () => {
+    await start([...BOOKS, { ...ALBUMS[0], year: 2008, tags: [...ALBUMS[0].tags] }])
+    findMissingCovers()
+    await toastSays('Found 1 cover')
+    expect(coverPuts()).toEqual([['in-rainbows', { coverUrl: 'https://art.example/in-rainbows.jpg' }]])
+    expect(tileCover('in-rainbows')).toBe('https://art.example/in-rainbows.jpg')
   })
 
   it('shows the found covers in the library when the run ends', async () => {
@@ -2349,6 +2364,27 @@ describe('finding covers', () => {
     answerInRainbows(found([]))
     await toastSays('Stopped finding covers: you\'re logged out.')
     expect(lookups()).toHaveLength(1)
+  })
+
+  it('sends no save for a lookup that was out when the shelf was logged out', async () => {
+    await start(library(), { session: { authRequired: true, writable: true } })
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    let answerInRainbows
+    answerLookups(q => q === 'In Rainbows Radiohead'
+      ? new Promise(r => { answerInRainbows = r })
+      : found(ITUNES[q] || []))
+    findMissingCovers()
+    await vi.waitFor(() => { if (!answerInRainbows) throw new Error('no lookup yet') })
+
+    document.querySelector('[data-action="avatar-menu"]').click()
+    document.querySelector('[data-action="logout"]').click()
+    await toastSays('Logged out')
+
+    answerInRainbows(found(ITUNES['In Rainbows Radiohead']))
+    await toastSays('Stopped finding covers: you\'re logged out.')
+    expect(coverPuts()).toEqual([])
+    expect(error).not.toHaveBeenCalled()
+    error.mockRestore()
   })
 
   it('stops when a save finds the session has ended', async () => {

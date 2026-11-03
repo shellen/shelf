@@ -185,12 +185,17 @@ describe('matchCover editions', () => {
 })
 
 describe('coverUpdate', () => {
-  it('adds the cover, and the year when the item has none', () => {
-    expect(coverUpdate(album(), result())).toEqual({ ...album(), coverUrl: 'https://art.example/in-rainbows.jpg', year: 2007 })
+  it('is the cover, and the year when the item has none', () => {
+    expect(coverUpdate(album(), result())).toEqual({ coverUrl: 'https://art.example/in-rainbows.jpg', year: 2007 })
   })
 
-  it('keeps a year the item already has', () => {
-    expect(coverUpdate(album({ year: 2008 }), result()).year).toBe(2008)
+  it('is the cover alone when the item has a year', () => {
+    expect(coverUpdate(album({ year: 2008 }), result())).toEqual({ coverUrl: 'https://art.example/in-rainbows.jpg' })
+  })
+
+  it('is the cover alone when the result has no year', () => {
+    expect(coverUpdate(album(), result({ year: null }))).toEqual({ coverUrl: 'https://art.example/in-rainbows.jpg' })
+    expect(coverUpdate(album(), result({ year: undefined }))).toEqual({ coverUrl: 'https://art.example/in-rainbows.jpg' })
   })
 
   it('is null when the item has a cover by now', () => {
@@ -316,6 +321,17 @@ describe('findCovers', () => {
     expect(await run).toEqual({ found: 1, stopped: false })
     expect(lookup).toHaveBeenCalledTimes(1)
     expect(save).toHaveBeenCalledTimes(1)
+  })
+
+  it('saves nothing when keepGoing says no while a lookup is out', async () => {
+    let going = true
+    const lookup = vi.fn(async () => { going = false; return [result()] })
+    const save = vi.fn(async () => true)
+    const run = findCovers([album({ id: 'a' }), album({ id: 'b' })], { lookup, save, progress: () => {}, keepGoing: () => going })
+    await vi.runAllTimersAsync()
+    expect(await run).toEqual({ found: 0, stopped: false })
+    expect(lookup).toHaveBeenCalledTimes(1)
+    expect(save).not.toHaveBeenCalled()
   })
 
   it('reports progress before each lookup', async () => {
