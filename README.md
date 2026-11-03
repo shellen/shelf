@@ -1,8 +1,8 @@
 # Shelf
 
-**Your books, audiobooks, movies, podcasts, and albums — on one brutalist wall.**
+**Your books, audiobooks, movies, podcasts, and albums — on a shelf worth showing off.**
 
-Shelf is a self-hosted media library with a print-zine soul: hard black rules, monospace metadata, one red accent, zero clutter. It runs three ways from one codebase — a local app backed by a plain SQLite file, a free hosted deployment anyone can launch in minutes, or a single portable HTML file you can open from a thumb drive.
+Shelf is a self-hosted media library with a gallery soul: warm paper, cloth spines, serif type, one cobalt accent, zero clutter. It opens on a 3D shelf of what you're reading, your favorites, and what you just finished; the rest of the library is one click away as a cover wall or a list. It runs three ways from one codebase — a local app backed by a plain SQLite file, a free hosted deployment anyone can launch in minutes, or a single portable HTML file you can open from a thumb drive.
 
 Name it yours — set *"Mary Steiner's Shelf"* in settings and it takes over the masthead, the browser tab, and every shared link.
 
@@ -103,11 +103,12 @@ than `echo`, which appends a newline that becomes part of the password.
 ## Features
 
 - **Five media types** — books, audiobooks, movies, podcasts, albums. Medium tabs, a sectioned landing page in the order you choose, and square album art treated with respect.
+- **A showcase shelf** — the front door: what you're reading, your favorites, and what you just finished, spines out like you meant it and the centred one turned face-out. Drag it, scroll it, arrow-key it; click the cover to open.
 - **Cover wall & list views** — dense gridded covers or a sortable table. Sort by title, author, rating, date read, date added, pages, or year; re-select to flip direction.
 - **Goodreads import** — drop in `goodreads_library_export.csv`. New items are added, existing ones get their blanks filled (never overwritten), tags are unioned, and media-type tags (`audiobook`, `vinyl`, `movies`, `podcasts`…) categorize items automatically. Large exports upload in chunks.
 - **Quick add** — in List view, type titles and press Enter to queue them; **Resolve** looks everything up at the end (author, year, cover, ISBN) and keeps anything unmatched exactly as you typed it.
 - **Lookup built in** — ISBN autofill for books via Open Library; movies, albums, podcasts, and audiobooks via Apple's keyless iTunes Search API.
-- **Edit in place** — click any field in an item's drawer and it autosaves on blur; Enter commits, Esc reverts. No forms, no save buttons.
+- **Edit in place** — click any field in an item's detail view and it autosaves on blur; Enter commits, Esc reverts. No forms, no save buttons.
 - **Keyboard-first** — navigate the whole app without a mouse; press `?` for the map.
 - **Shareable URLs with real link previews** — every author, title, tag, medium, and ISBN has a URL, and hosted deployments serve OpenGraph pages so links unfurl with cover art in Slack and social apps.
 - **No image hosting** — covers are linked from their sources at display time; your deployment stores metadata only.
@@ -129,11 +130,11 @@ Matching is case-insensitive with word-subset fuzziness (`made-stick` finds "Mad
 | Key | Action |
 |-----|--------|
 | `/` | Focus search |
-| Arrows | Navigate the wall/list |
+| Arrows | Navigate the wall/list; `←` `→` move the shelf |
 | `Enter` | Open selection |
 | `←` `→` (item open) | Previous / next |
 | `Esc` | Close panels, then clear search |
-| `v` | Toggle Covers / List |
+| `v` | Cycle Shelf / Covers / List |
 | `s` | Cycle sort field |
 | `a` | Add media |
 | `e` | Edit selection |
@@ -187,4 +188,4 @@ npm test           # the whole suite
 npm run build      # fetch covers, then build the single-file snapshot
 ```
 
-The design is deliberate brutalism: if it looks like a xeroxed zine taped to a record-shop wall, it's working as intended.
+The design is a paper gallery: if it feels like a friend's shelf you can't stop borrowing from, it's working as intended.
