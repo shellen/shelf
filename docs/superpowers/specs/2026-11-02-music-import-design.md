@@ -116,6 +116,11 @@ are checked against Jason's file when it arrives.
 - Albums come from `albums` plus the album of each entry in `tracks`,
   de-duplicated by `normKey(album) | normKey(artist)`. Each becomes
   `{ title: album, author: artist, medium: 'album', tags: ['spotify'] }`.
+- Spotify's export has no album artist, so a liked song is filed under the
+  song's own artist. Liked songs from one compilation or soundtrack by several
+  artists therefore become several albums with the same title. Jason will
+  decide whether to fold those into one "Various Artists" album once his real
+  `YourLibrary.json` shows how often it happens.
 - Each entry in `shows` becomes `{ title: name, author: publisher,
   medium: 'podcast', tags: ['spotify'] }`.
 - Year, rating and date added are null.
