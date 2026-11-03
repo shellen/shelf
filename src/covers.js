@@ -2,6 +2,7 @@
 // ABOUTME: iTunes query, matches the results, and runs the lookups one at a time, 3 seconds apart.
 
 import { normKey } from './match.js'
+import { counted } from './showcase.js'
 
 const PACE_MS = 3000
 const FAILURES_BEFORE_STOPPING = 3
@@ -57,14 +58,12 @@ export function coverUpdate(current, result) {
   return update
 }
 
-const plural = (n, noun) => `${n} ${noun}${n === 1 ? '' : 's'}`
-
 export function coverProgressText(done, total) {
   const minutes = Math.max(1, Math.round((total - done) * PACE_MS / 60_000))
   return `Finding covers ${done} / ${total} · about ${minutes} min left`
 }
 
-export const coversFoundText = found => `Found ${plural(found, 'cover')}`
+export const coversFoundText = found => `Found ${counted(found, 'cover')}`
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 

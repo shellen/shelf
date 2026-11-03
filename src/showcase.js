@@ -1,5 +1,5 @@
 // ABOUTME: Builds the shelf rail's tabs: the showcase groups, one per medium, and All.
-// ABOUTME: Also names an item's medium and formats its caption state line and star rating as text.
+// ABOUTME: Also names an item's medium, counts things, and formats its caption state line and star rating as text.
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const READING_TAG = 'currently-reading'
@@ -7,6 +7,8 @@ const READING_TAG = 'currently-reading'
 export const mediumOf = b => b.medium || 'book'
 // A medium's label for one item: "Books" names a "Book"
 export const singular = label => label.slice(0, -1)
+// "1 album", "380 albums"
+export const counted = (n, noun) => `${n} ${noun}${n === 1 ? '' : 's'}`
 const isReading = b => (b.tags || []).includes(READING_TAG)
 const byTitle = (a, b) => (a.title || '').localeCompare(b.title || '')
 

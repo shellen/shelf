@@ -2,7 +2,7 @@
 // ABOUTME: Covers group membership, ordering, caps, media filtering, fallbacks and caption text.
 
 import { describe, it, expect } from 'vitest'
-import { shelfTabs, captionState, starText, mediumOf, singular } from './showcase.js'
+import { shelfTabs, captionState, starText, mediumOf, singular, counted } from './showcase.js'
 
 const item = (id, fields = {}) => ({ id, title: id, tags: [], rating: null, dateRead: null, dateAdded: null, medium: 'book', ...fields })
 const keys = groups => groups.map(g => g.key)
@@ -120,5 +120,11 @@ describe('medium names', () => {
   it('names one item of a medium', () => {
     expect(singular('Books')).toBe('Book')
     expect(singular('Podcasts')).toBe('Podcast')
+  })
+
+  it('counts things, naming one without an s', () => {
+    expect(counted(0, 'album')).toBe('0 albums')
+    expect(counted(1, 'podcast')).toBe('1 podcast')
+    expect(counted(380, 'album')).toBe('380 albums')
   })
 })

@@ -2212,11 +2212,8 @@ describe('finding covers', () => {
   const found = results => ({ ok: true, json: async () => ({ results }) })
 
   const lookups = () => fetch.mock.calls.filter(([u]) => String(u).includes('/api/lookup'))
-  const coverSaves = () => fetch.mock.calls
-    .filter(([u, o]) => o?.method === 'PUT' && /\/api\/books\//.test(String(u)))
-    .map(([u, o]) => ({ id: String(u).split('/').pop(), ...JSON.parse(o.body) }))
-  // Each cover save as the id it was sent to and the exact body sent
-  const coverPuts = () => fetch.mock.calls
+  // Each item save as the id it was sent to and the exact body sent
+  const itemPuts = () => fetch.mock.calls
     .filter(([u, o]) => o?.method === 'PUT' && /\/api\/books\//.test(String(u)))
     .map(([u, o]) => [String(u).split('/').pop(), JSON.parse(o.body)])
   const toast = () => document.querySelector('.toast')?.textContent
@@ -2261,7 +2258,7 @@ describe('finding covers', () => {
     await confirmImport()
     await toastSays('Found 2 covers')
     expect(lookups().map(([u]) => new URL(String(u), 'http://shelf.test').searchParams.get('medium'))).toEqual(['album', 'podcast'])
-    expect(coverSaves().map(s => [s.id, s.coverUrl, s.year])).toEqual([
+    expect(itemPuts().map(([id, body]) => [id, body.coverUrl, body.year])).toEqual([
       ['in-rainbows', 'https://art.example/in-rainbows.jpg', 2007],
       ['radiolab', 'https://art.example/radiolab.jpg', 2002]
     ])
@@ -2271,7 +2268,7 @@ describe('finding covers', () => {
     await start()
     findMissingCovers()
     await toastSays('Found 2 covers')
-    expect(coverPuts()).toEqual([
+    expect(itemPuts()).toEqual([
       ['in-rainbows', { coverUrl: 'https://art.example/in-rainbows.jpg', year: 2007 }],
       ['radiolab', { coverUrl: 'https://art.example/radiolab.jpg', year: 2002 }]
     ])
@@ -2281,7 +2278,7 @@ describe('finding covers', () => {
     await start([...BOOKS, { ...ALBUMS[0], year: 2008, tags: [...ALBUMS[0].tags] }])
     findMissingCovers()
     await toastSays('Found 1 cover')
-    expect(coverPuts()).toEqual([['in-rainbows', { coverUrl: 'https://art.example/in-rainbows.jpg' }]])
+    expect(itemPuts()).toEqual([['in-rainbows', { coverUrl: 'https://art.example/in-rainbows.jpg' }]])
     expect(tileCover('in-rainbows')).toBe('https://art.example/in-rainbows.jpg')
   })
 
@@ -2417,7 +2414,7 @@ describe('finding covers', () => {
 
     answerInRainbows(found(ITUNES['In Rainbows Radiohead']))
     await toastSays('Found 1 cover')
-    expect(coverSaves().map(s => s.id)).toEqual(['radiolab'])
+    expect(itemPuts().map(([id]) => id)).toEqual(['radiolab'])
   })
 
   it('sends only the rating for a rating chosen while a cover save for that item is out', async () => {
@@ -2436,8 +2433,8 @@ describe('finding covers', () => {
     await vi.waitFor(() => { if (!releaseCoverSave) throw new Error('no cover save yet') })
 
     document.querySelector('[data-action="set-rating"][data-rating="4"]').click()
-    await vi.waitFor(() => { if (coverPuts().length < 2) throw new Error('rating not sent yet') })
-    expect(coverPuts().at(-1)).toEqual(['in-rainbows', { rating: 4 }])
+    await vi.waitFor(() => { if (itemPuts().length < 2) throw new Error('rating not sent yet') })
+    expect(itemPuts().at(-1)).toEqual(['in-rainbows', { rating: 4 }])
 
     releaseCoverSave()
     await toastSays('Found 2 covers')
@@ -2466,12 +2463,12 @@ describe('finding covers', () => {
     answerLookups(() => found([]))
     findMissingCovers()
     await toastSays('Found 0 covers')
-    expect(coverSaves()).toEqual([])
+    expect(itemPuts()).toEqual([])
 
     answerLookups(q => found(ITUNES[q] || []))
     findMissingCovers()
     await toastSays('Found 2 covers')
-    expect(coverSaves().map(s => s.id)).toEqual(['in-rainbows', 'radiolab'])
+    expect(itemPuts().map(([id]) => id)).toEqual(['in-rainbows', 'radiolab'])
   })
 
   it('can run again after a run breaks unexpectedly', async () => {
@@ -2523,7 +2520,7 @@ describe('finding covers', () => {
 
     answerInRainbows(found(ITUNES['In Rainbows Radiohead']))
     await toastSays('Stopped finding covers: you\'re logged out.')
-    expect(coverPuts()).toEqual([])
+    expect(itemPuts()).toEqual([])
     expect(error).not.toHaveBeenCalled()
     error.mockRestore()
   })
@@ -2563,7 +2560,7 @@ describe('finding covers', () => {
     findMissingCovers()
     await toastSays('Stopped finding covers: you\'re logged out.')
     expect(lookups()).toHaveLength(1)
-    expect(coverSaves().map(s => s.id)).toEqual(['in-rainbows'])
+    expect(itemPuts().map(([id]) => id)).toEqual(['in-rainbows'])
     expect(error).toHaveBeenCalledTimes(1)
     expect(error).toHaveBeenCalledWith('Cover not saved:', expect.any(Error))
     error.mockRestore()

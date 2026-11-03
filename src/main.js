@@ -7,7 +7,7 @@ import { parseGoodreadsCsv } from './goodreads.js'
 import { parseSpotifyLibrary, detectImportFile } from './musicimport.js'
 import { parseRoute, resolveRoute, slugify } from './routes.js'
 import { esc } from './html.js'
-import { shelfTabs, mediumOf, singular } from './showcase.js'
+import { shelfTabs, mediumOf, singular, counted } from './showcase.js'
 import { renderShelfView, mountShelf, TILT_DEG } from './shelf.js'
 import { renderDetail, playEntrance, playExit, canAnimate } from './overlay.js'
 import { coverTypeSvg } from './spines.js'
@@ -1353,8 +1353,6 @@ const IMPORT_SOURCES = {
   spotify: { name: 'Spotify library', read: parseSpotifyLibrary }
 }
 
-const counted = (n, noun) => `${n} ${noun}${n === 1 ? '' : 's'}`
-
 // "Spotify library: 380 albums, 12 podcasts"
 function importSummary(type, books) {
   const counts = type === 'goodreads'
@@ -1496,10 +1494,17 @@ async function saveFoundCover(item, match) {
   return true
 }
 
-// Looks up a cover for every album and podcast that could have one found, in the background
-async function findMissingCovers() {
+// Starts looking up a cover for every album and podcast that could have one found, in the
+// background. Starts nothing and returns false when there are none or a run is already going.
+function findMissingCovers() {
   const items = state.books.filter(canFindCover)
-  if (findingCovers || !items.length) return
+  if (findingCovers || !items.length) return false
+  findCoversFor(items)
+  return true
+}
+
+// Looks up a cover for each item in turn, then says how the run ended
+async function findCoversFor(items) {
   findingCovers = true
   try {
     const { found, stopped } = await findCovers(items, {
@@ -1719,8 +1724,7 @@ function attachEventListeners() {
     render()
     if (findingCovers) return
     if (!state.books.some(missingCover)) showToast('Nothing missing. Looking sharp.')
-    else if (!state.books.some(canFindCover)) showToast('Nothing left to look up.')
-    else findMissingCovers()
+    else if (!findMissingCovers()) showToast('Nothing left to look up.')
   })
 
   // Avatar menu
