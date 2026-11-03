@@ -77,8 +77,9 @@ describe('wrapWords', () => {
     expect(wrapWords('A CSIKSZENTMIHALYI READER', 10)).toEqual(['A', 'CSIKSZENTMIHALYI', 'READER'])
   })
 
-  it('keeps at most four lines and ignores extra whitespace', () => {
-    expect(wrapWords('  one two  three four five six ', 3)).toEqual(['one', 'two', 'three', 'four'])
+  it('keeps at most four lines, ending the last with an ellipsis when text is left over', () => {
+    expect(wrapWords('  one two  three four five six ', 3)).toEqual(['one', 'two', 'three', 'four…'])
+    expect(wrapWords('one two three four', 3)).toEqual(['one', 'two', 'three', 'four'])
     expect(wrapWords('', 10)).toEqual([])
   })
 })
@@ -98,6 +99,41 @@ describe('coverTypeSvg', () => {
   it('gives the same item the same cover every time', () => {
     const book = { id: 'b7', title: 'The Design of Everyday Things', author: 'Don Norman' }
     expect(coverTypeSvg(book)).toBe(coverTypeSvg({ ...book }))
+  })
+
+  const titleSize = book => Number(draw(book).querySelectorAll('text')[1].getAttribute('font-size'))
+  const tspans = book => [...draw(book).querySelectorAll('tspan')].map(t => t.textContent)
+
+  it('sets a short title large and shrinks the type for a long line', () => {
+    expect(titleSize({ id: 'a', title: 'Dune' })).toBe(62)
+    const wide = titleSize({ id: 'a', title: 'Neuromancers' })
+    expect(wide).toBeLessThan(52)
+    const word = titleSize({ id: 'a', title: 'Supercalifragilistic' })
+    expect(word).toBeLessThan(wide)
+    // Roughly how wide the longest line sets, against the 600-wide cover less its margins
+    expect(word * 20 * 0.75).toBeLessThanOrEqual(492)
+  })
+
+  it('keeps even a very long word at a legible size', () => {
+    expect(titleSize({ id: 'a', title: 'Pneumonoultramicroscopicsilicovolcanoconiosis' })).toBe(24)
+  })
+
+  it('ends a title too long for four lines with an ellipsis', () => {
+    const lines = tspans({ id: 'a', title: 'The Long Dark Tea Time of the Soul and Other Stories Told Twice' })
+    expect(lines).toHaveLength(4)
+    expect(lines[3].endsWith('…')).toBe(true)
+  })
+
+  it('cuts a long creator short with an ellipsis', () => {
+    const creator = draw({ id: 'a', title: 'X', author: 'The Very Long Name of a Chamber Orchestra and Choir of London' }).querySelector('text').textContent
+    expect(creator.length).toBeLessThanOrEqual(31)
+    expect(creator.endsWith('…')).toBe(true)
+    expect(draw({ id: 'a', title: 'X', author: 'Frank Herbert' }).querySelector('text').textContent).toBe('FRANK HERBERT')
+  })
+
+  it('names an untitled item', () => {
+    expect(tspans({ id: 'a', title: '' })).toEqual(['UNTITLED'])
+    expect(tspans({ id: 'a' })).toEqual(['UNTITLED'])
   })
 
   it('sets item data as text', () => {

@@ -538,14 +538,15 @@ describe('shelf media', () => {
   })
 
   it('draws the placeholder in the item\'s spine colours with its creator, title and year', async () => {
-    await loadApp([{ ...BOOKS[1] }, { ...BOOKS[0] }])
+    // A # or % in the data URI would end or corrupt it unless escaped
+    await loadApp([{ ...BOOKS[1] }, { ...BOOKS[0] }, { ...BOOKS[2], id: 'pure', title: '100% Pure #1', author: 'A & B' }])
     const placeholderOf = id => {
       const img = [...document.querySelectorAll('.cover-tile')].find(t => t.dataset.id === id).querySelector('.cover-img')
       const last = img.dataset.fallbacks.split('\n').at(-1)
       const svg = decodeURIComponent(last.replace('data:image/svg+xml;charset=utf-8,', ''))
       return new DOMParser().parseFromString(svg, 'image/svg+xml')
     }
-    for (const [id, words] of [['s2-dune', ['FRANK HERBERT', 'DUNE', '1965']], ['s1-flow', ['MIHALY CSIKSZENTMIHALYI', 'FLOW']]]) {
+    for (const [id, words] of [['s2-dune', ['FRANK HERBERT', 'DUNE', '1965']], ['s1-flow', ['MIHALY CSIKSZENTMIHALYI', 'FLOW']], ['pure', ['A & B', '100% PURE #1']]]) {
       const doc = placeholderOf(id)
       const { bg, fg } = spinePalette(id)
       expect(doc.querySelector('rect').getAttribute('fill')).toBe(bg)
@@ -553,7 +554,6 @@ describe('shelf media', () => {
       expect(texts.every(t => t.getAttribute('fill') === fg)).toBe(true)
       for (const word of words) expect(texts.map(t => t.textContent).join(' ')).toContain(word)
     }
-    expect(placeholderOf('s2-dune').documentElement.outerHTML).toBe(placeholderOf('s2-dune').documentElement.outerHTML)
   })
 
   it('keeps the landing media headings working after the results re-render', async () => {
