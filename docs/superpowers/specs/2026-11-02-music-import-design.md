@@ -96,8 +96,15 @@ UTC, `<true/>`), and false booleans are simply absent. The root dictionary's
   "video" or "movie" (any case) or is "HLS media".
 - A track's album artist is `Album Artist`; else "Various Artists" when
   `Compilation` is true; else `Artist`.
-- Group tracks by `normKey(album) | normKey(album artist)`. Each group becomes
-  one entry:
+- Group tracks by `normKey(album) | normKey(album artist)`.
+- Then rejoin albums that Music split because `Album Artist` or `Compilation`
+  is set on only some of their tracks. A group none of whose tracks has
+  `Album Artist` or `Compilation` joins the group with the same normalised
+  title that does have them, when exactly one such group shares a `Year` with
+  it. Different albums that share a title stay apart because their years
+  differ. Checked against Jason's library: this rejoins 7 split albums and
+  keeps apart every shared title whose albums come from different years.
+- Each group becomes one entry:
   - `title`: the album title as written on the group's first track.
   - `author`: the most common album artist spelling in the group.
   - `medium`: `album`.
