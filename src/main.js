@@ -1439,6 +1439,8 @@ let findingCovers = false
 // Set when a found cover has not reached the results yet
 let coversToShow = false
 
+const COVERS_LOGGED_OUT = 'Stopped finding covers: you\'re logged out.'
+
 function showFoundCovers() {
   if (!coversToShow) return
   coversToShow = false
@@ -1449,7 +1451,14 @@ function showFoundCovers() {
 async function saveFoundCover(item, match) {
   const update = coverUpdate(state.books.find(b => b.id === item.id), match)
   if (!update) return false
-  syncBookState(await api.updateBook(item.id, update))
+  try {
+    syncBookState(await api.updateBook(item.id, update))
+  } catch (e) {
+    // A failed save may mean the session has ended: lock the page if so, which stops the run
+    await refreshSession()
+    if (state.readOnly) render()
+    throw e
+  }
   coversToShow = true
   return true
 }
@@ -1463,9 +1472,11 @@ async function findMissingCovers() {
     const { found, stopped } = await findCovers(items, {
       lookup: item => api.lookup(item.medium, coverQuery(item)),
       save: saveFoundCover,
-      progress: (done, total) => showProgressToast(coverProgressText(done, total))
+      progress: (done, total) => showProgressToast(coverProgressText(done, total)),
+      keepGoing: () => !state.readOnly
     })
-    if (stopped) endProgressToast(COVERS_STOPPED, 'error')
+    if (state.readOnly) endProgressToast(COVERS_LOGGED_OUT)
+    else if (stopped) endProgressToast(COVERS_STOPPED, 'error')
     else endProgressToast(coversFoundText(found))
   } catch (e) {
     console.error('Finding covers failed:', e)

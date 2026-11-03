@@ -306,6 +306,18 @@ describe('findCovers', () => {
     logged.mockRestore()
   })
 
+  it('stops before the next lookup once keepGoing says no', async () => {
+    let going = true
+    const lookup = lookupFrom({ 'In Rainbows Radiohead': [result()] })
+    const save = vi.fn(async () => { going = false; return true })
+    const items = [album({ id: 'a' }), album({ id: 'b' }), album({ id: 'c' })]
+    const run = findCovers(items, { lookup, save, progress: () => {}, keepGoing: () => going })
+    await vi.runAllTimersAsync()
+    expect(await run).toEqual({ found: 1, stopped: false })
+    expect(lookup).toHaveBeenCalledTimes(1)
+    expect(save).toHaveBeenCalledTimes(1)
+  })
+
   it('reports progress before each lookup', async () => {
     const progress = vi.fn()
     const run = findCovers([album({ id: 'a' }), album({ id: 'b' }), album({ id: 'c' })], { lookup: lookupFrom({}), save: async () => true, progress })

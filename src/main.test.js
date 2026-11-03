@@ -2333,6 +2333,45 @@ describe('finding covers', () => {
     await toastSays('Found 2 covers')
   })
 
+  it('stops when the shelf is logged out partway', async () => {
+    await start(library(), { session: { authRequired: true, writable: true } })
+    let answerInRainbows
+    answerLookups(q => q === 'In Rainbows Radiohead'
+      ? new Promise(r => { answerInRainbows = r })
+      : found(ITUNES[q] || []))
+    findMissingCovers()
+    await vi.waitFor(() => { if (!answerInRainbows) throw new Error('no lookup yet') })
+
+    document.querySelector('[data-action="avatar-menu"]').click()
+    document.querySelector('[data-action="logout"]').click()
+    await toastSays('Logged out')
+
+    answerInRainbows(found([]))
+    await toastSays('Stopped finding covers: you\'re logged out.')
+    expect(lookups()).toHaveLength(1)
+  })
+
+  it('stops when a save finds the session has ended', async () => {
+    await start(library(), { session: { authRequired: true, writable: true } })
+    const respond = fetch.getMockImplementation()
+    fetch.mockImplementation(async (url, opts = {}) => {
+      if (String(url).endsWith('/api/session')) return { ok: true, json: async () => ({ authRequired: true, writable: false }) }
+      if (opts.method === 'PUT') return { ok: false, status: 401, json: async () => ({ error: 'Unauthorized' }) }
+      return respond(url, opts)
+    })
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    findMissingCovers()
+    await toastSays('Stopped finding covers: you\'re logged out.')
+    expect(lookups()).toHaveLength(1)
+    expect(coverSaves().map(s => s.id)).toEqual(['in-rainbows'])
+    expect(error).toHaveBeenCalledTimes(1)
+    expect(error).toHaveBeenCalledWith('Cover not saved:', expect.any(Error))
+    error.mockRestore()
+    // The page locks as Log Out leaves it
+    expect(document.querySelector('[data-action="avatar-menu"]')).toBeNull()
+    expect(document.querySelector('.header [data-action="login"]')).not.toBeNull()
+  })
+
   const menuOpen = () => document.querySelector('.avatar-dropdown').classList.contains('open')
 
   it('closes the menu when chosen, including while a run is going', async () => {

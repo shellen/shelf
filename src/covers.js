@@ -68,12 +68,14 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 // Looks up each item in turn and saves the matches. lookup(item) resolves to results or
 // rejects; save(item, match) resolves true when it stored a cover; progress(done, total)
-// is told before each lookup. Stops early after 3 lookups in a row fail.
-export async function findCovers(items, { lookup, save, progress }) {
+// is told before each lookup. Stops early after 3 lookups in a row fail, or quietly
+// before a lookup when keepGoing() says no.
+export async function findCovers(items, { lookup, save, progress, keepGoing = () => true }) {
   let found = 0
   let failures = 0
   for (const [done, item] of items.entries()) {
     if (done > 0) await wait(PACE_MS)
+    if (!keepGoing()) break
     progress(done, items.length)
     let results
     try {
