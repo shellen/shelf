@@ -2,7 +2,7 @@
 // ABOUTME: Markup plus entrance/exit motion and the cover's ink reveal; editing wiring stays in main.js.
 
 import { esc } from './html.js'
-import { spinePalette, spineTitle, wrapWords } from './spines.js'
+import { coverTypeSvg } from './spines.js'
 import { singular } from './showcase.js'
 
 const STARS = [1, 2, 3, 4, 5]
@@ -29,13 +29,7 @@ function starsHtml(rating, readOnly) {
 }
 
 function posterHtml(book, settled) {
-  const { bg, fg } = spinePalette(book.id)
-  const lines = wrapWords(spineTitle(book.title).toUpperCase(), 13)
-  const size = lines.some(l => l.length > 10) ? 52 : 62
   const radius = settled ? 900 : 0
-  const tspans = lines.map((l, k) =>
-    `<tspan x="300" y="${(450 - (lines.length - 1) * size * 0.55 + k * size * 1.1).toFixed(1)}">${esc(l)}</tspan>`
-  ).join('')
   return `
     <div class="detail-poster">
       <svg viewBox="0 0 600 900" aria-hidden="true">
@@ -52,10 +46,7 @@ function posterHtml(book, settled) {
           <clipPath id="detail-clip"><rect width="600" height="900" rx="4"/></clipPath>
         </defs>
         <g clip-path="url(#detail-clip)"><g mask="url(#detail-ink)">
-          <rect width="600" height="900" fill="${bg}"/>
-          <text x="300" y="90" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="600" font-size="18" letter-spacing="3.6" fill="${fg}">${esc((book.author || '').toUpperCase())}</text>
-          <text text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="${size}" fill="${fg}">${tspans}</text>
-          <text x="300" y="830" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="500" font-size="20" letter-spacing="2.8" fill="${fg}">${esc(book.year || '')}</text>
+          ${coverTypeSvg(book)}
           <image class="detail-cover-image" width="600" height="900" preserveAspectRatio="xMidYMid slice"/>
         </g></g>
       </svg>

@@ -2,7 +2,7 @@
 // ABOUTME: Colour choice must be deterministic per id and spread across the palette.
 
 import { describe, it, expect } from 'vitest'
-import { SPINE_PALETTE, spinePalette, spineTitle, spineCreator, wrapWords } from './spines.js'
+import { SPINE_PALETTE, spinePalette, spineTitle, spineCreator, wrapWords, coverTypeSvg } from './spines.js'
 
 describe('spinePalette', () => {
   it('always gives the same id the same palette entry', () => {
@@ -80,5 +80,29 @@ describe('wrapWords', () => {
   it('keeps at most four lines and ignores extra whitespace', () => {
     expect(wrapWords('  one two  three four five six ', 3)).toEqual(['one', 'two', 'three', 'four'])
     expect(wrapWords('', 10)).toEqual([])
+  })
+})
+
+describe('coverTypeSvg', () => {
+  const draw = book => new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg">${coverTypeSvg(book)}</svg>`, 'image/svg+xml')
+
+  it('sets the creator, short title and year in the item\'s cloth colours', () => {
+    const doc = draw({ id: 's2-dune', title: 'Dune: Deluxe Edition', author: 'Frank Herbert', year: 1965 })
+    const { bg, fg } = spinePalette('s2-dune')
+    expect(doc.querySelector('rect').getAttribute('fill')).toBe(bg)
+    expect([...doc.querySelectorAll('text')].map(t => [t.textContent, t.getAttribute('fill')])).toEqual([
+      ['FRANK HERBERT', fg], ['DUNE', fg], ['1965', fg],
+    ])
+  })
+
+  it('gives the same item the same cover every time', () => {
+    const book = { id: 'b7', title: 'The Design of Everyday Things', author: 'Don Norman' }
+    expect(coverTypeSvg(book)).toBe(coverTypeSvg({ ...book }))
+  })
+
+  it('sets item data as text', () => {
+    const doc = draw({ id: 'h', title: '<b>Bold</b> & Co', author: '"Q"' })
+    expect(doc.querySelector('b')).toBeNull()
+    expect([...doc.querySelectorAll('tspan')].map(t => t.textContent).join(' ')).toBe('<B>BOLD</B> & CO')
   })
 })

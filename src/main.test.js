@@ -2,6 +2,7 @@
 // ABOUTME: Also covers routes, search, sorting, keyboard shortcuts, sign-in, settings, adding and importing.
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { spinePalette } from './spines.js'
 
 const BOOKS = [
   { id: 's1-flow', title: 'Flow', author: 'Mihaly Csikszentmihalyi', tags: ['psychology'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null, medium: 'book' },
@@ -534,6 +535,25 @@ describe('shelf media', () => {
     expect(img.getAttribute('src')).toContain('covers.openlibrary.org/b/isbn/9780441172719')
     window.__nextCover(img)
     expect(img.getAttribute('src')).toContain('data:image/svg+xml')
+  })
+
+  it('draws the placeholder in the item\'s spine colours with its creator, title and year', async () => {
+    await loadApp([{ ...BOOKS[1] }, { ...BOOKS[0] }])
+    const placeholderOf = id => {
+      const img = [...document.querySelectorAll('.cover-tile')].find(t => t.dataset.id === id).querySelector('.cover-img')
+      const last = img.dataset.fallbacks.split('\n').at(-1)
+      const svg = decodeURIComponent(last.replace('data:image/svg+xml;charset=utf-8,', ''))
+      return new DOMParser().parseFromString(svg, 'image/svg+xml')
+    }
+    for (const [id, words] of [['s2-dune', ['FRANK HERBERT', 'DUNE', '1965']], ['s1-flow', ['MIHALY CSIKSZENTMIHALYI', 'FLOW']]]) {
+      const doc = placeholderOf(id)
+      const { bg, fg } = spinePalette(id)
+      expect(doc.querySelector('rect').getAttribute('fill')).toBe(bg)
+      const texts = [...doc.querySelectorAll('text')]
+      expect(texts.every(t => t.getAttribute('fill') === fg)).toBe(true)
+      for (const word of words) expect(texts.map(t => t.textContent).join(' ')).toContain(word)
+    }
+    expect(placeholderOf('s2-dune').documentElement.outerHTML).toBe(placeholderOf('s2-dune').documentElement.outerHTML)
   })
 
   it('keeps the landing media headings working after the results re-render', async () => {

@@ -9,7 +9,7 @@ import { esc } from './html.js'
 import { showcaseGroups, mediumOf, singular } from './showcase.js'
 import { renderShelfView, mountShelf, TILT_DEG } from './shelf.js'
 import { renderDetail, playEntrance, playExit, canAnimate } from './overlay.js'
-import { wrapWords } from './spines.js'
+import { coverTypeSvg } from './spines.js'
 
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
@@ -344,26 +344,9 @@ function resolveCover(book) {
   return coverUrlCache.get(key)
 }
 
+// The same typographic cover the shelf and the detail draw, as an image for the wall and the list
 function generatePlaceholder(book) {
-  const title = (book.title || 'Untitled').replace(/&/g, 'and')
-  const author = (book.author || '').replace(/&/g, 'and')
-
-  const escapeXml = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
-  const titleLines = wrapWords(title.toUpperCase(), 16).map((line, i) =>
-    `<tspan x="300" dy="${i === 0 ? 0 : 60}">${escapeXml(line)}</tspan>`
-  ).join('')
-
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="600" height="900">
-      <rect width="600" height="900" fill="#E6DBC2"/>
-      <text x="300" y="110" text-anchor="middle" font-family="'Inter Tight', system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="4" fill="#141414">${escapeXml(author.toUpperCase())}</text>
-      <text x="300" y="360" text-anchor="middle" font-family="Newsreader, Georgia, serif" font-size="52" fill="#141414">
-        ${titleLines}
-      </text>
-    </svg>
-  `.trim()
-
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900">${coverTypeSvg(book)}</svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
 
