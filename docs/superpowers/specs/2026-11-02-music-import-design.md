@@ -102,8 +102,10 @@ UTC, `<true/>`), and false booleans are simply absent. The root dictionary's
   `Album Artist` or `Compilation` joins the group with the same normalised
   title that does have them, when exactly one such group shares a `Year` with
   it. Different albums that share a title stay apart because their years
-  differ. Checked against Jason's library: this rejoins 7 split albums and
-  keeps apart every shared title whose albums come from different years.
+  differ. Checked against Jason's library: this rejoins 6 split albums
+  (1,809 entries become 1,803) and keeps apart every shared title whose albums
+  come from different years. One more split album has no year on any track, so
+  it stays split.
 - Each group becomes one entry:
   - `title`: the album title as written on the group's first track.
   - `author`: the most common album artist spelling in the group.
