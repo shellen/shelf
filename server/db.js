@@ -8,6 +8,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
 import { isHosted } from './auth.js'
+import { normKey } from '../src/match.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
@@ -201,8 +202,6 @@ export async function generateBookId(title) {
   const taken = new Set((await db.execute('SELECT id FROM books')).rows.map(r => r.id))
   return nextFreeId(title, taken)
 }
-
-const normKey = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, '').replace(/\s+/g, ' ').trim()
 
 const FILLABLE = ['isbn', 'rating', 'notes', 'dateRead', 'dateAdded', 'pages', 'year']
 // (author is intentionally not fillable: it's part of the match key)

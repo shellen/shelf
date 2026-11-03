@@ -122,6 +122,16 @@ describe('importBooks', () => {
     expect(await getAllBooks()).toEqual([])
   })
 
+  it('keeps two albums titled entirely in Japanese apart', async () => {
+    const { importBooks, getAllBooks } = await loadDb()
+    const albums = [
+      { title: '風の谷のナウシカ', author: '久石譲', medium: 'album', tags: [] },
+      { title: '天空の城ラピュタ', author: '久石譲', medium: 'album', tags: [] }
+    ]
+    expect(await importBooks(albums)).toEqual({ added: 2, filled: 0, skipped: 0 })
+    expect((await getAllBooks()).map(b => b.title).sort()).toEqual(['天空の城ラピュタ', '風の谷のナウシカ'])
+  })
+
   it('rolls the whole batch back when a row is invalid', async () => {
     const { importBooks, getAllBooks } = await loadDb()
     await expect(importBooks([dune, { author: 'No Title' }])).rejects.toThrow()
