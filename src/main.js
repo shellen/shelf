@@ -6,7 +6,7 @@ import embeddedBooks from 'virtual:bookshelf-data'
 import { parseGoodreadsCsv } from './goodreads.js'
 import { parseRoute, resolveRoute, slugify } from './routes.js'
 import { esc } from './html.js'
-import { showcaseGroups, mediumOf, singular } from './showcase.js'
+import { shelfTabs, mediumOf, singular } from './showcase.js'
 import { renderShelfView, mountShelf, TILT_DEG } from './shelf.js'
 import { renderDetail, playEntrance, playExit, canAnimate } from './overlay.js'
 import { coverTypeSvg } from './spines.js'
@@ -180,7 +180,8 @@ const state = {
   error: null,
   readOnly: false,
   view: 'shelf',
-  shelf: { group: '', index: 0, medium: '' },
+  // The rail tab last chosen, and the item each tab was last centred on
+  shelf: { tab: '', positions: {} },
   q: '',
   tag: '',
   sortBy: 'title',
@@ -230,22 +231,20 @@ function getAllTags() {
   return Array.from(set).sort()
 }
 
-function shelfMedium() {
-  return state.route?.kind === 'medium' ? state.route.slug : ''
+function railTabs() {
+  return shelfTabs(state.books, MEDIA)
 }
 
-function shelfGroups() {
-  return showcaseGroups(state.books, { landing: state.settings.landing || [], medium: shelfMedium() })
+// The tab the shelf shows: a medium route's tab, else the group or All last chosen, else the first.
+// A medium tab is shown only while its route is, so the URL always names what the shelf shows.
+function activeShelfTab(tabs = railTabs()) {
+  const routed = state.route?.kind === 'medium' && tabs.find(t => t.medium === state.route.slug)
+  return routed || tabs.find(t => t.key === state.shelf.tab && !t.medium) || tabs[0] || null
 }
 
-function activeShelfGroup(groups = shelfGroups()) {
-  return groups.find(g => g.key === state.shelf.group) || groups[0] || null
-}
-
-// A group that has gone away, or the same group under another medium, starts at its first item
-function shelfIndex(group) {
-  const sameGroup = group.key === state.shelf.group && state.shelf.medium === shelfMedium()
-  return sameGroup ? Math.min(state.shelf.index, group.items.length - 1) : 0
+// Where a tab was last centred, kept inside the tab as its items change
+function shelfIndex(tab) {
+  return Math.max(0, Math.min(state.shelf.positions[tab.key] ?? 0, tab.items.length - 1))
 }
 
 function getFilteredSorted() {
@@ -573,12 +572,12 @@ function renderSections(filtered) {
 
 function renderResults(filtered) {
   if (state.view === 'shelf') {
-    const groups = shelfGroups()
-    const group = activeShelfGroup(groups)
+    const tabs = railTabs()
+    const tab = activeShelfTab(tabs)
     return renderShelfView({
-      groups,
-      activeKey: group?.key,
-      index: group ? shelfIndex(group) : 0,
+      groups: tabs,
+      activeKey: tab?.key,
+      index: tab ? shelfIndex(tab) : 0,
       total: state.books.length,
       canAdd: !state.readOnly,
     })
@@ -634,17 +633,17 @@ function mountShelfIfShown() {
   window.__bookshelfShelf = null
   const root = document.querySelector('.shelf-view:not(.shelf-empty)')
   if (!root) return
-  const group = activeShelfGroup()
-  const index = shelfIndex(group)
-  const medium = shelfMedium()
-  state.shelf = { group: group.key, index, medium }
+  const tab = activeShelfTab()
+  const index = shelfIndex(tab)
+  state.shelf.tab = tab.key
+  state.shelf.positions[tab.key] = index
   shelfControl = mountShelf(root, {
-    items: group.items,
+    items: tab.items,
     index,
     reducedMotion: prefersReducedMotion(),
     resolveCover,
-    onIndexChange: i => { state.shelf = { group: group.key, index: i, medium } },
-    onOpen: (i, rect) => openBook(group.items[i].id, { source: 'shelf', from: rect ? { rect, rotate: TILT_DEG } : null }),
+    onIndexChange: i => { state.shelf.positions[tab.key] = i },
+    onOpen: (i, rect) => openBook(tab.items[i].id, { source: 'shelf', from: rect ? { rect, rotate: TILT_DEG } : null }),
   })
   window.__bookshelfShelf = shelfControl
 }
@@ -932,7 +931,7 @@ const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)'
 
 // The list the detail steps through: the shelf group it was opened from, or the current results
 function detailList() {
-  if (state.detailSource === 'shelf') return activeShelfGroup()?.items || []
+  if (state.detailSource === 'shelf') return activeShelfTab()?.items || []
   return getFilteredSorted()
 }
 
@@ -944,7 +943,7 @@ function stepDetail(delta) {
   const next = list[i + delta]
   if (!next) return
   const pressed = document.activeElement?.dataset?.action
-  if (state.detailSource === 'shelf') state.shelf.index = i + delta
+  if (state.detailSource === 'shelf') state.shelf.positions[activeShelfTab().key] = i + delta
   else state.selectedIndex = i + delta
   openBook(next.id, { source: state.detailSource, entrance: false })
   // The step button that was pressed keeps focus while it can still step; otherwise focus rests on Close
@@ -1359,15 +1358,25 @@ function openAddModal() {
   render()
 }
 
-// Shelf rail: switch showcase group. A mouse click releases focus so Enter opens the centred item.
+// Shelf rail: switch tab. A medium tab shows through its route; a group or All clears it.
+// A mouse click releases focus so Enter opens the centred item.
 function selectShelfGroup(tab, e) {
   const key = tab.dataset.shelfGroup
-  if (key === activeShelfGroup()?.key) {
+  if (key === activeShelfTab()?.key) {
     if (e.detail > 0) tab.blur()
     return
   }
-  state.shelf = { group: key, index: 0, medium: shelfMedium() }
-  render()
+  state.shelf.tab = key
+  if (railTabs().find(t => t.key === key)?.medium) {
+    writeHash(`#/medium/${key}`)
+    applyHash()
+  } else {
+    if (state.route?.kind === 'medium') {
+      state.route = null
+      clearHash()
+    }
+    render()
+  }
   if (e.detail === 0) document.querySelector(`[data-shelf-group="${key}"]`)?.focus()
 }
 
@@ -1754,11 +1763,12 @@ function attachEventListeners() {
 
       // Remove from local state
       const list = state.detailSource === 'shelf' ? detailList() : null
+      const tabKey = list ? activeShelfTab().key : null
       const removedAt = list ? list.findIndex(b => b.id === book.id) : -1
       state.books = state.books.filter(b => b.id !== book.id)
       state.detailOpen = false
       state.selected = null
-      if (removedAt >= 0) state.shelf.index = removedAt < list.length - 1 ? removedAt : Math.max(0, removedAt - 1)
+      if (removedAt >= 0) state.shelf.positions[tabKey] = removedAt < list.length - 1 ? removedAt : Math.max(0, removedAt - 1)
       // The removed item's own link would now resolve to nothing, and so may the route it was
       // opened from once it was that route's last item; then the detail closes to no route at all
       const origin = parseRoute(state.detailOrigin)

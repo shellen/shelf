@@ -620,11 +620,59 @@ describe('shelf view', () => {
     expect(document.querySelector('.status-bar')).toBeNull()
   })
 
-  it('shows the showcase groups in the rail', async () => {
+  it('shows the showcase groups, the media and All in the rail', async () => {
     await loadApp(READING_BOOKS, { view: 'shelf' })
     const tabs = [...document.querySelectorAll('[data-shelf-group]')].map(t => t.dataset.shelfGroup)
-    expect(tabs).toEqual(['reading', 'favorites'])
+    expect(tabs).toEqual(['reading', 'favorites', 'book', 'all'])
     expect(caption()).toBe('Flow')
+  })
+
+  describe('rail', () => {
+    const tabs = () => [...document.querySelectorAll('[data-shelf-group]')]
+    const choose = key => document.querySelector(`[data-shelf-group="${key}"]`).dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
+
+    it('lists the showcase groups, then each medium present in media order, then All', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      expect(tabs().map(t => t.dataset.shelfGroup)).toEqual(['favorites', 'book', 'podcast', 'album', 'all'])
+      expect(tabs().map(t => t.firstChild.textContent.trim())).toEqual(['Favorites', 'Books', 'Podcasts', 'Albums', 'All'])
+    })
+
+    it('showcases every medium whatever the landing settings', async () => {
+      const library = MIXED.map(b => ({ ...b, tags: [...b.tags], rating: b.id === 'abbey-road' ? 5 : b.rating }))
+      await loadApp(library, { view: 'shelf', settings: { landing: ['book'] } })
+      expect(caption()).toBe('Abbey Road')
+      expect(document.querySelector('.shelf-foot').textContent).toBe('2 in Favorites · 5 in the library')
+    })
+
+    it('shows every item under All, and steps the detail through all of them', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      choose('all')
+      expect(caption()).toBe('Abbey Road')
+      expect(document.querySelector('.shelf-foot').textContent).toBe('5 in All · 5 in the library')
+      press('Enter')
+      const titles = [document.querySelector('[data-field="title"]').value]
+      for (let k = 0; k < 4; k++) {
+        press('ArrowRight')
+        titles.push(document.querySelector('[data-field="title"]').value)
+      }
+      expect(titles).toEqual(['Abbey Road', 'Dune', 'Flow', 'Radiolab', 'The Design of Everyday Things'])
+    })
+
+    it('remembers where each tab was', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      choose('all')
+      press('ArrowRight')
+      press('ArrowRight')
+      expect(caption()).toBe('Flow')
+      choose('book')
+      press('ArrowRight')
+      press('ArrowRight')
+      expect(caption()).toBe('The Design of Everyday Things')
+      choose('all')
+      expect(caption()).toBe('Flow')
+      choose('book')
+      expect(caption()).toBe('The Design of Everyday Things')
+    })
   })
 
   it('switches groups from the rail', async () => {
@@ -782,7 +830,7 @@ describe('shelf view', () => {
 
     expect(window.location.hash).toBe('')
     expect(document.querySelector('.shelf-view')).not.toBeNull()
-    expect([...document.querySelectorAll('[data-shelf-group]')].map(t => t.dataset.shelfGroup)).toEqual(['reading', 'favorites'])
+    expect([...document.querySelectorAll('[data-shelf-group]')].map(t => t.dataset.shelfGroup)).toEqual(['reading', 'favorites', 'book', 'all'])
     document.querySelector('[data-view="covers"]').click()
     expect(document.querySelectorAll('.cover-tile').length).toBe(3)
   })
@@ -940,15 +988,19 @@ describe('shelf view', () => {
     expect(caption()).toBe('Dune')
   })
 
-  it('keeps the empty shelf\'s Add Media working when a save finishes after the detail closes', async () => {
-    // Nothing on the landing shelf, while the list still shows every item
-    await loadApp(BOOKS, { view: 'list', settings: { landing: ['album'] } })
+  it('keeps the empty shelf\'s Add Media working when a save finishes after the item is gone', async () => {
+    // The library's only item is edited and then removed, so the save lands on an empty shelf
+    await loadApp([{ ...BOOKS[1], tags: [] }], { view: 'list' })
     const release = holdSaves()
     document.querySelector('.list-title [data-id="s2-dune"]').click()
     const author = document.querySelector('[data-field="author"]')
     author.value = 'F. Herbert'
     author.dispatchEvent(new Event('blur'))
-    document.querySelector('[data-action="close-detail"]').click()
+    document.querySelector('[data-action="delete-book"]').click()
+    document.querySelector('[data-action="confirm-ok"]').click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.detail')) throw new Error('detail still open')
+    })
     document.querySelector('[data-view="shelf"]').click()
     release()
     await saved()

@@ -1,4 +1,4 @@
-// ABOUTME: Chooses which library items the shelf view showcases, grouped for its tab rail.
+// ABOUTME: Builds the shelf rail's tabs: the showcase groups, one per medium, and All.
 // ABOUTME: Also names an item's medium and formats its caption state line and star rating as text.
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -19,17 +19,21 @@ const newestFirst = key => (a, b) => {
   return byTitle(a, b)
 }
 
-export function showcaseGroups(books, { landing = [], medium = '' } = {}) {
-  const pool = books.filter(b => medium ? mediumOf(b) === medium : landing.includes(mediumOf(b)))
-  const groups = [
-    { key: 'reading', label: 'Reading', items: pool.filter(isReading).sort(newestFirst('dateAdded')) },
-    { key: 'favorites', label: 'Favorites', items: pool.filter(b => b.rating === 5).sort(newestFirst('dateRead')).slice(0, 30) },
-    { key: 'finished', label: 'Recently finished', items: pool.filter(b => b.dateRead).sort(newestFirst('dateRead')).slice(0, 20) },
-  ].filter(g => g.items.length)
-  if (!groups.length && pool.length) {
-    groups.push({ key: 'shelf', label: 'On the shelf', items: [...pool].sort(byTitle).slice(0, 30) })
-  }
-  return groups
+// The shelf rail's tabs: the showcase groups that have items, then a tab per medium present
+// (in `media` order), then All. Medium tabs and All hold every item, in title order.
+export function shelfTabs(books, media) {
+  if (!books.length) return []
+  const showcase = [
+    { key: 'reading', label: 'Reading', items: books.filter(isReading).sort(newestFirst('dateAdded')) },
+    { key: 'favorites', label: 'Favorites', items: books.filter(b => b.rating === 5).sort(newestFirst('dateRead')).slice(0, 30) },
+    { key: 'finished', label: 'Recently finished', items: books.filter(b => b.dateRead).sort(newestFirst('dateRead')).slice(0, 20) },
+  ]
+  const byMedium = media.map(m => ({ key: m.key, label: m.label, medium: m.key, items: books.filter(b => mediumOf(b) === m.key).sort(byTitle) }))
+  return [
+    ...showcase,
+    ...byMedium,
+    { key: 'all', label: 'All', items: [...books].sort(byTitle) },
+  ].filter(t => t.items.length)
 }
 
 export function captionState(book) {
