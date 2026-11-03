@@ -15,3 +15,18 @@ export const canFindCover = item => missingCover(item) && canMatch(item)
 export const coverQuery = item => item.medium === 'album'
   ? [item.title, item.author].filter(Boolean).join(' ')
   : item.title
+
+// iTunes names singles and EPs "Title - Single" and "Title - EP"
+const releaseTitle = title => String(title || '').replace(/ - (Single|EP)$/, '')
+
+// The first result with artwork whose title matches the item's, and for an album whose creator does too.
+// Podcasts match on title alone: Spotify's publisher and iTunes' artist often differ.
+export function matchCover(item, results) {
+  if (!canMatch(item)) return null
+  const title = normKey(item.title)
+  const creator = normKey(item.author)
+  const isAlbum = item.medium === 'album'
+  return results.find(r => r.coverUrl
+    && normKey(releaseTitle(r.title)) === title
+    && (!isAlbum || normKey(r.author) === creator)) || null
+}

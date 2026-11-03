@@ -2,7 +2,7 @@
 // ABOUTME: iTunes results, the update that saves a cover, and the paced, one-at-a-time run.
 
 import { describe, it, expect } from 'vitest'
-import { missingCover, canFindCover, coverQuery } from './covers.js'
+import { missingCover, canFindCover, coverQuery, matchCover } from './covers.js'
 
 const album = (fields = {}) => ({ id: 'in-rainbows', title: 'In Rainbows', author: 'Radiohead', medium: 'album', coverUrl: null, year: null, tags: [], ...fields })
 const podcast = (fields = {}) => ({ id: 'radiolab', title: 'Radiolab', author: 'WNYC Studios', medium: 'podcast', coverUrl: null, year: null, tags: [], ...fields })
@@ -51,5 +51,43 @@ describe('coverQuery', () => {
 
   it('searches a podcast by its title alone', () => {
     expect(coverQuery(podcast())).toBe('Radiolab')
+  })
+})
+
+describe('matchCover', () => {
+  it('takes the first result whose title and creator match once normalised', () => {
+    const results = [
+      result({ title: 'In Rainbows (Disk 2)', coverUrl: 'https://art.example/disk2.jpg' }),
+      result({ title: 'in rainbows!', author: 'RADIOHEAD', coverUrl: 'https://art.example/first.jpg' }),
+      result({ coverUrl: 'https://art.example/second.jpg' })
+    ]
+    expect(matchCover(album(), results).coverUrl).toBe('https://art.example/first.jpg')
+  })
+
+  it('skips an album result by another artist', () => {
+    expect(matchCover(album(), [result({ author: 'Radiohead Tribute Band' })])).toBeNull()
+  })
+
+  it('removes iTunes\' " - Single" and " - EP" from result titles', () => {
+    expect(matchCover(album({ title: 'Creep' }), [result({ title: 'Creep - Single' })])).not.toBeNull()
+    expect(matchCover(album({ title: 'My Iron Lung' }), [result({ title: 'My Iron Lung - EP' })])).not.toBeNull()
+  })
+
+  it('matches a podcast on its title alone', () => {
+    expect(matchCover(podcast(), [result({ title: 'Radiolab', author: 'WNYC' })])).not.toBeNull()
+  })
+
+  it('never matches on an empty normalised title or creator', () => {
+    expect(matchCover(album({ title: '!!!' }), [result({ title: '???' })])).toBeNull()
+    expect(matchCover(album({ author: null }), [result({ author: null })])).toBeNull()
+    expect(matchCover(podcast({ title: '...' }), [result({ title: '' })])).toBeNull()
+  })
+
+  it('skips a matching result that has no artwork', () => {
+    expect(matchCover(album(), [result({ coverUrl: null })])).toBeNull()
+  })
+
+  it('finds nothing in no results', () => {
+    expect(matchCover(album(), [])).toBeNull()
   })
 })
