@@ -188,12 +188,18 @@ describe('playEntrance', () => {
   it('holds its opening frames through each delay but nothing once finished', () => {
     show(DUNE, { settled: false })
     const fills = []
-    const record = function (frames, options) { fills.push(options?.fill); return {} }
+    const ends = []
+    const record = function (frames, options) { fills.push(options?.fill); ends.push(frames.at(-1)); return {} }
     Element.prototype.animate = record
     for (const line of document.querySelectorAll('.dm > *')) line.animate = record
     const from = { rect: { left: 100, top: 100, width: 200, height: 300, right: 300, bottom: 400 }, rotate: -4.5 }
     playEntrance($('.detail'), from, { reducedMotion: false })
     expect(fills.length).toBeGreaterThan(1)
     expect(fills.every(fill => fill === 'backwards')).toBe(true)
+    // Each one ends on the resting style, so letting go of the fill changes nothing on screen
+    for (const end of ends) {
+      if ('clipPath' in end) expect(end.clipPath).toBe('inset(0px 0px 0px 0px round 0px)')
+      expect(['rotate(0deg)', 'translateY(0)']).toContain(end.transform)
+    }
   })
 })

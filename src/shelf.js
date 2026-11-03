@@ -105,7 +105,7 @@ export function mountShelf(root, {
   let pos = target
   let shown = itemIndexAt(target, count)
   let hover = -1
-  let overButton = false
+  let pointed = null
   let drag = null
   let suppressClick = false
   let wheelTimer = 0
@@ -138,6 +138,7 @@ export function mountShelf(root, {
   }
 
   const stride = () => (geom.spineWidth + geom.gap) || 1
+  const settleDistance = () => geom.spineWidth + geom.gap > 0 ? 0.5 / stride() : 1e-3
 
   function swapCaption(dir) {
     caption.innerHTML = captionHtml(items[shown])
@@ -203,7 +204,8 @@ export function mountShelf(root, {
     const k = drag?.moved ? 18 : 5.2
     const spring = reducedMotion ? 1 : 1 - Math.exp(-k * dt)
     pos += (target - pos) * spring
-    if (Math.abs(target - pos) < 1e-4) pos = target
+    // Half a pixel short of its slot is close enough to stop
+    if (Math.abs(target - pos) < settleDistance()) pos = target
     if (wraps(count)) {
       const length = count * 3
       if (Math.abs(pos) > 4 * length) {
@@ -266,9 +268,11 @@ export function mountShelf(root, {
     if (cursor) {
       cursor.style.visibility = cursorShowing() ? '' : 'hidden'
       cursor.style.transform = `translate3d(${pointer.cx}px,${pointer.cy}px,0)`
+      // Read here rather than on pointerover, since an arrow under the pointer can disable itself
+      const overButton = !!pointed?.closest?.('button:not(:disabled), a')
       cursor.dataset.state = overButton ? 'button' : onCover ? 'open' : hoverSpine ? 'spine' : ''
     }
-    const moving = drag || pos !== target || lifting || tiltX !== goalX || tiltY !== goalY
+    const moving = drag?.moved || pos !== target || lifting || tiltX !== goalX || tiltY !== goalY
       || pointer.cx !== pointer.x || pointer.cy !== pointer.y
     if (moving && !destroyed && root.isConnected) raf = requestAnimationFrame(tick)
   }
@@ -286,6 +290,11 @@ export function mountShelf(root, {
     syncCursor()
     wake()
     if (!drag) return
+    // A button released outside the window sent no pointerup
+    if (e.buttons === 0) {
+      onPointerUp()
+      return
+    }
     const dx = e.clientX - drag.x0
     if (!drag.moved && Math.abs(dx) > 5) drag.moved = true
     if (drag.moved) setTarget(drag.t0 - dx / stride())
@@ -341,7 +350,7 @@ export function mountShelf(root, {
     wake()
   })
   root.addEventListener('pointerover', e => {
-    overButton = !!e.target.closest?.('button:not(:disabled), a')
+    pointed = e.target
     const tape = e.target.closest?.('.tape')
     hover = tape ? tapes.findIndex(t => t.el === tape) : -1
     wake()
@@ -369,6 +378,7 @@ export function mountShelf(root, {
   window.addEventListener('pointermove', onPointerMove)
   window.addEventListener('pointerup', onPointerUp)
   window.addEventListener('pointercancel', onPointerUp)
+  window.addEventListener('blur', onPointerUp)
   if (sizeObserver) sizeObserver.observe(root)
   else window.addEventListener('resize', onResize)
 
@@ -401,6 +411,7 @@ export function mountShelf(root, {
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)
       window.removeEventListener('pointercancel', onPointerUp)
+      window.removeEventListener('blur', onPointerUp)
       window.removeEventListener('resize', onResize)
       sizeObserver?.disconnect()
     },

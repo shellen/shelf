@@ -176,6 +176,19 @@ describe('mountShelf', () => {
       expect(state()).toBe('')
     })
 
+    it('drops the button cursor from an arrow that disables itself under the pointer', () => {
+      const frames = holdFrames()
+      mountWith(books(3), 1)
+      const state = () => document.querySelector('.shelf-cursor').dataset.state
+      next().dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
+      frames.settle()
+      expect(state()).toBe('button')
+      next().dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
+      frames.settle()
+      expect(next().disabled).toBe(true)
+      expect(state()).toBe('')
+    })
+
     it('hands focus to the open button when the focused arrow runs out of list', () => {
       mountWith(books(3), 1)
       next().focus()
@@ -286,6 +299,36 @@ describe('mountShelf', () => {
       expect(frames.scheduled()).toBe(true)
     })
 
+    const press = (type, x, buttons) => new MouseEvent(type, { bubbles: true, clientX: x, clientY: 10, buttons })
+    const wrap = () => document.querySelector('.shelf-stage-wrap')
+
+    it('rests while a press is held without moving', () => {
+      const frames = holdFrames()
+      mountWith(books(10))
+      frames.settle()
+      wrap().dispatchEvent(press('pointerdown', 100, 1))
+      frames.settle()
+      expect(frames.scheduled()).toBe(false)
+    })
+
+    it.each([
+      ['the window loses focus', () => window.dispatchEvent(new Event('blur'))],
+      ['the pointer is cancelled', () => window.dispatchEvent(press('pointercancel', 93, 0))],
+      ['the pointer comes back with no button held', () => window.dispatchEvent(press('pointermove', 93, 0))],
+    ])('ends a drag when %s', (_name, end) => {
+      const frames = holdFrames()
+      mountWith(books(10))
+      wrap().dispatchEvent(press('pointerdown', 100, 1))
+      window.dispatchEvent(press('pointermove', 93, 1))
+      end()
+      frames.settle()
+      expect(frames.scheduled()).toBe(false)
+      // The drag let go on a whole slot instead of following the pointer further
+      window.dispatchEvent(press('pointermove', 90, 1))
+      frames.settle()
+      expect(caption()).toBe('Book 7')
+    })
+
     it('wakes when a cover arrives', async () => {
       const frames = holdFrames()
       let arrive
@@ -360,6 +403,21 @@ describe('mountShelf', () => {
       shelfHeight = 480
       fire(1200, 800)
       expect(frames.scheduled()).toBe(true)
+    })
+
+    it('settles a step without a long tail of sub-pixel frames', async () => {
+      // A fresh module has seen no pointer, so no tilt is easing alongside the glide
+      vi.resetModules()
+      const frames = holdFrames()
+      const fresh = await import('./shelf.js')
+      document.body.innerHTML = fresh.renderShelfView({ groups: [group(books(10))], activeKey: 'reading', index: 0, total: 81, canAdd: false })
+      control = fresh.mountShelf(document.querySelector('.shelf-view'), { items: books(10), reducedMotion: false })
+      frames.settle()
+      const before = frames.requests()
+      control.step(1)
+      frames.settle()
+      expect(frames.scheduled()).toBe(false)
+      expect(frames.requests() - before).toBeLessThan(80)
     })
 
     it('disconnects the observer when destroyed', () => {
