@@ -368,13 +368,19 @@ describe('detail motion', () => {
     return calls[contexts.indexOf(el)]?.[0]
   }
   const original = Element.prototype.animate
+  // A cover that sits lower and narrower than the tile that holds it, as a square cover does on a mixed wall
+  const COVER = { left: 120, top: 250, right: 280, bottom: 400, width: 160, height: 150, x: 120, y: 250 }
   let tileRect
+  let coverRect
 
   beforeEach(async () => {
     await loadApp()
     tileRect = ON_SCREEN
+    coverRect = null
     Element.prototype.animate = vi.fn(() => ({ finished: Promise.resolve(), cancel() {}, onfinish: null }))
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
+      // The cover fills its tile unless a test says otherwise
+      if (this.classList?.contains('cover-aspect') && this.closest('[data-id="s2-dune"]')) return coverRect ?? tileRect
       return this.dataset?.id === 's2-dune' ? tileRect : ON_SCREEN
     })
     Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 })
@@ -402,6 +408,19 @@ describe('detail motion', () => {
     expect(ghosts()).toHaveLength(1)
     expect(ghosts()[0].style.transformOrigin).toBe('200px 250px')
     expect(framesOf(ghosts()[0])[1].clipPath).toMatch(/^inset\(/)
+  })
+
+  it('grows the detail out of the tile\'s cover rather than the whole tile', () => {
+    coverRect = COVER
+    openDune()
+    expect(document.querySelector('#app .detail').style.transformOrigin).toBe('200px 325px')
+  })
+
+  it('folds the ghost back into the tile\'s cover rather than the whole tile', () => {
+    openDune()
+    coverRect = COVER
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    expect(ghosts()[0].style.transformOrigin).toBe('200px 325px')
   })
 
   it('fades the ghost out instead when the tile is off screen', () => {

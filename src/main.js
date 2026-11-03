@@ -1017,13 +1017,17 @@ function onScreen(rect) {
   return rect.right > 0 && rect.bottom > 0 && rect.left < clientWidth && rect.top < clientHeight
 }
 
+// The box a tile's cover occupies, which the detail opens from and folds back to
+const coverRect = tile => (tile.querySelector('.cover-aspect') ?? tile).getBoundingClientRect()
+
 // Where the detail folds away to: the shelf's centred cover, or its tile when that is on screen (else a fade)
 function detailOrigin(source, id) {
   if (source === 'shelf') {
     const rect = shelfControl?.centreRect()
     return rect ? { rect, rotate: TILT_DEG } : null
   }
-  const rect = resultTile(id)?.getBoundingClientRect()
+  const tile = resultTile(id)
+  const rect = tile && coverRect(tile)
   return rect && onScreen(rect) ? { rect, rotate: 0 } : null
 }
 
@@ -1653,7 +1657,7 @@ function wireResults(results) {
       return
     }
     const el = e.target.closest('[data-action="open-book"]')
-    if (el) openBook(el.dataset.id, { from: { rect: el.getBoundingClientRect(), rotate: 0 } })
+    if (el) openBook(el.dataset.id, { from: { rect: coverRect(el), rotate: 0 } })
   })
 
   results.addEventListener('keydown', e => {
@@ -1665,7 +1669,7 @@ function wireResults(results) {
     const el = e.target.closest('[data-action="open-book"]')
     if (!el) return
     e.preventDefault()
-    openBook(el.dataset.id, { from: { rect: el.getBoundingClientRect(), rotate: 0 } })
+    openBook(el.dataset.id, { from: { rect: coverRect(el), rotate: 0 } })
   })
 }
 
@@ -2347,7 +2351,7 @@ function onKeydown(e) {
     // Keeps this Enter from going on to press the Close button the detail focuses
     e.preventDefault()
     const tile = document.querySelector('.kb-selected')
-    openBook(filtered[state.selectedIndex]?.id, { from: tile ? { rect: tile.getBoundingClientRect(), rotate: 0 } : null })
+    openBook(filtered[state.selectedIndex]?.id, { from: tile ? { rect: coverRect(tile), rotate: 0 } : null })
     return
   }
   if (e.key === 'v') {
