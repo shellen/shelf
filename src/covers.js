@@ -10,8 +10,9 @@ const releaseTitle = title => String(title || '').replace(/ - (Single|EP)$/, '')
 
 const titleKey = title => normKey(releaseTitle(title))
 
-// Words in a trailing bracketed note that mark a reissue of the same album
-const EDITION_NOTE = /\s*[(\[][^)\]]*\b(remaster(ed)?|deluxe|expanded|anniversary|collector's|bonus|special edition)\b[^)\]]*[)\]]$/i
+// Words in a trailing bracketed note that mark a reissue of the same album.
+// A note that also says live, demo or mono names a different recording, so it stays part of the title.
+const EDITION_NOTE = /\s*[(\[](?![^)\]]*\b(live|demo|mono)\b)[^)\]]*\b(remaster(ed)?|deluxe|expanded|anniversary|collector['\u2019]s|bonus|special edition)\b[^)\]]*[)\]]\s*$/i
 
 const editionlessTitleKey = title => normKey(releaseTitle(title).replace(EDITION_NOTE, ''))
 

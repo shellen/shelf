@@ -140,11 +140,26 @@ describe('matchCover editions', () => {
     expect(matchCover(album(), results).coverUrl).toBe('https://art.example/exact.jpg')
   })
 
-  it('keeps live, demo, mono, disk and version notes as part of the title', () => {
-    for (const note of ['(Live)', '(Demo)', '(Mono)', '(Disk 2)', "(Taylor's Version)"]) {
-      expect(matchCover(album({ title: 'Red', author: 'Taylor Swift' }), [result({ title: `Red ${note}`, author: 'Taylor Swift' })])).toBeNull()
-      expect(matchCover(album({ title: `Red ${note}`, author: 'Taylor Swift' }), [result({ title: 'Red', author: 'Taylor Swift' })])).toBeNull()
-    }
+  it.each(['(Live)', '(Demo)', '(Mono)', '(Disk 2)', "(Taylor's Version)"])('keeps the note %s as part of the title', note => {
+    expect(matchCover(album({ title: 'Red', author: 'Taylor Swift' }), [result({ title: `Red ${note}`, author: 'Taylor Swift' })])).toBeNull()
+    expect(matchCover(album({ title: `Red ${note}`, author: 'Taylor Swift' }), [result({ title: 'Red', author: 'Taylor Swift' })])).toBeNull()
+  })
+
+  it.each(['(Remastered Live)', '[Live / Deluxe Edition]', '(Deluxe Demo)', '(Mono Remaster)'])('keeps the mixed note %s as part of the title', note => {
+    expect(matchCover(album({ title: 'A' }), [result({ title: `A ${note}` })])).toBeNull()
+    expect(matchCover(album({ title: `A ${note}` }), [result({ title: 'A' })])).toBeNull()
+  })
+
+  it('does not give a live album the studio album\'s cover', () => {
+    expect(matchCover(album({ title: 'Live at Leeds (Remastered Live)' }), [result({ title: 'Live at Leeds' })])).toBeNull()
+  })
+
+  it('counts a collector\'s edition written with a curly apostrophe', () => {
+    expect(matchCover(album({ title: 'A' }), [result({ title: 'A (Collector\u2019s Edition)' })])).not.toBeNull()
+  })
+
+  it('ignores whitespace after an edition note', () => {
+    expect(matchCover(album({ title: 'A' }), [result({ title: 'A (Deluxe Edition) ' })])).not.toBeNull()
   })
 
   it('leaves a note in the middle of a title alone', () => {
