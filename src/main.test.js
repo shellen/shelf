@@ -1,8 +1,22 @@
 // ABOUTME: Tests of the whole app rendered in happy-dom against a stubbed fetch: views, shelf, detail, editing.
 // ABOUTME: Also covers routes, search, sorting, keyboard shortcuts, sign-in, settings, adding and importing.
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach, onTestFinished } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { spinePalette } from './spines.js'
+
+// The app's stylesheet, for tests of the shape it gives what the app draws
+const STYLESHEET = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'style.css'), 'utf8')
+
+// Puts the app's stylesheet on the page for the rest of the current test
+function useStylesheet() {
+  const style = document.createElement('style')
+  style.textContent = STYLESHEET
+  document.head.append(style)
+  onTestFinished(() => style.remove())
+}
 
 const BOOKS = [
   { id: 's1-flow', title: 'Flow', author: 'Mihaly Csikszentmihalyi', tags: ['psychology'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null, medium: 'book' },
@@ -1413,6 +1427,18 @@ describe('shelf view', () => {
       await flush()
       expect(duneCover().classList.contains('has-image')).toBe(false)
       expect(requested.some(u => u.startsWith('data:'))).toBe(false)
+    })
+
+    it('shows an album\'s art whole on paper, and a book\'s filling its face', async () => {
+      useStylesheet()
+      width = url => url.startsWith('https://') ? 100 : 0
+      const library = MIXED.map(b => ({ ...b, tags: [...b.tags], ...(b.id === 's2-dune' ? { coverUrl: 'https://covers.example/dune.jpg' } : {}) }))
+      await loadApp(library, { view: 'shelf' })
+      chooseTab('all')
+      const cover = id => document.querySelector(`.tape[data-id="${id}"] .tape-cover`)
+      await vi.waitFor(() => expect(['abbey-road', 's2-dune'].every(id => cover(id).classList.contains('has-image'))).toBe(true))
+      expect(getComputedStyle(cover('abbey-road')).backgroundSize).toBe('contain')
+      expect(getComputedStyle(cover('s2-dune')).backgroundSize).toBe('cover')
     })
 
     it('shows a cover that a refresh newly makes available', async () => {

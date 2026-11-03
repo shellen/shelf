@@ -1010,6 +1010,17 @@ body.is-shelf #results {
   opacity: 0.85;
 }
 
+/* A square item's spine is a CD's: its title alone, in small capitals running up it */
+.tape-square .tape-spine::before,
+.tape-square .tape-spine-creator { display: none; }
+
+.tape-square .tape-spine-title {
+  font-family: var(--sans);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  transform: rotate(180deg);
+}
+
 .tape-cover {
   width: var(--d);
   left: calc(var(--d) / -2);
@@ -1019,7 +1030,9 @@ body.is-shelf #results {
   background-position: center;
 }
 
+/* The face's type is sized from a book face's width, 2h/3, so type on a square face is the same size */
 .tape-cover-type {
+  --type: calc(var(--h) * 2 / 3);
   position: absolute;
   inset: 0;
   display: flex;
@@ -1033,10 +1046,17 @@ body.is-shelf #results {
 
 .tape-cover.has-image .tape-cover-type { display: none; }
 
+/* Art on a square face is never cropped: tall art sits whole on paper */
+.tape-square .tape-cover.has-image {
+  background-color: var(--paper);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
 .tape-cover-creator {
   font-family: var(--sans);
   font-weight: 600;
-  font-size: calc(var(--d) * .034);
+  font-size: calc(var(--type) * .034);
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -1044,7 +1064,7 @@ body.is-shelf #results {
 .tape-cover-title {
   margin: auto 0;
   font-family: var(--display);
-  font-size: calc(var(--d) * .11);
+  font-size: calc(var(--type) * .11);
   line-height: 1.02;
   text-transform: uppercase;
 }
@@ -1052,8 +1072,77 @@ body.is-shelf #results {
 .tape-cover-year {
   font-family: var(--sans);
   font-weight: 500;
-  font-size: calc(var(--d) * .036);
+  font-size: calc(var(--type) * .036);
   letter-spacing: 0.14em;
+}
+
+/* An album with no art is a record in its sleeve, in its drawn cover's proportions: a disc 14% in
+   from each edge, and a paper label a third of the face across carrying the artist above the
+   spindle hole and the short title below it */
+.tape-cover-record { padding: 0; }
+
+.tape-cover-record::before {
+  content: "";
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  background: #141414;
+  box-shadow: inset 0 0 0 calc(var(--d) * 0.007) color-mix(in srgb, var(--fg) 45%, transparent);
+}
+
+.tape-record-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(100% / 3);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #EDE3CC;
+  color: #141414;
+  text-align: center;
+}
+
+.tape-record-label::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+.tape-record-creator {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 58%;
+  overflow: hidden;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: calc(var(--type) * .03);
+  letter-spacing: 0.2em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tape-record-title {
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  top: 57%;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-family: var(--display);
+  font-size: calc(var(--type) * .045);
+  line-height: 1.05;
+  text-transform: uppercase;
 }
 
 .shelf-open {

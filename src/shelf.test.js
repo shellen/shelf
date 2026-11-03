@@ -806,3 +806,67 @@ describe('mountShelf', () => {
     expect(caption()).toBe('Book 0')
   })
 })
+
+describe('tape faces', () => {
+  const tapeOf = id => document.querySelector(`.tape[data-id="${id}"]`)
+  const spans = el => [...el.querySelectorAll('span')].map(s => [s.className, s.textContent])
+
+  it('draws a book\'s tape with a spine and a typographic face, line for line', () => {
+    mountWith([{ id: 'dune', title: 'Dune: Deluxe Edition', author: 'Frank Herbert', tags: [], year: 1965 }])
+    expect(tapeOf('dune').className).toBe('tape')
+    expect(tapeOf('dune').innerHTML).toBe([
+      '',
+      '      <div class="tape-face tape-spine" style="--len: 8.00; --shade: 0.550;">',
+      '        <span class="tape-spine-title">Dune</span>',
+      '        <span class="tape-spine-creator">Herbert</span>',
+      '      </div>',
+      '      <div class="tape-face tape-cover" style="--shade: 0.000;">',
+      '        <div class="tape-cover-type">',
+      '          <span class="tape-cover-creator">Frank Herbert</span>',
+      '          <span class="tape-cover-title">Dune</span>',
+      '          <span class="tape-cover-year">1965</span>',
+      '        </div>',
+      '      </div>',
+      '    ',
+    ].join('\n'))
+  })
+
+  it('marks the tape of an album, a podcast and an audiobook as square', () => {
+    mountWith([
+      ...books(1),
+      { id: 'al', title: 'Abbey Road', author: 'The Beatles', tags: [], medium: 'album' },
+      { id: 'po', title: 'Radiolab', author: 'WNYC', tags: [], medium: 'podcast' },
+      { id: 'au', title: 'Dune', author: 'Frank Herbert', tags: [], medium: 'audiobook' },
+    ])
+    expect(['b0', 'al', 'po', 'au'].map(id => tapeOf(id).classList.contains('tape-square'))).toEqual([false, true, true, true])
+  })
+
+  it('draws an album\'s face as a record whose label carries the artist and short title', () => {
+    mountWith([{ id: 'okc', title: 'OK Computer: OKNOTOK 1997 2017', author: 'Radiohead', tags: [], year: 1997, medium: 'album' }])
+    const record = tapeOf('okc').querySelector('.tape-cover .tape-cover-type.tape-cover-record')
+    expect(record).not.toBeNull()
+    expect(spans(record.querySelector('.tape-record-label'))).toEqual([
+      ['tape-record-creator', 'Radiohead'],
+      ['tape-record-title', 'OK Computer'],
+    ])
+    expect(record.querySelector('.tape-cover-year')).toBeNull()
+  })
+
+  it('sets a podcast\'s face in type, with its creator, short title and year', () => {
+    mountWith([{ id: 'rl', title: 'Radiolab: Season One', author: 'WNYC', tags: [], year: 2002, medium: 'podcast' }])
+    const face = tapeOf('rl').querySelector('.tape-cover .tape-cover-type')
+    expect(face.classList.contains('tape-cover-record')).toBe(false)
+    expect(spans(face)).toEqual([
+      ['tape-cover-creator', 'WNYC'],
+      ['tape-cover-title', 'Radiolab'],
+      ['tape-cover-year', '2002'],
+    ])
+  })
+
+  it('sets a record\'s label text as text', () => {
+    mountWith([{ id: 'h', title: '<b>Bold</b>', author: '<i>x</i>', tags: [], medium: 'album' }])
+    const label = tapeOf('h').querySelector('.tape-record-label')
+    expect(label.querySelector('b, i')).toBeNull()
+    expect(label.textContent.replace(/\s+/g, ' ').trim()).toBe('<i>x</i> <b>Bold</b>')
+  })
+})

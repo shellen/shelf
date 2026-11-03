@@ -2,7 +2,7 @@
 // ABOUTME: controller that drives the carousel's motion, pointer input and caption for one render.
 
 import { esc } from './html.js'
-import { captionState, starText, coverShape } from './showcase.js'
+import { captionState, starText, coverShape, mediumOf } from './showcase.js'
 import { spinePalette, spineTitle, spineCreator } from './spines.js'
 import { wraps, slotCount, positionFor, relativePosition, itemIndexAt, clampPosition, faceOut, shelfLayout } from './carousel.js'
 
@@ -37,22 +37,38 @@ function captionHtml(book) {
     + `<span class="shelf-caption-stars">${starText(book.rating) || '&nbsp;'}</span>`
 }
 
-function tapeHtml(book) {
-  const { bg, fg } = spinePalette(book.id)
-  const title = spineTitle(book.title)
-  const len = Math.max(8, title.length * 0.62).toFixed(2)
+// The face shown until art arrives: a record carrying the artist and short title for an album,
+// otherwise the creator, short title and year set in type
+function faceTypeHtml(book, title) {
+  if (mediumOf(book) === 'album') {
+    return `
+        <div class="tape-cover-type tape-cover-record">
+          <div class="tape-record-label">
+            <span class="tape-record-creator">${esc(book.author || '')}</span>
+            <span class="tape-record-title">${esc(title)}</span>
+          </div>
+        </div>`
+  }
   return `
-    <div class="tape" data-id="${esc(book.id)}" style="--bg:${bg};--fg:${fg}">
-      <div class="tape-face tape-spine" style="--len:${len}">
-        <span class="tape-spine-title">${esc(title)}</span>
-        <span class="tape-spine-creator">${esc(spineCreator(book.author))}</span>
-      </div>
-      <div class="tape-face tape-cover">
         <div class="tape-cover-type">
           <span class="tape-cover-creator">${esc(book.author || '')}</span>
           <span class="tape-cover-title">${esc(title)}</span>
           <span class="tape-cover-year">${esc(book.year || '')}</span>
-        </div>
+        </div>`
+}
+
+function tapeHtml(book) {
+  const { bg, fg } = spinePalette(book.id)
+  const title = spineTitle(book.title)
+  const len = Math.max(8, title.length * 0.62).toFixed(2)
+  const shape = coverShape(book) === 'square' ? ' tape-square' : ''
+  return `
+    <div class="tape${shape}" data-id="${esc(book.id)}" style="--bg:${bg};--fg:${fg}">
+      <div class="tape-face tape-spine" style="--len:${len}">
+        <span class="tape-spine-title">${esc(title)}</span>
+        <span class="tape-spine-creator">${esc(spineCreator(book.author))}</span>
+      </div>
+      <div class="tape-face tape-cover">${faceTypeHtml(book, title)}
       </div>
     </div>`
 }
