@@ -1672,6 +1672,7 @@ function attachEventListeners() {
 
   // Find missing covers
   document.querySelector('.header [data-action="find-covers"]')?.addEventListener('click', () => {
+    render()
     if (findingCovers) return
     if (!state.books.some(missingCover)) showToast('Nothing missing. Looking sharp.')
     else if (!state.books.some(canFindCover)) showToast('Nothing left to look up.')

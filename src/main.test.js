@@ -2333,6 +2333,23 @@ describe('finding covers', () => {
     await toastSays('Found 2 covers')
   })
 
+  const menuOpen = () => document.querySelector('.avatar-dropdown').classList.contains('open')
+
+  it('closes the menu when chosen, including while a run is going', async () => {
+    await start()
+    findMissingCovers()
+    expect(menuOpen()).toBe(false)
+    findMissingCovers()
+    expect(menuOpen()).toBe(false)
+    await toastSays('Found 2 covers')
+  })
+
+  it('closes the menu when chosen with nothing to look up', async () => {
+    await start(BOOKS)
+    findMissingCovers()
+    expect(menuOpen()).toBe(false)
+  })
+
   it('says so from the menu when nothing is missing a cover', async () => {
     await start(BOOKS)
     findMissingCovers()
