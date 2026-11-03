@@ -267,8 +267,10 @@ Covers are found after the import, in the background, and on demand later.
   run missed, and shows "Nothing missing. Looking sharp." or "Nothing left to
   look up." when there is nothing for it to do.
 - The Import box shows the three export hints.
-- Manual: import Jason's real `Library.xml` (and `YourLibrary.json` when it
-  arrives) in the browser and note the parse time.
+- Manual: Jason's `Library.xml` (28 MB, 16,106 tracks) → 1,809 albums, parsed
+  in about 410–480 ms in Chrome with an 84 MB heap; preview: 1809 new,
+  0 updates, 0 already complete. `YourLibrary.json` is still to be checked when
+  it arrives.
 
 ## Out of scope
 
