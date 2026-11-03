@@ -330,6 +330,15 @@ describe('mountShelf', () => {
       expect(frames.scheduled()).toBe(false)
     })
 
+    it('says whether a press on the stage is under way', () => {
+      mountWith(books(10))
+      expect(control.dragging()).toBe(false)
+      wrap().dispatchEvent(press('pointerdown', 100, 1))
+      expect(control.dragging()).toBe(true)
+      window.dispatchEvent(press('pointerup', 100, 0))
+      expect(control.dragging()).toBe(false)
+    })
+
     it.each([
       ['the window loses focus', () => window.dispatchEvent(new Event('blur'))],
       ['the pointer is cancelled', () => window.dispatchEvent(press('pointercancel', 93, 0))],

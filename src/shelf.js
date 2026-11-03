@@ -423,6 +423,8 @@ export function mountShelf(root, {
     step,
     open,
     centreRect,
+    // Whether a press or drag on the stage is under way
+    dragging: () => drag !== null,
     destroy() {
       destroyed = true
       cancelAnimationFrame(raf)
