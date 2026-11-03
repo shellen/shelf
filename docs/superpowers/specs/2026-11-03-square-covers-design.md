@@ -39,7 +39,12 @@ It gains the square shape:
 - An **album** with no art is a record in its sleeve: the item's cloth colour
   fills the square, a near-black disc sits inset about 14% from each edge, and a
   round centre label in the light paper colour carries the artist and the short
-  title, with a small spindle hole. Same palette and type families as today.
+  title, with a small spindle hole in the disc colour so it shows on every
+  label. A thin rim in the sleeve's light colour (its `fg`, at about 45%
+  opacity) edges the disc, so it stands out on the near-black sleeve; on light
+  sleeves `fg` is dark and the rim disappears into the disc. Label lines too
+  long for the label (one long word, or unspaced non-Latin text) are cut with
+  an ellipsis. Same palette and type families as today.
 - A **podcast** or **audiobook** with no art gets today's type cover (creator,
   short title, year) set in a square.
 - Tall items are unchanged, and their output stays byte for byte the same.
