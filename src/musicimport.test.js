@@ -2,7 +2,7 @@
 // ABOUTME: and for telling an import file's type from its contents.
 
 import { describe, it, expect } from 'vitest'
-import { parseSpotifyLibrary } from './musicimport.js'
+import { parseSpotifyLibrary, detectImportFile } from './musicimport.js'
 
 // The fields every import entry carries, as parseGoodreadsCsv's entries do
 const BLANK = { isbn: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null }
@@ -84,5 +84,55 @@ describe('parseSpotifyLibrary', () => {
       other: ['anything']
     })
     expect(books.map(b => b.title)).toEqual(['In Rainbows'])
+  })
+})
+
+describe('detectImportFile', () => {
+  const PLIST_HEAD = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+\t<key>Major Version</key><integer>1</integer>
+\t<key>Tracks</key>
+\t<dict>`
+
+  it('recognises an Apple Music library by its plist header and Tracks key', () => {
+    expect(detectImportFile(`${PLIST_HEAD}</dict></dict></plist>`)).toBe('apple')
+  })
+
+  it('looks for the Apple header only in the first 4 KB', () => {
+    expect(detectImportFile(`${' '.repeat(4096)}${PLIST_HEAD}</dict></dict></plist>`)).toBe(null)
+  })
+
+  it('does not take a plist without Tracks for a music library', () => {
+    expect(detectImportFile('<?xml version="1.0"?><plist version="1.0"><dict><key>Name</key><string>x</string></dict></plist>')).toBe(null)
+  })
+
+  it('recognises a Spotify library by an albums, tracks or shows key, even when it is cut short', () => {
+    expect(detectImportFile('{"albums": []}')).toBe('spotify')
+    expect(detectImportFile('\n  {\n  "tracks" : [ {"artist": "Robyn", "album": "Body Ta')).toBe('spotify')
+    expect(detectImportFile('{"other": [], "shows": []}')).toBe('spotify')
+  })
+
+  it('looks for Spotify\'s keys only in the first 4 KB', () => {
+    expect(detectImportFile(`{"other": "${'x'.repeat(4096)}", "albums": []}`)).toBe(null)
+  })
+
+  it('recognises a Goodreads export by its Title column', () => {
+    expect(detectImportFile('Book Id,Title,Author,My Rating\n1,Dune,Frank Herbert,5')).toBe('goodreads')
+  })
+
+  it('still recognises a plain Title,Author CSV as Goodreads', () => {
+    expect(detectImportFile('Title,Author\nDune,Frank Herbert')).toBe('goodreads')
+    expect(detectImportFile('"Title","Author"\r\n"Dune","Frank Herbert"')).toBe('goodreads')
+  })
+
+  it('returns null for unrelated XML, JSON and CSV', () => {
+    expect(detectImportFile('<?xml version="1.0"?><rss><channel><title>Feed</title></channel></rss>')).toBe(null)
+    expect(detectImportFile('{"playlists": [], "name": "albums"}')).toBe(null)
+    expect(detectImportFile('null')).toBe(null)
+    expect(detectImportFile('[{"albums": []}]')).toBe(null)
+    expect(detectImportFile('Name,Artist\nIn Rainbows,Radiohead')).toBe(null)
+    expect(detectImportFile('')).toBe(null)
   })
 })

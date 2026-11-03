@@ -27,3 +27,15 @@ export function parseSpotifyLibrary(text) {
   })
   return { books: [...albums.values(), ...podcasts], failed: [] }
 }
+
+// Which reader an import file needs, from its contents: 'apple', 'spotify', 'goodreads' or null.
+// Only the first 4 KB are read, so a large file is never parsed just to name it, and a
+// truncated Spotify file is still recognised (its reader then reports it as damaged).
+export function detectImportFile(text) {
+  const head = text.slice(0, 4096)
+  if (head.includes('<plist') && head.includes('<key>Tracks</key>')) return 'apple'
+  if (/^\s*\{/.test(head) && /"(albums|tracks|shows)"\s*:/.test(head)) return 'spotify'
+  const header = head.split(/\r?\n/, 1)[0].split(',').map(f => f.trim().replace(/^"(.*)"$/, '$1'))
+  if (header.includes('Title')) return 'goodreads'
+  return null
+}
