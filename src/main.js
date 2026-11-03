@@ -901,20 +901,26 @@ function resetFilters() {
   render()
 }
 
-// Home: the shelf, unfiltered, on the tab last used; a medium tab comes back through its route
-function goHome() {
-  const last = railTabs().find(t => t.key === state.shelf.tab)
-  state.detailOpen = false
-  state.selected = null
+// Shows the shelf on the tab last used. A medium tab comes back through its route, so the URL
+// names it; a medium route already showing keeps its own tab.
+function showShelf() {
   state.view = 'shelf'
-  clearFilters()
-  if (last?.medium) {
+  const last = railTabs().find(t => t.key === state.shelf.tab)
+  if (state.route?.kind !== 'medium' && last?.medium) {
     writeHash(`#/medium/${last.key}`)
     applyHash()
   } else {
-    clearHash()
     render()
   }
+}
+
+// Home: the shelf with every filter and the sort reset
+function goHome() {
+  state.detailOpen = false
+  state.selected = null
+  clearFilters()
+  clearHash()
+  showShelf()
 }
 
 const VIEWS = ['shelf', 'covers', 'list']
@@ -929,7 +935,11 @@ function clearFiltersForShelf() {
 }
 
 function switchView(view) {
-  if (view === 'shelf' && state.view !== 'shelf') clearFiltersForShelf()
+  if (view === 'shelf' && state.view !== 'shelf') {
+    clearFiltersForShelf()
+    showShelf()
+    return
+  }
   state.view = view
   render()
 }

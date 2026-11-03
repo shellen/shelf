@@ -45,8 +45,11 @@ This is a front-end-only change: no API, schema, or server edits.
 - **Entering the shelf:** switching to shelf by the Shelf button or `v`
   clears the search, the tag, and any `title` / `author` / `tags` / `isbn`
   route, but keeps a medium route. So the shelf never carries a stale search
-  or tag, and the only filter it ever shows is the medium. In shelf view, Esc
-  on a medium tab clears its route and returns to the first tab.
+  or tag, and the only filter it ever shows is the medium. It opens on a medium
+  route's tab when one is showing, and otherwise on the rail tab last used; a
+  medium tab comes back with its `#/medium/<key>` route, as Home does. In
+  shelf view, Esc on a medium tab clears its route and returns to the first
+  tab.
 - **Nothing implicitly returns to the shelf.** Clearing the search, toggling
   a tag off, Esc clearing a route, Reset, and the empty-state "Clear filters"
   button all keep the current view (Reset clears filters and sort, as today).

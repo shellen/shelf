@@ -748,6 +748,48 @@ describe('shelf view', () => {
       expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
     })
 
+    describe('coming back to the shelf', () => {
+      const active = () => document.querySelector('.shelf-tab.active').dataset.shelfTab
+      const reset = () => document.querySelector('.toolbar [data-action="reset"]').click()
+
+      it.each([
+        ['the Shelf button', () => document.querySelector('[data-view="shelf"]').click()],
+        ['v', () => { press('v'); press('v') }],
+      ])('returns to a medium tab, naming it in the URL, by %s', async (_name, enter) => {
+        await loadApp(MIXED, { view: 'shelf' })
+        choose('album')
+        document.querySelector('[data-view="covers"]').click()
+        expect(window.location.hash).toBe('#/medium/album')
+        reset()
+        expect(window.location.hash).toBe('')
+        enter()
+        expect(document.querySelector('.view-btn.active').dataset.view).toBe('shelf')
+        expect(active()).toBe('album')
+        expect(window.location.hash).toBe('#/medium/album')
+        await new Promise(r => setTimeout(r, 0))
+        expect(active()).toBe('album')
+      })
+
+      it('returns to All', async () => {
+        await loadApp(MIXED, { view: 'shelf' })
+        choose('all')
+        document.querySelector('[data-view="covers"]').click()
+        document.querySelector('[data-view="shelf"]').click()
+        expect(active()).toBe('all')
+        expect(window.location.hash).toBe('')
+      })
+
+      it('returns to the medium tab it left even through an author route', async () => {
+        await loadApp(MIXED, { view: 'shelf' })
+        choose('podcast')
+        await goTo('#/author/the-beatles')
+        expect(document.querySelector('.view-btn.active').dataset.view).toBe('covers')
+        document.querySelector('[data-view="shelf"]').click()
+        expect(active()).toBe('podcast')
+        expect(window.location.hash).toBe('#/medium/podcast')
+      })
+    })
+
     it('remembers where each tab was', async () => {
       await loadApp(MIXED, { view: 'shelf' })
       choose('all')
@@ -893,10 +935,6 @@ describe('shelf view', () => {
       'Escape': () => press('Escape'),
       'Back to an empty hash': async () => {
         await goTo('')
-      },
-      'an author route, then the Shelf button': async () => {
-        await goTo('#/author/some-author')
-        document.querySelector('[data-view="shelf"]').click()
       },
     }
 
