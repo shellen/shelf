@@ -2,7 +2,7 @@
 // ABOUTME: and for telling an import file's type from its contents.
 
 import { describe, it, expect } from 'vitest'
-import { parseSpotifyLibrary, detectImportFile } from './musicimport.js'
+import { parseSpotifyLibrary, detectImportFile, parseAppleLibrary } from './musicimport.js'
 
 // The fields every import entry carries, as parseGoodreadsCsv's entries do
 const BLANK = { isbn: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null }
@@ -134,5 +134,104 @@ describe('detectImportFile', () => {
     expect(detectImportFile('[{"albums": []}]')).toBe(null)
     expect(detectImportFile('Name,Artist\nIn Rainbows,Radiohead')).toBe(null)
     expect(detectImportFile('')).toBe(null)
+  })
+})
+
+// One track's <dict>, typed the way Music writes it: numbers as <integer>, true as <true/>,
+// Date Added as <date>, everything else as <string>. A false flag is simply left out.
+function plistTrack(fields) {
+  const value = (key, v) => v === true ? '<true/>'
+    : typeof v === 'number' ? `<integer>${v}</integer>`
+    : key === 'Date Added' ? `<date>${v}</date>`
+    : `<string>${v}</string>`
+  return `<dict>${Object.entries(fields).map(([k, v]) => `<key>${k}</key>${value(k, v)}`).join('')}</dict>`
+}
+
+// A whole Library.xml holding these tracks, with an optional Playlists section after them
+function appleLibrary(tracks, { playlists = '' } = {}) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Major Version</key><integer>1</integer>
+	<key>Application Version</key><string>1.5.0.73</string>
+	<key>Tracks</key>
+	<dict>
+${tracks.map((t, i) => `		<key>${i + 1}</key>${plistTrack({ 'Track ID': i + 1, ...t })}`).join('\n')}
+	</dict>
+${playlists}</dict>
+</plist>
+`
+}
+
+const apple = tracks => parseAppleLibrary(appleLibrary(tracks)).books
+const song = (fields = {}) => ({ Name: 'Song', Artist: 'Radiohead', Album: 'In Rainbows', ...fields })
+
+describe('parseAppleLibrary', () => {
+  it('groups tracks by normalised album and album artist, titled as the first track has it', () => {
+    const books = apple([
+      song({ Album: 'In Rainbows' }),
+      song({ Album: 'IN RAINBOWS!' }),
+      song({ Album: 'In Rainbows', Artist: 'Radiohead Tribute Band' })
+    ])
+    expect(books.map(b => [b.title, b.author])).toEqual([
+      ['In Rainbows', 'Radiohead'],
+      ['In Rainbows', 'Radiohead Tribute Band']
+    ])
+  })
+
+  it('credits the album artist over the track artist', () => {
+    const books = apple([
+      song({ Album: 'Help!', Artist: 'Ringo Starr', 'Album Artist': 'The Beatles' }),
+      song({ Album: 'Help!', Artist: 'John Lennon', 'Album Artist': 'The Beatles' })
+    ])
+    expect(books.map(b => [b.title, b.author])).toEqual([['Help!', 'The Beatles']])
+  })
+
+  it('credits a compilation without an album artist to Various Artists', () => {
+    const books = apple([
+      song({ Album: 'Pulp Fiction', Artist: 'Dick Dale', Compilation: true }),
+      song({ Album: 'Pulp Fiction', Artist: 'Al Green', Compilation: true })
+    ])
+    expect(books.map(b => [b.title, b.author])).toEqual([['Pulp Fiction', 'Various Artists']])
+  })
+
+  it('credits the most common spelling of the album artist', () => {
+    const books = apple([
+      song({ Album: 'Homogenic', Artist: 'Bjork' }),
+      song({ Album: 'Homogenic', Artist: 'Björk' }),
+      song({ Album: 'Homogenic', Artist: 'Björk' })
+    ])
+    expect(books.map(b => b.author)).toEqual(['Björk'])
+  })
+
+  it('skips tracks with no album, playlist-only tracks, podcasts and video', () => {
+    const books = apple([
+      { Name: 'Loose Track', Artist: 'Radiohead' },
+      song({ Album: 'Added To A Playlist', 'Playlist Only': true }),
+      song({ Album: 'Serial', Podcast: true }),
+      song({ Album: 'Some Film', Movie: true }),
+      song({ Album: 'Some Show', 'TV Show': true }),
+      song({ Album: 'Some Video', 'Music Video': true }),
+      song({ Album: 'Video File', Kind: 'MPEG-4 video file' }),
+      song({ Album: 'Purchased Video', Kind: 'Purchased MPEG-4 video file' }),
+      song({ Album: 'Movie File', Kind: 'QuickTime movie file' }),
+      song({ Album: 'Stream', Kind: 'HLS media' }),
+      song({ Album: 'Kept' }),
+      song({ Album: 'Kept Audio', Kind: 'AAC audio file' })
+    ])
+    expect(books.map(b => b.title)).toEqual(['Kept', 'Kept Audio'])
+  })
+
+  it('reads the tracks and ignores the Playlists section, even a malformed one', () => {
+    const text = appleLibrary([song({ Album: 'Kept' })], {
+      playlists: '\t<key>Playlists</key>\n\t<array><dict><key>Name</key><string>Unclosed\n'
+    })
+    expect(parseAppleLibrary(text).books.map(b => b.title)).toEqual(['Kept'])
+  })
+
+  it('throws on a file that is not well-formed', () => {
+    const broken = appleLibrary([song()]).replace('</dict>\n</plist>', '')
+    expect(() => parseAppleLibrary(broken)).toThrow('Library.xml is not well-formed')
   })
 })
