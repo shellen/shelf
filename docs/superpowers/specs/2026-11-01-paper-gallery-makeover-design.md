@@ -136,6 +136,37 @@ overlay covers the search box).
   style, plus an Add Media button when signed in. No rail, no carousel.
 - Group building lives in a pure module (`src/showcase.js`) so it is unit-testable.
 
+### One rail on the shelf (revised 2026-11-02 with Jason)
+
+This revision replaces the inclusion, fallback and medium-route rules above.
+Three rows of selectors were too many, and the shelf could not show the
+whole library.
+
+- In shelf view the masthead's media links are hidden. The rail is the shelf's
+  only selector. Covers and list keep the media links as they are.
+- Rail order: the showcase groups (Reading, Favorites, Recently finished), then
+  one tab per medium present in the library (Books, Albums… in `MEDIA` order,
+  labelled as the media links are), then **All**.
+- Showcase groups draw from every item, across all media, ignoring
+  `settings.landing`. Membership, order and caps are unchanged. Empty showcase
+  groups are hidden.
+- A medium tab holds every item of that medium, in title order, with no cap.
+  **All** holds every item, in title order, with no cap.
+- The **On the shelf** fallback goes away: the medium tabs and All always give
+  a non-empty library something to show.
+- Medium routes: `#/medium/<key>` in shelf view selects that medium's tab.
+  Choosing a medium tab writes that route, and choosing a showcase group or All
+  clears it, so the URL always names what the shelf shows. Leaving the shelf
+  for covers or list with a medium tab active keeps the medium filter.
+  Entering the shelf with a medium route selects its tab. Esc on a medium tab
+  clears the route and returns to the first tab.
+- Each tab remembers its own centred item, as groups do today.
+- The footer count reads "<n> in <tab name> · <total> in the library".
+- On narrow screens the rail scrolls sideways, keeping the active tab in view.
+- Large tabs render every item. Measure on Jason's real library with All
+  (about 230 items); optimise (for example, building only the spines near the
+  centre) only if it stutters.
+
 ### Carousel
 
 Mechanics adapted from the reference page: horizontal 3D carousel with
