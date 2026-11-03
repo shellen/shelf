@@ -254,7 +254,7 @@ export function mountShelf(root, {
     const cx = box.left + box.width / 2
     const cy = box.top + box.height / 2
     const { h, layout } = geom
-    const { faceWidth } = sizeAt(pos)
+    const faceWidth = layout.faceWidthAt(pos)
     const safeH = h || 1
     const safeFace = faceWidth || 1
     const follow = 1 - Math.exp(-16 * dt)

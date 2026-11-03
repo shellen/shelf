@@ -216,6 +216,45 @@ describe('shelfLayout', () => {
     })
   })
 
+  describe('faceWidthAt', () => {
+    it('is each item\'s own face width at its own position', () => {
+      const layout = shelfLayout([BOOK, ALBUM, BOOK, ALBUM], GAP)
+      expect([0, 1, 2, 3].map(pos => layout.faceWidthAt(pos))).toEqual([100, 150, 100, 150])
+    })
+
+    it('is constant on a shelf of books', () => {
+      const layout = shelfLayout(Array(5).fill(BOOK), GAP)
+      for (const pos of POSITIONS) expect(layout.faceWidthAt(pos)).toBeCloseTo(100, 9)
+    })
+
+    it('blends the two items either side with the weights the room uses, halfway being half and half', () => {
+      const layout = shelfLayout([BOOK, ALBUM, BOOK], GAP)
+      expect(layout.faceWidthAt(0.5)).toBeCloseTo(125, 9)
+      const share = 0.75 * 0.75 * (3 - 2 * 0.75)
+      expect(layout.faceWidthAt(0.25)).toBeCloseTo(100 * share + 150 * (1 - share), 9)
+    })
+
+    it('changes continuously through glides between books and albums', () => {
+      const layout = shelfLayout([BOOK, ALBUM, BOOK, ALBUM, BOOK], GAP)
+      const step = 0.001
+      let largest = 0
+      for (let pos = 0; pos < 4; pos += step) {
+        largest = Math.max(largest, Math.abs(layout.faceWidthAt(pos + step) - layout.faceWidthAt(pos)))
+      }
+      expect(largest).toBeLessThan(0.1)
+    })
+
+    it('wraps, laying a long shelf out the same at every copy', () => {
+      const layout = shelfLayout([BOOK, ALBUM, BOOK, BOOK, ALBUM, BOOK, BOOK, ALBUM], GAP)
+      for (const pos of POSITIONS) {
+        expect(layout.faceWidthAt(pos + 8)).toBeCloseTo(layout.faceWidthAt(pos), 9)
+        expect(layout.faceWidthAt(pos - 8)).toBeCloseTo(layout.faceWidthAt(pos), 9)
+      }
+      // Between the last item and the first of the next copy
+      expect(layout.faceWidthAt(7.5)).toBeCloseTo(125, 9)
+    })
+  })
+
   it('knows its widest face', () => {
     expect(shelfLayout([BOOK, ALBUM, BOOK], GAP).widestFace).toBe(150)
     expect(shelfLayout([BOOK, BOOK], GAP).widestFace).toBe(100)

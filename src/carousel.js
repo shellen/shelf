@@ -65,13 +65,16 @@ export function shelfLayout(sizes, gap) {
     return (j - k) / count * total + starts[k] + strides[k] * (x + 0.5 - j)
   }
 
-  // The room the centred face opens: an item's own at its slot, handing over to the next
-  // item's as that item's face turns out
-  function room(pos) {
+  // An item's own value at its slot, handing over to the next item's as that item's face turns out
+  function blend(values, pos) {
     const j = Math.floor(pos)
     const t = pos - j
-    return rooms[mod(j, count)] * faceOut(t) + rooms[mod(j + 1, count)] * faceOut(1 - t)
+    return values[mod(j, count)] * faceOut(t) + values[mod(j + 1, count)] * faceOut(1 - t)
   }
+
+  // The room the centred face opens
+  const room = pos => blend(rooms, pos)
+  const faceWidths = sizes.map(s => s.faceWidth)
 
   // The position whose distance along the row of spines is p: the last stretch starting at or
   // before p, found by halving, and the share of that stretch p reaches into
@@ -89,7 +92,9 @@ export function shelfLayout(sizes, gap) {
   }
 
   return {
-    widestFace: Math.max(...sizes.map(s => s.faceWidth)),
+    widestFace: Math.max(...faceWidths),
+    // The width of the face turned out at position pos
+    faceWidthAt: pos => blend(faceWidths, pos),
     // Pixels from the centre to the slot r away from position pos
     offset: (r, pos) => along(pos + r) - along(pos) + room(pos) * spread(r),
     // The position `pixels` further along the row of spines than pos, for a drag or a wheel turn.

@@ -644,6 +644,24 @@ describe('mountShelf', () => {
       expect(caption()).toBe('Book 1')
     })
 
+    it('glides the open button between an album\'s face and a book\'s rather than jumping at the halfway point', () => {
+      const frames = holdFrames()
+      mountWith([...books(1), ...albums(1), ...books(1)])
+      const left = () => parseFloat(document.querySelector('.shelf-open').style.left)
+      const press = (type, x) => new MouseEvent(type, { bubbles: true, clientX: x, clientY: 10, buttons: 1 })
+      document.querySelector('.shelf-stage-wrap').dispatchEvent(press('pointerdown', 400))
+      const lefts = []
+      for (let x = 400; x >= 300; x--) {
+        window.dispatchEvent(press('pointermove', x))
+        frames.run(performance.now() + (400 - x) * 16)
+        lefts.push(left())
+      }
+      // The drag crosses halfway from Book 0 to Album 0, whose faces are 200 pixels apart in width
+      expect(lefts.at(-1) - lefts[0]).toBeLessThan(-50)
+      const steps = lefts.slice(1).map((l, k) => Math.abs(l - lefts[k]))
+      expect(Math.max(...steps)).toBeLessThan(5)
+    })
+
     it('disconnects the observer when destroyed', () => {
       mountWith(books(10))
       control.destroy()
