@@ -2265,6 +2265,44 @@ describe('finding covers', () => {
     expect(tileCover('radiolab')).toBe('https://art.example/radiolab.jpg')
   })
 
+  it('redraws the library with found covers at most every 15 seconds during a run', async () => {
+    const albums = [1, 2, 3, 4, 5, 6, 7, 8].map(n => ({ ...ALBUMS[0], id: `album-${n}`, title: `Album ${n}` }))
+    await start([...BOOKS, ...albums])
+    answerLookups(q => found([{ title: q.replace(' Radiohead', ''), author: 'Radiohead', year: 2007, coverUrl: `https://art.example/${q.split(' ')[1]}.jpg` }]))
+    findMissingCovers()
+    await vi.advanceTimersByTimeAsync(14_900)
+    expect(tileCover('album-1')).not.toContain('art.example') // saved at once, not yet redrawn
+    await vi.advanceTimersByTimeAsync(100)
+    expect(tileCover('album-1')).toBe('https://art.example/1.jpg')
+    await vi.advanceTimersByTimeAsync(2_900)
+    expect(tileCover('album-6')).not.toContain('art.example') // looked up just after the 15 s redraw, so it waits for the next
+    await toastSays('Found 8 covers')
+    expect(tileCover('album-8')).toBe('https://art.example/8.jpg')
+  })
+
+  it('leaves the library alone under an open detail, which shows the covers once it closes', async () => {
+    await start()
+    document.querySelector('.cover-tile[data-id="s2-dune"]').click()
+    findMissingCovers()
+    await toastSays('Found 2 covers')
+    expect(tileCover('in-rainbows')).not.toContain('art.example')
+    document.querySelector('[data-action="close-detail"]').click()
+    expect(tileCover('in-rainbows')).toBe('https://art.example/in-rainbows.jpg')
+  })
+
+  it('waits for a press on the shelf to end before redrawing it', async () => {
+    await start(library(), { view: 'shelf' })
+    // Opening the menu and choosing Find missing covers both re-render, so the press starts after them
+    findMissingCovers()
+    const shelf = document.querySelector('.shelf-view')
+    document.querySelector('.shelf-stage-wrap').dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, clientX: 100, clientY: 10, buttons: 1 }))
+    await toastSays('Found 2 covers')
+    expect(document.querySelector('.shelf-view')).toBe(shelf)
+    window.dispatchEvent(new MouseEvent('pointerup', { bubbles: true, clientX: 100, clientY: 10, buttons: 0 }))
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(document.querySelector('.shelf-view')).not.toBe(shelf)
+  })
+
   it('shows its progress, then the count found', async () => {
     await start()
     let answerRadiolab

@@ -1436,13 +1436,27 @@ function chooseImportFile(file) {
 // Set while a cover run is going, so a second one does nothing
 let findingCovers = false
 
-// Set when a found cover has not reached the results yet
+// Found covers reach the results at most every 15 seconds, and once when the run ends. A redraw
+// waits while the detail is open (closing it re-renders everything) or the shelf is being pressed.
+const COVER_REDRAW_MS = 15_000
+let coverRedrawTimer = null
 let coversToShow = false
 
 const COVERS_LOGGED_OUT = 'Stopped finding covers: you\'re logged out.'
 
+function showFoundCoversSoon() {
+  coversToShow = true
+  if (!coverRedrawTimer) coverRedrawTimer = setTimeout(showFoundCovers, COVER_REDRAW_MS)
+}
+
 function showFoundCovers() {
-  if (!coversToShow) return
+  clearTimeout(coverRedrawTimer)
+  coverRedrawTimer = null
+  if (!coversToShow || state.detailOpen) return
+  if (shelfControl?.dragging()) {
+    coverRedrawTimer = setTimeout(showFoundCovers, 1000)
+    return
+  }
   coversToShow = false
   updateResults()
 }
@@ -1459,7 +1473,7 @@ async function saveFoundCover(item, match) {
     if (state.readOnly) render()
     throw e
   }
-  coversToShow = true
+  showFoundCoversSoon()
   return true
 }
 
