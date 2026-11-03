@@ -2388,6 +2388,20 @@ describe('finding covers', () => {
     await toastSays('Found 6 covers')
   })
 
+  it('keeps focus on a list sort header when found covers are redrawn', async () => {
+    const albums = [1, 2, 3, 4, 5, 6].map(n => ({ ...ALBUMS[0], id: `album-${n}`, title: `Album ${n}` }))
+    await start([...BOOKS, ...albums], { view: 'list' })
+    answerLookups(q => found([{ title: q.replace(' Radiohead', ''), author: 'Radiohead', year: 2007, coverUrl: `https://art.example/${q.split(' ')[1]}.jpg` }]))
+    // Choosing Find missing covers re-renders, so the header is focused after it
+    findMissingCovers()
+    const header = document.querySelector('.list-sort[data-sort="author"]')
+    header.focus()
+    await vi.advanceTimersByTimeAsync(15_000)
+    expect(document.querySelector('.list-sort[data-sort="author"]')).not.toBe(header) // the list was redrawn
+    expect(document.activeElement).toBe(document.querySelector('.list-sort[data-sort="author"]'))
+    await toastSays('Found 6 covers')
+  })
+
   it('leaves the library alone under an open detail, which shows the covers once it closes', async () => {
     await start()
     document.querySelector('.cover-tile[data-id="s2-dune"]').click()

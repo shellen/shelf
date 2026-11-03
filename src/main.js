@@ -1462,14 +1462,14 @@ function showFoundCovers() {
     return
   }
   coversToShow = false
-  // A focused tile, row or shelf control is redrawn too, so focus returns to its redrawn copy
+  // A focused tile, row, sort header or shelf control is redrawn too, so focus returns to its redrawn copy
   const focused = focusedResult()
   updateResults()
   if (focused) resultControl(...focused)?.focus({ preventScroll: true })
 }
 
-// The attributes that name a tile, row or shelf control in the results
-const RESULT_CONTROL_ATTRIBUTES = ['data-id', 'data-shelf-step', 'data-shelf-open', 'data-shelf-tab']
+// The attributes that name a tile, row, list sort header or shelf control in the results
+const RESULT_CONTROL_ATTRIBUTES = ['data-id', 'data-sort', 'data-shelf-step', 'data-shelf-open', 'data-shelf-tab']
 
 // The focused control in the results as [attribute, value], or null when focus is elsewhere
 function focusedResult() {
