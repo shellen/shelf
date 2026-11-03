@@ -2033,6 +2033,52 @@ describe('import box', () => {
     ])
   })
 
+  const APPLE = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+\t<key>Tracks</key>
+\t<dict>
+\t\t<key>1</key><dict><key>Name</key><string>15 Step</string><key>Artist</key><string>Radiohead</string><key>Album</key><string>In Rainbows</string><key>Year</key><integer>2007</integer><key>Genre</key><string>Alternative</string><key>Date Added</key><date>2019-03-04T05:06:07Z</date><key>Album Rating</key><integer>100</integer></dict>
+\t\t<key>2</key><dict><key>Name</key><string>Teardrop</string><key>Artist</key><string>Massive Attack</string><key>Album</key><string>Mezzanine</string></dict>
+\t</dict>
+\t<key>Playlists</key>
+\t<array></array>
+</dict>
+</plist>
+`
+
+  it('names an Apple Music library and its album count', async () => {
+    dropImportFile(APPLE)
+    await fileRead()
+    expect(document.querySelector('.import-source').textContent).toBe('Apple Music library: 2 albums')
+    expect(confirmButton().disabled).toBe(false)
+  })
+
+  it('confirms an Apple Music library by posting its albums', async () => {
+    dropImportFile(APPLE)
+    await fileRead()
+    confirmButton().click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.modal-panel')) throw new Error('modal open')
+    })
+    const call = fetch.mock.calls.find(([u, o]) => String(u).endsWith('/api/import') && !JSON.parse(o.body).dryRun)
+    const blank = { isbn: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null }
+    expect(JSON.parse(call[1].body).books).toEqual([
+      { ...blank, title: 'In Rainbows', author: 'Radiohead', medium: 'album', year: 2007, rating: 5, dateAdded: '2019-03-04', tags: ['alternative', 'apple-music'] },
+      { ...blank, title: 'Mezzanine', author: 'Massive Attack', medium: 'album', tags: ['apple-music'] }
+    ])
+  })
+
+  it('says an Apple Music library that does not parse looks damaged', async () => {
+    const logged = silenceErrors()
+    dropImportFile(APPLE.replace('<string>Teardrop</string>', '<string>Teardrop'))
+    await fileRead()
+    expect(importError()).toBe('This file looks damaged. Export it again and retry.')
+    expect(confirmButton().disabled).toBe(true)
+    expect(logged()).toEqual([UNREADABLE])
+  })
+
   it('says so when it does not recognise the file, and keeps Confirm disabled', async () => {
     const logged = silenceErrors()
     dropImportFile('<?xml version="1.0"?><rss><channel><title>Feed</title></channel></rss>')

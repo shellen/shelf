@@ -4,7 +4,7 @@
 import './style.css'
 import embeddedBooks from 'virtual:bookshelf-data'
 import { parseGoodreadsCsv } from './goodreads.js'
-import { parseSpotifyLibrary, detectImportFile } from './musicimport.js'
+import { parseSpotifyLibrary, parseAppleLibrary, detectImportFile } from './musicimport.js'
 import { parseRoute, resolveRoute, slugify } from './routes.js'
 import { esc } from './html.js'
 import { shelfTabs, mediumOf, singular, counted } from './showcase.js'
@@ -1350,6 +1350,7 @@ async function postImportChunks(books, dryRun) {
 // The readers for each import file type, and the name the Import box gives its source
 const IMPORT_SOURCES = {
   goodreads: { name: 'Goodreads library', read: parseGoodreadsCsv },
+  apple: { name: 'Apple Music library', read: parseAppleLibrary },
   spotify: { name: 'Spotify library', read: parseSpotifyLibrary }
 }
 
