@@ -1940,6 +1940,27 @@ describe('goodreads import', () => {
   })
 })
 
+describe('import box', () => {
+  beforeEach(async () => {
+    await loadApp()
+    document.querySelector('[data-action="import"]').click()
+  })
+
+  it('offers every file type it reads', () => {
+    expect(document.querySelector('.modal-header h2').textContent).toBe('Import')
+    expect(document.querySelector('.drop-zone').textContent.trim()).toBe('Drop a Goodreads CSV, an Apple Music Library.xml or Spotify\'s YourLibrary.json here, or click to choose')
+    expect(document.getElementById('import-file').getAttribute('accept')).toBe('.csv,.xml,.json')
+  })
+
+  it('tells how to export a library from each source', () => {
+    expect([...document.querySelectorAll('.import-hint')].map(p => p.textContent)).toEqual([
+      'Goodreads: My Books → Import and export → Export library.',
+      'Apple Music: in the Music app, File → Library → Export Library…',
+      'Spotify: Account → Privacy settings → Download your data, then unzip it and use YourLibrary.json.'
+    ])
+  })
+})
+
 describe('metadata sorting', () => {
   beforeEach(() => loadApp())
 

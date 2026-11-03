@@ -1293,15 +1293,17 @@ function renderImportModal() {
     <div class="modal-backdrop" data-action="close-import">
       <div class="modal-panel" onclick="event.stopPropagation()">
         <div class="modal-header">
-          <h2>Import from Goodreads</h2>
+          <h2>Import</h2>
           <button class="modal-close" data-action="close-import">&times;</button>
         </div>
         <div class="modal-body">
-          <p class="form-hint">Export from Goodreads: My Books &rarr; Tools &rarr; Import and Export &rarr; Export Library</p>
+          <p class="form-hint import-hint">Goodreads: My Books &rarr; Import and export &rarr; Export library.</p>
+          <p class="form-hint import-hint">Apple Music: in the Music app, File &rarr; Library &rarr; Export Library&hellip;</p>
+          <p class="form-hint import-hint">Spotify: Account &rarr; Privacy settings &rarr; Download your data, then unzip it and use YourLibrary.json.</p>
           <div class="drop-zone" data-action="pick-import-file">
-            ${state.importLoading ? '<span class="loading"></span> Reading file...' : 'Drop goodreads_library_export.csv here or click to choose'}
+            ${state.importLoading ? '<span class="loading"></span> Reading file...' : 'Drop a Goodreads CSV, an Apple Music Library.xml or Spotify\'s YourLibrary.json here, or click to choose'}
           </div>
-          <input type="file" accept=".csv,text/csv" id="import-file" class="hidden">
+          <input type="file" accept=".csv,.xml,.json" id="import-file" class="hidden">
           ${p ? `
             <div class="import-preview">
               ${p.added} new &bull; ${p.filled} update${p.filled === 1 ? '' : 's'} &bull; ${p.skipped} already complete${failed.length ? ` &bull; ${failed.length} unparseable (rows ${failed.join(', ')})` : ''}
