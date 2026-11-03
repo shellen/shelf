@@ -46,14 +46,16 @@ This is a front-end-only change: no API, schema, or server edits.
   clears the search, the tag, and any `title` / `author` / `tags` / `isbn`
   route, but keeps a medium route. So the shelf never carries a stale search
   or tag, and the only filter it ever shows is the medium. In shelf view, Esc
-  clears a medium route (as Esc clears routes today) and stays in shelf.
+  on a medium tab clears its route and returns to the first tab.
 - **Nothing implicitly returns to the shelf.** Clearing the search, toggling
   a tag off, Esc clearing a route, Reset, and the empty-state "Clear filters"
   button all keep the current view (Reset clears filters and sort, as today).
-- **Home:** clicking the masthead shelf name resets filters (as today) and
-  sets `state.view = 'shelf'`.
-- `#/medium/<key>` routes never change the view: in shelf they filter the
-  showcase groups; in covers and list they filter as today.
+- **Home:** clicking the masthead shelf name resets filters and sort, sets
+  `state.view = 'shelf'`, and shows the rail tab last used; a medium tab comes
+  back with its `#/medium/<key>` route.
+- `#/medium/<key>` routes never change the view: in shelf they select that
+  medium's rail tab; in covers and list they filter as today. A medium route
+  with no items is dropped.
 - **Cold loads:** a `title` / `author` / `tags` / `isbn` route starts in
   covers; anything else (no route, or a medium route) starts in shelf.
 
@@ -76,8 +78,9 @@ value and caret position restored. Every later keystroke takes the existing
 ### Header
 
 Masthead row (all views): left — view toggle (Shelf / Covers / List); centre —
-shelf name in serif (the Home link) with the media filter beneath it as
-small-caps links (All plus each present medium, exactly today's tabs); right —
+shelf name in serif (the Home link), with the media filter beneath it in
+covers and list as small-caps links (All plus each present medium); in shelf
+view the rail carries the media instead; right —
 search box, then Log In or the avatar menu (Add Media / Import / Shelf
 Settings / Log Out), unchanged in behaviour.
 
@@ -256,7 +259,7 @@ metadata line adds "ISBN …" instead; no star targets, Clear, Change Cover or
 Remove Book.
 
 Keyboard while open: Left/Right step to the previous/next item **in the list
-it was opened from** (the active showcase group when opened from shelf, the
+it was opened from** (the active rail tab when opened from shelf, the
 filtered list otherwise) and **stop at the ends** — no wrap, as today; `e`
 focuses the title field; Esc closes.
 
@@ -306,16 +309,16 @@ text sizes used.
 ## Testing (TDD throughout)
 
 New suites:
-- `src/showcase.test.js` — membership, ordering with null-last + title
-  tiebreak, caps, `settings.landing` and medium filtering, empty-group hiding,
-  "On the shelf" fallback.
+- `src/showcase.test.js` — the rail's tabs: showcase group membership across
+  every medium, ordering with null-last + title tiebreak, caps, empty-group
+  hiding, one tab per medium present in `MEDIA` order, and an uncapped All.
 - `src/spines.test.js` — palette choice deterministic per id, stable across
   reorders, foreground pairing correct.
 - Carousel geometry (relative position, spacing, wrap) as pure functions,
   unit-tested; springs and rendering verified manually in the browser.
 - Overlay tests in `src/main.test.js` covering every parity-checklist item.
 - Shelf-view tests: view-change rules, search-from-shelf focus retention,
-  shelf keys, empty shelf state, medium routes bypassing `settings.landing`.
+  shelf keys, empty shelf state, the rail's tabs and their medium routes.
 
 ### Keeping existing tests meaningful
 
