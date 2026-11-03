@@ -3,8 +3,13 @@
 
 import { normKey } from './match.js'
 
+// iTunes names singles and EPs "Title - Single" and "Title - EP"
+const releaseTitle = title => String(title || '').replace(/ - (Single|EP)$/, '')
+
+const titleKey = title => normKey(releaseTitle(title))
+
 // An empty normalised title, or an album's empty creator, never matches anything
-const canMatch = item => normKey(item.title) !== '' && (item.medium !== 'album' || normKey(item.author) !== '')
+const canMatch = item => titleKey(item.title) !== '' && (item.medium !== 'album' || normKey(item.author) !== '')
 
 // Albums and podcasts whose cover is blank
 export const missingCover = item => (item.medium === 'album' || item.medium === 'podcast') && !item.coverUrl
@@ -16,17 +21,14 @@ export const coverQuery = item => item.medium === 'album'
   ? [item.title, item.author].filter(Boolean).join(' ')
   : item.title
 
-// iTunes names singles and EPs "Title - Single" and "Title - EP"
-const releaseTitle = title => String(title || '').replace(/ - (Single|EP)$/, '')
-
 // The first result with artwork whose title matches the item's, and for an album whose creator does too.
 // Podcasts match on title alone: Spotify's publisher and iTunes' artist often differ.
 export function matchCover(item, results) {
   if (!canMatch(item)) return null
-  const title = normKey(item.title)
+  const title = titleKey(item.title)
   const creator = normKey(item.author)
   const isAlbum = item.medium === 'album'
   return results.find(r => r.coverUrl
-    && normKey(releaseTitle(r.title)) === title
+    && titleKey(r.title) === title
     && (!isAlbum || normKey(r.author) === creator)) || null
 }

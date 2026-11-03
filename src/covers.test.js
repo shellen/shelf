@@ -87,6 +87,26 @@ describe('matchCover', () => {
     expect(matchCover(album(), [result({ coverUrl: null })])).toBeNull()
   })
 
+  it('matches an item whose own title ends in " - EP" or " - Single"', () => {
+    const item = album({ title: 'My Iron Lung - EP' })
+    expect(matchCover(item, [result({ title: 'My Iron Lung - EP' })])).not.toBeNull()
+    expect(matchCover(item, [result({ title: 'My Iron Lung' })])).not.toBeNull()
+  })
+
+  it('leaves "Single" and "EP" in the middle of a title alone', () => {
+    expect(matchCover(album({ title: 'Single Ladies' }), [result({ title: 'Ladies' })])).toBeNull()
+    expect(matchCover(album({ title: 'EP Remixes' }), [result({ title: 'Remixes' })])).toBeNull()
+  })
+
+  it('skips a result with no artwork and takes a later matching one that has it', () => {
+    const results = [result({ coverUrl: null }), result({ coverUrl: 'https://art.example/later.jpg' })]
+    expect(matchCover(album(), results).coverUrl).toBe('https://art.example/later.jpg')
+  })
+
+  it('skips an album result with no creator when the album has one', () => {
+    expect(matchCover(album(), [result({ author: null })])).toBeNull()
+  })
+
   it('finds nothing in no results', () => {
     expect(matchCover(album(), [])).toBeNull()
   })
