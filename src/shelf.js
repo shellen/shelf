@@ -2,14 +2,21 @@
 // ABOUTME: controller that drives the carousel's motion, pointer input and caption for one render.
 
 import { esc } from './html.js'
-import { captionState, starText } from './showcase.js'
+import { captionState, starText, coverShape } from './showcase.js'
 import { spinePalette, spineTitle, spineCreator } from './spines.js'
-import { wraps, slotCount, positionFor, relativePosition, itemIndexAt, clampPosition, faceOut, slotOffset } from './carousel.js'
+import { wraps, slotCount, positionFor, relativePosition, itemIndexAt, clampPosition, faceOut, shelfLayout } from './carousel.js'
 
 const ARROW_PREV = '<svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 1 L1 5 L5 9 M1 5 H17"/></svg>'
 const ARROW_NEXT = '<svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M13 1 L17 5 L13 9 M17 5 H1"/></svg>'
 const PLAY = '<svg width="12" height="12" viewBox="0 0 12 12"><polygon points="1,0 12,6 1,12" fill="currentColor"/></svg>'
 export const TILT_DEG = -4.5
+
+// Each shape's spine and face width on a shelf h tall: a book's 2:3 face, or a full-height
+// square face with a spine about half a book's, like a CD's
+const SIZES = {
+  tall: h => ({ spineWidth: h * 0.165, faceWidth: h * 2 / 3 }),
+  square: h => ({ spineWidth: h * 0.08, faceWidth: h }),
+}
 
 // Survives re-renders so a fresh mount can start the cursor where the pointer already is,
 // and only if the pointer was over the shelf rather than the header.
@@ -130,17 +137,26 @@ export function mountShelf(root, {
     root.append(probe)
     const h = probe.getBoundingClientRect().height
     probe.remove()
-    const size = { h, spineWidth: h * 0.165, faceWidth: h * 2 / 3, gap: h * 0.03 }
-    stage.style.setProperty('--h', `${size.h}px`)
-    stage.style.setProperty('--ws', `${size.spineWidth}px`)
-    stage.style.setProperty('--d', `${size.faceWidth}px`)
-    return size
+    const sizes = items.map(book => SIZES[coverShape(book)](h))
+    stage.style.setProperty('--h', `${h}px`)
+    tapes.forEach((t, v) => {
+      const { spineWidth, faceWidth } = sizes[v % count]
+      t.el.style.setProperty('--ws', `${spineWidth}px`)
+      t.el.style.setProperty('--d', `${faceWidth}px`)
+    })
+    const gap = h * 0.03
+    return { h, gap, sizes, layout: shelfLayout(sizes, gap) }
   }
 
-  const stride = () => (geom.spineWidth + geom.gap) || 1
+  // The size of the item nearest position x, whose face is the one turned out there
+  const sizeAt = x => geom.sizes[itemIndexAt(x, count)]
+  const stride = () => (sizeAt(target).spineWidth + geom.gap) || 1
   // Near the centre a face travels its stride plus the room it opens, per slot
-  const centreTravel = () => stride() + geom.faceWidth - geom.spineWidth + 1.6 * geom.gap
-  const settleDistance = () => geom.faceWidth > 0 ? 0.5 / centreTravel() : 1e-3
+  function centreTravel() {
+    const { spineWidth, faceWidth } = sizeAt(target)
+    return (spineWidth + geom.gap) + faceWidth - spineWidth + 1.6 * geom.gap
+  }
+  const settleDistance = () => sizeAt(target).faceWidth > 0 ? 0.5 / centreTravel() : 1e-3
 
   function swapCaption(dir) {
     caption.innerHTML = captionHtml(items[shown])
@@ -222,7 +238,8 @@ export function mountShelf(root, {
     const box = wrap.getBoundingClientRect()
     const cx = box.left + box.width / 2
     const cy = box.top + box.height / 2
-    const { h, faceWidth } = geom
+    const { h, layout } = geom
+    const { faceWidth } = sizeAt(pos)
     const safeH = h || 1
     const safeFace = faceWidth || 1
     const follow = 1 - Math.exp(-16 * dt)
@@ -237,12 +254,12 @@ export function mountShelf(root, {
     tiltX = approach(tiltX, goalX, ease, 1e-3)
 
     const liftEase = reducedMotion ? 1 : 1 - Math.exp(-12 * dt)
-    const limit = innerWidth / 2 + 1.5 * faceWidth
+    const limit = innerWidth / 2 + 1.5 * layout.widestFace
     let hoverSpine = false
     let lifting = false
     tapes.forEach((t, v) => {
       const r = relativePosition(v, pos, count)
-      const x = slotOffset(r, geom)
+      const x = layout.offset(r, pos)
       const visible = Math.abs(x) <= limit
       if (visible !== t.visible) {
         t.el.style.visibility = visible ? '' : 'hidden'

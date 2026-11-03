@@ -7,6 +7,9 @@ import { renderShelfView, mountShelf } from './shelf.js'
 const books = n => Array.from({ length: n }, (_, i) => ({
   id: `b${i}`, title: `Book ${i}`, author: `Author ${i}`, tags: [], rating: null, dateRead: null, year: 2000 + i,
 }))
+const albums = n => Array.from({ length: n }, (_, i) => ({
+  id: `a${i}`, title: `Album ${i}`, author: `Artist ${i}`, tags: [], rating: null, dateRead: null, year: 1990 + i, medium: 'album',
+}))
 const tab = (items, key = 'reading', label = 'Reading') => ({ key, label, items })
 const text = sel => document.querySelector(sel)?.textContent
 const caption = () => text('.shelf-caption-title')
@@ -556,6 +559,70 @@ describe('mountShelf', () => {
       frames.settle()
       expect(centred()).toEqual(['b2'])
       expect(caption()).toBe('Book 2')
+    })
+
+    const tapeOf = (id, copy = 0) => document.querySelectorAll(`.tape[data-id="${id}"]`)[copy]
+    const px = (el, name) => parseFloat(el.style.getPropertyValue(name))
+    const across = el => Number(el.style.transform.match(/translate3d\(([-\d.e]+)px/)[1])
+
+    it('sizes each item\'s spine and face from its own shape', () => {
+      const podcast = { id: 'p0', title: 'Radiolab', author: 'WNYC', tags: [], medium: 'podcast' }
+      const audiobook = { id: 'ab0', title: 'Dune', author: 'Frank Herbert', tags: [], medium: 'audiobook' }
+      mountWith([...books(2), ...albums(1), podcast, audiobook])
+      expect([px(tapeOf('b0'), '--ws'), px(tapeOf('b0'), '--d')]).toEqual([600 * 0.165, 600 * 2 / 3])
+      for (const id of ['a0', 'p0', 'ab0']) {
+        expect(px(tapeOf(id), '--ws')).toBeCloseTo(48, 9)
+        expect(px(tapeOf(id), '--d')).toBe(600)
+      }
+    })
+
+    it('gives every copy of every book on a shelf of books the sizes of a 2:3 cover', () => {
+      mountWith(books(10))
+      const tapes = [...document.querySelectorAll('.tape')]
+      expect(tapes.every(t => px(t, '--ws') === 600 * 0.165 && px(t, '--d') === 600 * 2 / 3)).toBe(true)
+      expect(stageHeight()).toBe('600px')
+    })
+
+    it('resizes every item when the shelf changes height', () => {
+      mountWith([...books(1), ...albums(1)])
+      shelfHeight = 480
+      fire(1200, 800)
+      expect(px(tapeOf('b0'), '--ws')).toBeCloseTo(79.2, 9)
+      expect([px(tapeOf('a0'), '--ws'), px(tapeOf('a0'), '--d')]).toEqual([480 * 0.08, 480])
+    })
+
+    it('lays a shelf of books out a stride apart, with the centred face\'s room around it', () => {
+      mountWith(books(10))
+      // Book 0 is centred in the middle copy; a stride is 99 + 18 and its face opens 400 - 99 + 28.8
+      expect(across(tapeOf('b0', 1))).toBe(0)
+      expect(across(tapeOf('b1', 1))).toBeCloseTo(117 + 329.8 / 2, 6)
+      expect(across(tapeOf('b2', 1))).toBeCloseTo(2 * 117 + 329.8 / 2, 6)
+      expect(across(tapeOf('b9', 0))).toBeCloseTo(-(117 + 329.8 / 2), 6)
+    })
+
+    it('opens the centred album\'s own width around it and packs its spine at its own width', () => {
+      mountWith([...albums(1), ...books(2)])
+      // Half the album's stride (48 + 18), half a book's (99 + 18), and half the album's room (600 - 48 + 28.8)
+      expect(across(tapeOf('b0'))).toBeCloseTo(33 + 58.5 + 580.8 / 2, 6)
+      expect(across(tapeOf('b1')) - across(tapeOf('b0'))).toBeCloseTo(117, 6)
+    })
+
+    it('keeps spines in view as far out as the widest face on the shelf needs', () => {
+      // Nine books out from the centre sit 9 * 117 + 164.9 from it: beyond a book face's reach
+      // (half the 1024 window plus one and a half 400 faces) but within an album's
+      mountWith([...books(10), ...albums(1)])
+      expect(tapeOf('b9', 1).style.visibility).toBe('')
+      expect(across(tapeOf('b9', 1))).toBeCloseTo(9 * 117 + 164.9, 6)
+    })
+
+    it('sits the open button at the corner of the centred item\'s face', () => {
+      const frames = holdFrames()
+      mountWith([...albums(1), ...books(2)])
+      const left = () => document.querySelector('.shelf-open').style.left
+      expect(left()).toBe(`${-0.5 * 600 - 6}px`)
+      control.step(1)
+      frames.settle()
+      expect(left()).toBe(`${-0.5 * 400 - 6}px`)
     })
 
     it('disconnects the observer when destroyed', () => {
