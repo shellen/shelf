@@ -11,7 +11,8 @@ import { shelfTabs, mediumOf, singular } from './showcase.js'
 import { renderShelfView, mountShelf, TILT_DEG } from './shelf.js'
 import { renderDetail, playEntrance, playExit, canAnimate } from './overlay.js'
 import { coverTypeSvg } from './spines.js'
-import { showToast } from './toast.js'
+import { showToast, showProgressToast, endProgressToast } from './toast.js'
+import { missingCover, canFindCover, coverQuery, coverUpdate, findCovers, coverProgressText, coversFoundText, COVERS_STOPPED } from './covers.js'
 
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
@@ -515,6 +516,7 @@ function render() {
             <div class="avatar-dropdown ${state.menuOpen ? 'open' : ''}">
               <button data-action="add-book">Add Media</button>
               <button data-action="import">Import</button>
+              <button data-action="find-covers">Find missing covers</button>
               <button data-action="shelf-settings">Shelf Settings</button>
               ${state.loggedIn ? '<button data-action="logout">Log Out</button>' : ''}
             </div>
@@ -1431,6 +1433,49 @@ function chooseImportFile(file) {
   })
 }
 
+// Set while a cover run is going, so a second one does nothing
+let findingCovers = false
+
+// Set when a found cover has not reached the results yet
+let coversToShow = false
+
+function showFoundCovers() {
+  if (!coversToShow) return
+  coversToShow = false
+  updateResults()
+}
+
+// Re-reads the item, since it may have gained a cover while the lookup was out
+async function saveFoundCover(item, match) {
+  const update = coverUpdate(state.books.find(b => b.id === item.id), match)
+  if (!update) return false
+  syncBookState(await api.updateBook(item.id, update))
+  coversToShow = true
+  return true
+}
+
+// Looks up a cover for every album and podcast that could have one found, in the background
+async function findMissingCovers() {
+  const items = state.books.filter(canFindCover)
+  if (findingCovers || !items.length) return
+  findingCovers = true
+  try {
+    const { found, stopped } = await findCovers(items, {
+      lookup: item => api.lookup(item.medium, coverQuery(item)),
+      save: saveFoundCover,
+      progress: (done, total) => showProgressToast(coverProgressText(done, total))
+    })
+    if (stopped) endProgressToast(COVERS_STOPPED, 'error')
+    else endProgressToast(coversFoundText(found))
+  } catch (e) {
+    console.error('Finding covers failed:', e)
+    endProgressToast(COVERS_STOPPED, 'error')
+  } finally {
+    findingCovers = false
+    showFoundCovers()
+  }
+}
+
 function closeImport() {
   importChoice++
   state.importOpen = false
@@ -1623,6 +1668,14 @@ function attachEventListeners() {
   document.querySelector('.header [data-action="import"]')?.addEventListener('click', () => {
     state.importOpen = true
     render()
+  })
+
+  // Find missing covers
+  document.querySelector('.header [data-action="find-covers"]')?.addEventListener('click', () => {
+    if (findingCovers) return
+    if (!state.books.some(missingCover)) showToast('Nothing missing. Looking sharp.')
+    else if (!state.books.some(canFindCover)) showToast('Nothing left to look up.')
+    else findMissingCovers()
   })
 
   // Avatar menu

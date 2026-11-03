@@ -2182,6 +2182,172 @@ describe('import box', () => {
   })
 })
 
+describe('finding covers', () => {
+  const ALBUMS = [
+    { id: 'in-rainbows', title: 'In Rainbows', author: 'Radiohead', tags: ['spotify'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null, medium: 'album' },
+    { id: 'radiolab', title: 'Radiolab', author: 'WNYC Studios', tags: ['spotify'], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null, medium: 'podcast' },
+    { id: 'abbey-road', title: 'Abbey Road', author: 'The Beatles', tags: [], isbn: null, coverUrl: 'https://art.example/abbey.jpg', rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: 1969, medium: 'album' },
+    // No lookup could match an album without an artist, so it is never looked up or counted
+    { id: 'demos', title: 'Demos', author: null, tags: [], isbn: null, coverUrl: null, rating: null, notes: null, dateRead: null, dateAdded: null, pages: null, year: null, medium: 'album' }
+  ]
+  const library = () => [...BOOKS, ...ALBUMS].map(b => ({ ...b, tags: [...b.tags] }))
+
+  // iTunes as the lookup endpoint returns it, keyed by the query the app sends
+  const ITUNES = {
+    'In Rainbows Radiohead': [{ title: 'In Rainbows', author: 'Radiohead', year: 2007, coverUrl: 'https://art.example/in-rainbows.jpg' }],
+    Radiolab: [{ title: 'Radiolab', author: 'WNYC', year: 2002, coverUrl: 'https://art.example/radiolab.jpg' }]
+  }
+
+  // Answers lookups with answer(query); everything else as loadApp does
+  function answerLookups(answer) {
+    const respond = fetch.getMockImplementation()
+    fetch.mockImplementation(async (url, opts = {}) => {
+      if (!String(url).includes('/api/lookup')) return respond(url, opts)
+      return answer(new URL(String(url), 'http://shelf.test').searchParams.get('q'))
+    })
+  }
+  const found = results => ({ ok: true, json: async () => ({ results }) })
+
+  const lookups = () => fetch.mock.calls.filter(([u]) => String(u).includes('/api/lookup'))
+  const coverSaves = () => fetch.mock.calls
+    .filter(([u, o]) => o?.method === 'PUT' && /\/api\/books\//.test(String(u)))
+    .map(([u, o]) => ({ id: String(u).split('/').pop(), ...JSON.parse(o.body) }))
+  const toast = () => document.querySelector('.toast')?.textContent
+  const tileCover = id => document.querySelector(`.cover-tile[data-id="${id}"] img`).getAttribute('src')
+
+  // Runs the fake clock on, a tenth of a second at a time, until the toast says text
+  async function toastSays(text) {
+    for (let ms = 0; ms < 60_000 && toast() !== text; ms += 100) await vi.advanceTimersByTimeAsync(100)
+    expect(toast()).toBe(text)
+  }
+
+  const findMissingCovers = () => {
+    document.querySelector('[data-action="avatar-menu"]').click()
+    document.querySelector('[data-action="find-covers"]').click()
+  }
+
+  // Loads the app with real timers, then fakes them so the 3-second pace takes no time
+  async function start(books = library(), options) {
+    await loadApp(books, options)
+    answerLookups(q => found(ITUNES[q] || []))
+    vi.useFakeTimers()
+  }
+
+  afterEach(() => vi.useRealTimers())
+
+  it('saves the whole item with the cover, so nothing else changes', async () => {
+    await start()
+    findMissingCovers()
+    await toastSays('Found 2 covers')
+    expect(coverSaves()[0]).toEqual({ ...ALBUMS[0], coverUrl: 'https://art.example/in-rainbows.jpg', year: 2007 })
+  })
+
+  it('shows the found covers in the library when the run ends', async () => {
+    await start()
+    findMissingCovers()
+    await toastSays('Found 2 covers')
+    expect(tileCover('in-rainbows')).toBe('https://art.example/in-rainbows.jpg')
+    expect(tileCover('radiolab')).toBe('https://art.example/radiolab.jpg')
+  })
+
+  it('shows its progress, then the count found', async () => {
+    await start()
+    let answerRadiolab
+    answerLookups(q => q === 'Radiolab' ? new Promise(r => { answerRadiolab = r }) : found(ITUNES[q]))
+    findMissingCovers()
+    expect(toast()).toBe('Finding covers 0 / 2 · about 1 min left')
+    await toastSays('Finding covers 1 / 2 · about 1 min left')
+    answerRadiolab(found(ITUNES.Radiolab))
+    await toastSays('Found 2 covers')
+  })
+
+  it('never overwrites a cover set while the lookup was out', async () => {
+    await start()
+    // Holds the run's first lookup; the cover picker's own lookups are answered at once
+    let answerInRainbows
+    answerLookups(q => q === 'In Rainbows Radiohead' && !answerInRainbows
+      ? new Promise(r => { answerInRainbows = r })
+      : found(ITUNES[q] || []))
+    findMissingCovers()
+    await vi.waitFor(() => { if (!answerInRainbows) throw new Error('no lookup yet') })
+
+    // Link a cover by hand through the cover picker, with real timers while the UI works
+    vi.useRealTimers()
+    document.querySelector('[data-view="list"]').click()
+    document.querySelector('.list-title [data-id="in-rainbows"]').click()
+    document.querySelector('[data-action="open-cover-picker"]').click()
+    await vi.waitFor(() => { if (!document.getElementById('cover-url-input')) throw new Error('picker not open') })
+    document.getElementById('cover-url-input').value = 'https://example.com/my-pressing.jpg'
+    document.querySelector('[data-action="use-cover-url"]').click()
+    await vi.waitFor(() => { if (toast() !== 'Cover linked') throw new Error('cover not saved yet') })
+    vi.useFakeTimers()
+
+    answerInRainbows(found(ITUNES['In Rainbows Radiohead']))
+    await toastSays('Found 1 cover')
+    expect(coverSaves().map(s => s.id)).toEqual(['radiolab'])
+  })
+
+  it('runs only once at a time', async () => {
+    await start()
+    findMissingCovers()
+    findMissingCovers()
+    await toastSays('Found 2 covers')
+    expect(lookups()).toHaveLength(2)
+  })
+
+  it('stops after 3 failed lookups in a row and says why', async () => {
+    const more = [1, 2, 3].map(n => ({ ...ALBUMS[0], id: `album-${n}`, title: `Album ${n}` }))
+    await start([...library(), ...more])
+    answerLookups(() => ({ ok: false, status: 500, json: async () => ({ error: 'Lookup failed' }) }))
+    findMissingCovers()
+    await toastSays('Stopped finding covers: iTunes isn\'t answering. Try Find missing covers later.')
+    expect(document.querySelector('.toast').classList.contains('toast-error')).toBe(true)
+    expect(lookups()).toHaveLength(3)
+  })
+
+  it('picks up, from the menu, items a previous run missed', async () => {
+    await start()
+    answerLookups(() => found([]))
+    findMissingCovers()
+    await toastSays('Found 0 covers')
+    expect(coverSaves()).toEqual([])
+
+    answerLookups(q => found(ITUNES[q] || []))
+    findMissingCovers()
+    await toastSays('Found 2 covers')
+    expect(coverSaves().map(s => s.id)).toEqual(['in-rainbows', 'radiolab'])
+  })
+
+  it('can run again after a run breaks unexpectedly', async () => {
+    await start()
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    // An answer with no results list breaks the run partway
+    answerLookups(() => ({ ok: true, json: async () => ({}) }))
+    findMissingCovers()
+    await toastSays('Stopped finding covers: iTunes isn\'t answering. Try Find missing covers later.')
+    expect(error).toHaveBeenCalledWith('Finding covers failed:', expect.any(TypeError))
+    error.mockRestore()
+
+    answerLookups(q => found(ITUNES[q] || []))
+    findMissingCovers()
+    await toastSays('Found 2 covers')
+  })
+
+  it('says so from the menu when nothing is missing a cover', async () => {
+    await start(BOOKS)
+    findMissingCovers()
+    expect(toast()).toBe('Nothing missing. Looking sharp.')
+    expect(lookups()).toHaveLength(0)
+  })
+
+  it('says so from the menu when the only items missing a cover cannot be looked up', async () => {
+    await start([...BOOKS, ALBUMS[3]])
+    findMissingCovers()
+    expect(toast()).toBe('Nothing left to look up.')
+    expect(lookups()).toHaveLength(0)
+  })
+})
+
 describe('metadata sorting', () => {
   beforeEach(() => loadApp())
 
