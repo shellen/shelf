@@ -4,6 +4,9 @@
 import { normKey } from './match.js'
 
 const PACE_MS = 3000
+const FAILURES_BEFORE_STOPPING = 3
+
+export const COVERS_STOPPED = 'Stopped finding covers: iTunes isn\'t answering. Try Find missing covers later.'
 
 // iTunes names singles and EPs "Title - Single" and "Title - EP"
 const releaseTitle = title => String(title || '').replace(/ - (Single|EP)$/, '')
@@ -60,3 +63,33 @@ export function coverProgressText(done, total) {
 }
 
 export const coversFoundText = found => `Found ${plural(found, 'cover')}`
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+// Looks up each item in turn and saves the matches. lookup(item) resolves to results or
+// rejects; save(item, match) resolves true when it stored a cover; progress(done, total)
+// is told before each lookup. Stops early after 3 lookups in a row fail.
+export async function findCovers(items, { lookup, save, progress }) {
+  let found = 0
+  let failures = 0
+  for (const [done, item] of items.entries()) {
+    if (done > 0) await wait(PACE_MS)
+    progress(done, items.length)
+    let results
+    try {
+      results = await lookup(item)
+      failures = 0
+    } catch (e) {
+      failures++
+      if (failures === FAILURES_BEFORE_STOPPING) return { found, stopped: true }
+      continue
+    }
+    const match = matchCover(item, results)
+    try {
+      if (match && await save(item, match)) found++
+    } catch (e) {
+      // A failed save leaves the item without a cover for the next run to find
+    }
+  }
+  return { found, stopped: false }
+}

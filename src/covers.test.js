@@ -1,8 +1,8 @@
 // ABOUTME: Tests for finding missing covers: which items need one, the lookup query, matching
 // ABOUTME: iTunes results, the update that saves a cover, and the paced, one-at-a-time run.
 
-import { describe, it, expect } from 'vitest'
-import { missingCover, canFindCover, coverQuery, matchCover, coverUpdate, coverProgressText, coversFoundText } from './covers.js'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { missingCover, canFindCover, coverQuery, matchCover, coverUpdate, findCovers, coverProgressText, coversFoundText } from './covers.js'
 
 const album = (fields = {}) => ({ id: 'in-rainbows', title: 'In Rainbows', author: 'Radiohead', medium: 'album', coverUrl: null, year: null, tags: [], ...fields })
 const podcast = (fields = {}) => ({ id: 'radiolab', title: 'Radiolab', author: 'WNYC Studios', medium: 'podcast', coverUrl: null, year: null, tags: [], ...fields })
@@ -215,5 +215,97 @@ describe('progress text', () => {
     expect(coversFoundText(131)).toBe('Found 131 covers')
     expect(coversFoundText(1)).toBe('Found 1 cover')
     expect(coversFoundText(0)).toBe('Found 0 covers')
+  })
+})
+
+describe('findCovers', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  // A lookup answering from a table of query → results; a query not in the table finds nothing
+  const lookupFrom = table => vi.fn(async item => table[coverQuery(item)] || [])
+
+  it('saves the matching result for each item and counts the covers found', async () => {
+    const items = [album(), podcast()]
+    const lookup = lookupFrom({ 'In Rainbows Radiohead': [result()], Radiolab: [result({ title: 'Radiolab', author: 'WNYC' })] })
+    const save = vi.fn(async () => true)
+    const run = findCovers(items, { lookup, save, progress: () => {} })
+    await vi.runAllTimersAsync()
+    expect(await run).toEqual({ found: 2, stopped: false })
+    expect(save.mock.calls.map(([item, match]) => [item.id, match.title])).toEqual([['in-rainbows', 'In Rainbows'], ['radiolab', 'Radiolab']])
+  })
+
+  it('saves nothing for an item without a match', async () => {
+    const save = vi.fn(async () => true)
+    const run = findCovers([album()], { lookup: lookupFrom({}), save, progress: () => {} })
+    await vi.runAllTimersAsync()
+    expect(await run).toEqual({ found: 0, stopped: false })
+    expect(save).not.toHaveBeenCalled()
+  })
+
+  it('does not count a cover the save declined', async () => {
+    const run = findCovers([album()], { lookup: lookupFrom({ 'In Rainbows Radiohead': [result()] }), save: async () => false, progress: () => {} })
+    await vi.runAllTimersAsync()
+    expect((await run).found).toBe(0)
+  })
+
+  it('looks up one item at a time, 3 seconds apart', async () => {
+    let answer
+    const lookup = vi.fn(() => new Promise(resolve => { answer = resolve }))
+    const run = findCovers([album({ id: 'a' }), album({ id: 'b' })], { lookup, save: async () => true, progress: () => {} })
+
+    await vi.advanceTimersByTimeAsync(0)
+    expect(lookup).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(10_000)
+    expect(lookup).toHaveBeenCalledTimes(1) // still waiting on the first answer
+
+    answer([])
+    await vi.advanceTimersByTimeAsync(2999)
+    expect(lookup).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(lookup).toHaveBeenCalledTimes(2)
+
+    answer([])
+    await run
+  })
+
+  it('stops after 3 lookups in a row fail', async () => {
+    const lookup = vi.fn(async () => { throw new Error('Lookup failed (500)') })
+    const items = [1, 2, 3, 4, 5].map(n => album({ id: `a${n}` }))
+    const run = findCovers(items, { lookup, save: async () => true, progress: () => {} })
+    await vi.runAllTimersAsync()
+    expect(await run).toEqual({ found: 0, stopped: true })
+    expect(lookup).toHaveBeenCalledTimes(3)
+  })
+
+  it('starts counting failures again after a lookup succeeds', async () => {
+    const answers = ['fail', 'fail', 'ok', 'fail', 'fail']
+    const lookup = vi.fn(async () => {
+      if (answers.shift() === 'fail') throw new Error('Lookup failed (500)')
+      return []
+    })
+    const items = [1, 2, 3, 4, 5].map(n => album({ id: `a${n}` }))
+    const run = findCovers(items, { lookup, save: async () => true, progress: () => {} })
+    await vi.runAllTimersAsync()
+    expect(await run).toEqual({ found: 0, stopped: false })
+    expect(lookup).toHaveBeenCalledTimes(5)
+  })
+
+  it('moves on when a save fails, leaving that item for the next run', async () => {
+    const save = vi.fn()
+      .mockRejectedValueOnce(new Error('Failed to update book'))
+      .mockResolvedValueOnce(true)
+    const lookup = lookupFrom({ 'In Rainbows Radiohead': [result()] })
+    const run = findCovers([album({ id: 'a' }), album({ id: 'b' })], { lookup, save, progress: () => {} })
+    await vi.runAllTimersAsync()
+    expect(await run).toEqual({ found: 1, stopped: false })
+  })
+
+  it('reports progress before each lookup', async () => {
+    const progress = vi.fn()
+    const run = findCovers([album({ id: 'a' }), album({ id: 'b' }), album({ id: 'c' })], { lookup: lookupFrom({}), save: async () => true, progress })
+    await vi.runAllTimersAsync()
+    await run
+    expect(progress.mock.calls).toEqual([[0, 3], [1, 3], [2, 3]])
   })
 })
