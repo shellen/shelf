@@ -1,10 +1,13 @@
 // ABOUTME: Builds the shelf rail's tabs: the showcase groups, one per medium, and All.
-// ABOUTME: Also names an item's medium, counts things, and formats its caption state line and star rating as text.
+// ABOUTME: Also names an item's medium and cover shape, counts things, and formats its caption state line and star rating as text.
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const READING_TAG = 'currently-reading'
 
 export const mediumOf = b => b.medium || 'book'
+// Album and podcast art is square, and so is most audiobook art; everything else is drawn 2:3
+const SQUARE_MEDIA = new Set(['album', 'podcast', 'audiobook'])
+export const coverShape = b => SQUARE_MEDIA.has(mediumOf(b)) ? 'square' : 'tall'
 // A medium's label for one item: "Books" names a "Book"
 export const singular = label => label.slice(0, -1)
 // "1 album", "380 albums"

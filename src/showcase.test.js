@@ -2,7 +2,7 @@
 // ABOUTME: Covers group membership, ordering, caps, media filtering, fallbacks and caption text.
 
 import { describe, it, expect } from 'vitest'
-import { shelfTabs, captionState, starText, mediumOf, singular, counted } from './showcase.js'
+import { shelfTabs, captionState, starText, mediumOf, singular, counted, coverShape } from './showcase.js'
 
 const item = (id, fields = {}) => ({ id, title: id, tags: [], rating: null, dateRead: null, dateAdded: null, medium: 'book', ...fields })
 const keys = groups => groups.map(g => g.key)
@@ -126,5 +126,22 @@ describe('medium names', () => {
     expect(counted(0, 'album')).toBe('0 albums')
     expect(counted(1, 'podcast')).toBe('1 podcast')
     expect(counted(380, 'album')).toBe('380 albums')
+  })
+})
+
+describe('coverShape', () => {
+  it('makes albums, podcasts and audiobooks square', () => {
+    expect(coverShape({ medium: 'album' })).toBe('square')
+    expect(coverShape({ medium: 'podcast' })).toBe('square')
+    expect(coverShape({ medium: 'audiobook' })).toBe('square')
+  })
+
+  it('keeps books and movies tall', () => {
+    expect(coverShape({ medium: 'book' })).toBe('tall')
+    expect(coverShape({ medium: 'movie' })).toBe('tall')
+  })
+
+  it('keeps an item with no medium tall, as a book', () => {
+    expect(coverShape({})).toBe('tall')
   })
 })
