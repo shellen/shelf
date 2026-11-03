@@ -91,6 +91,15 @@ describe('endProgressToast', () => {
     expect(shown()).toBeNull()
   })
 
+  it('does not bring the progress toast back when it ends during a brief one', () => {
+    toast.showProgressToast('Finding covers 1 / 2 · about 1 min left')
+    toast.showToast('Saved')
+    vi.advanceTimersByTime(1000)
+    toast.endProgressToast('Found 2 covers')
+    vi.advanceTimersByTime(3000)
+    expect(shown()).toBeNull()
+  })
+
   it('can end on an error', () => {
     toast.showProgressToast('Finding covers 1 / 9 · about 1 min left')
     toast.endProgressToast('Stopped finding covers', 'error')
