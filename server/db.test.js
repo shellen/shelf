@@ -132,6 +132,14 @@ describe('importBooks', () => {
     expect((await getAllBooks()).map(b => b.title).sort()).toEqual(['天空の城ラピュタ', '風の谷のナウシカ'])
   })
 
+  it('matches a stored item whose name differs only by a Latin accent', async () => {
+    const { importBooks, saveBook, getBook } = await loadDb()
+    await saveBook({ id: 'homogenic', title: 'Homogenic', author: 'Björk', medium: 'album', tags: [] })
+    expect(await importBooks([{ title: 'Homogenic', author: 'Bjork', medium: 'album', year: 1997, tags: [] }]))
+      .toEqual({ added: 0, filled: 1, skipped: 0 })
+    expect((await getBook('homogenic')).year).toBe(1997)
+  })
+
   it('rolls the whole batch back when a row is invalid', async () => {
     const { importBooks, getAllBooks } = await loadDb()
     await expect(importBooks([dune, { author: 'No Title' }])).rejects.toThrow()
