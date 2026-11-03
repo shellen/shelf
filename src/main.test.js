@@ -106,6 +106,12 @@ function typeInSearch(chars) {
 
 const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
 
+// Navigates as a browser does: the hash changes and one hashchange follows as a task
+async function goTo(hash) {
+  window.location.hash = hash
+  await new Promise(r => setTimeout(r, 0))
+}
+
 describe('initial render', () => {
   beforeEach(() => loadApp())
 
@@ -488,7 +494,6 @@ describe('shelf media', () => {
     expect(tabs.join(' ')).not.toContain('Movies') // none present
 
     document.querySelector('.media-tab[data-medium="album"]').click()
-    window.dispatchEvent(new Event('hashchange'))
     expect(window.location.hash).toBe('#/medium/album')
     expect(document.querySelectorAll('.cover-tile').length).toBe(1)
     expect(document.querySelector('.cover-title').textContent).toBe('Abbey Road')
@@ -637,15 +642,13 @@ describe('shelf view', () => {
   it('keeps the shelf for a medium route, bypassing the landing config', async () => {
     await loadApp(MIXED, { view: 'shelf', settings: { landing: ['book'] } })
     document.querySelector('.media-tab[data-medium="album"]').click()
-    window.dispatchEvent(new Event('hashchange'))
     expect(document.querySelector('.shelf-view')).not.toBeNull()
     expect(caption()).toBe('Abbey Road')
   })
 
   it('an author route on the shelf switches to covers', async () => {
     await loadApp(BOOKS, { view: 'shelf' })
-    window.location.hash = '#/author/herbert'
-    window.dispatchEvent(new Event('hashchange'))
+    await goTo('#/author/herbert')
     expect(document.querySelector('.view-btn.active').dataset.view).toBe('covers')
     expect(document.querySelector('.cover-title').textContent).toBe('Dune')
   })
@@ -693,7 +696,6 @@ describe('shelf view', () => {
   it('switching to the shelf clears the search and tag but keeps the medium', async () => {
     await loadApp(MIXED)
     document.querySelector('.media-tab[data-medium="album"]').click()
-    window.dispatchEvent(new Event('hashchange'))
     const input = document.querySelector('[data-action="search"]')
     input.value = 'abbey'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -716,7 +718,6 @@ describe('shelf view', () => {
   it('Escape on the shelf clears a medium route and stays on the shelf', async () => {
     await loadApp(MIXED, { view: 'shelf' })
     document.querySelector('.media-tab[data-medium="album"]').click()
-    window.dispatchEvent(new Event('hashchange'))
     press('Escape')
     expect(window.location.hash).toBe('')
     expect(activeView()).toBe('shelf')
@@ -730,13 +731,11 @@ describe('shelf view', () => {
       ['delta', 'Delta', 'podcast'],
     ].map(([id, title, medium]) => ({ ...MIXED[0], id, title, tags: [], rating: 5, medium }))
     await loadApp(favorites, { view: 'shelf' })
-    window.location.hash = '#/medium/album'
-    window.dispatchEvent(new Event('hashchange'))
+    await goTo('#/medium/album')
     document.querySelector('[data-shelf-step="1"]').click()
     expect(caption()).toBe('Bravo')
 
-    window.location.hash = '#/medium/podcast'
-    window.dispatchEvent(new Event('hashchange'))
+    await goTo('#/medium/podcast')
 
     expect(caption()).toBe('Charlie')
   })
@@ -751,26 +750,23 @@ describe('shelf view', () => {
 
     const leavingMedium = {
       'Escape': () => press('Escape'),
-      'Back to an empty hash': () => {
-        window.location.hash = ''
-        window.dispatchEvent(new Event('hashchange'))
+      'Back to an empty hash': async () => {
+        await goTo('')
       },
       'Home': () => document.querySelector('[data-action="home"]').click(),
-      'an author route, then the Shelf button': () => {
-        window.location.hash = '#/author/some-author'
-        window.dispatchEvent(new Event('hashchange'))
+      'an author route, then the Shelf button': async () => {
+        await goTo('#/author/some-author')
         document.querySelector('[data-view="shelf"]').click()
       },
     }
 
     it.each(Object.entries(leavingMedium))('starts the unfiltered shelf at its first item after %s', async (_name, leave) => {
       await loadApp(PODCAST_FAVORITES, { view: 'shelf' })
-      window.location.hash = '#/medium/podcast'
-      window.dispatchEvent(new Event('hashchange'))
+      await goTo('#/medium/podcast')
       document.querySelector('[data-shelf-step="1"]').click()
       expect(caption()).toBe('Delta')
 
-      leave()
+      await leave()
 
       expect(document.querySelector('.shelf-view')).not.toBeNull()
       expect(caption()).toBe('Alpha')
@@ -779,8 +775,7 @@ describe('shelf view', () => {
 
   it('the Shelf button clears a route and tag set in covers', async () => {
     await loadApp(READING_BOOKS, { view: 'covers' })
-    window.location.hash = '#/author/herbert'
-    window.dispatchEvent(new Event('hashchange'))
+    await goTo('#/author/herbert')
     press('1')
 
     document.querySelector('[data-view="shelf"]').click()
@@ -841,7 +836,6 @@ describe('shelf view', () => {
   it('ignores keys pressed while an IME is composing', async () => {
     await loadApp(MIXED, { view: 'shelf' })
     document.querySelector('.media-tab[data-medium="album"]').click()
-    window.dispatchEvent(new Event('hashchange'))
     const escape = Object.assign(new Event('keydown', { bubbles: true }), { key: 'Escape', isComposing: true })
     document.dispatchEvent(escape)
     expect(window.location.hash).toBe('#/medium/album')
@@ -1370,14 +1364,9 @@ describe('login flow', () => {
 })
 
 describe('hash routes', () => {
-  const goTo = (hash) => {
-    window.location.hash = hash
-    window.dispatchEvent(new Event('hashchange'))
-  }
-
   it('filters the wall by author route with fuzzy matching', async () => {
     await loadApp()
-    goTo('#/author/herbert')
+    await goTo('#/author/herbert')
     expect(document.querySelectorAll('.cover-tile').length).toBe(1)
     expect(document.querySelector('.cover-title').textContent).toBe('Dune')
     expect(document.querySelector('.status-bar').textContent).toContain('author')
@@ -1404,7 +1393,7 @@ describe('hash routes', () => {
 
   it('opens the detail for a single-title route', async () => {
     await loadApp()
-    goTo('#/title/dune')
+    await goTo('#/title/dune')
     expect(document.querySelector('.detail-title').value).toBe('Dune')
   })
 
@@ -1418,13 +1407,12 @@ describe('hash routes', () => {
 
   it('applies a typed route that resolves like the one showing', async () => {
     await loadApp()
-    goTo('#/author/herbert')
-    await new Promise(r => setTimeout(r, 0))
+    await goTo('#/author/herbert')
     expect(window.location.hash).toBe('#/author/frank-herbert')
     const input = document.querySelector('[data-action="search"]')
     input.value = 'du'
     input.dispatchEvent(new Event('input', { bubbles: true }))
-    goTo('#/author/herbert')
+    await goTo('#/author/herbert')
     expect(document.querySelector('[data-action="search"]').value).toBe('')
     expect(window.location.hash).toBe('#/author/frank-herbert')
   })
@@ -1488,7 +1476,7 @@ describe('hash routes', () => {
     it('from an author route in covers, after stepping', async () => {
       const library = BOOKS.map(b => ({ ...b, tags: [...b.tags], author: b.id === 's1-flow' ? 'Frank Herbert' : b.author }))
       await loadApp(library)
-      goTo('#/author/herbert')
+      await goTo('#/author/herbert')
       await flush()
       expect(window.location.hash).toBe('#/author/frank-herbert')
       document.querySelector('[data-id="s2-dune"]').click()
@@ -1505,7 +1493,7 @@ describe('hash routes', () => {
 
     it('to no hash after a cold deep link', async () => {
       await loadApp()
-      goTo('#/title/dune')
+      await goTo('#/title/dune')
       await flush()
       expect(document.querySelector('.detail-title').value).toBe('Dune')
       escape()
@@ -1522,9 +1510,9 @@ describe('hash routes', () => {
 
   it('replaces a tag filter when navigating to an author route', async () => {
     await loadApp()
-    goTo('#/tags/design')
+    await goTo('#/tags/design')
     expect(document.querySelectorAll('.cover-tile').length).toBe(1)
-    goTo('#/author/herbert')
+    await goTo('#/author/herbert')
     expect(document.querySelectorAll('.cover-tile').length).toBe(1)
     expect(document.querySelector('.cover-title').textContent).toBe('Dune')
     expect(document.querySelector('.status-bar').textContent).not.toContain('tag:')
@@ -1532,7 +1520,7 @@ describe('hash routes', () => {
 
   it('clicking the masthead goes home to the shelf', async () => {
     await loadApp()
-    goTo('#/author/herbert')
+    await goTo('#/author/herbert')
     const input = document.querySelector('[data-action="search"]')
     input.value = 'dune'
     input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -1546,7 +1534,7 @@ describe('hash routes', () => {
 
   it('clears the route filter on reset', async () => {
     await loadApp()
-    goTo('#/author/herbert')
+    await goTo('#/author/herbert')
     document.querySelector('.header [data-action="reset"]').click()
     expect(document.querySelectorAll('.cover-tile').length).toBe(3)
     expect(window.location.hash).toBe('')
