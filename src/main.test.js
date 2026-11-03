@@ -1994,6 +1994,28 @@ describe('import box', () => {
     expect(document.getElementById('import-file').getAttribute('accept')).toBe('.csv,.xml,.json')
   })
 
+  it('lets the keyboard reach the drop zone, which is described by the export hints', () => {
+    const zone = document.querySelector('.drop-zone')
+    expect(zone.getAttribute('role')).toBe('button')
+    expect(zone.tabIndex).toBe(0)
+    const hints = zone.getAttribute('aria-describedby').split(' ').map(id => document.getElementById(id))
+    expect(hints).toEqual([...document.querySelectorAll('.import-hint')])
+  })
+
+  it.each(['Enter', ' '])('opens the file chooser when %j is pressed on the drop zone', key => {
+    const chooser = vi.spyOn(document.getElementById('import-file'), 'click')
+    const press = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
+    document.querySelector('.drop-zone').dispatchEvent(press)
+    expect(chooser).toHaveBeenCalledTimes(1)
+    expect(press.defaultPrevented).toBe(true)
+  })
+
+  it('leaves other keys on the drop zone alone', () => {
+    const chooser = vi.spyOn(document.getElementById('import-file'), 'click')
+    document.querySelector('.drop-zone').dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }))
+    expect(chooser).not.toHaveBeenCalled()
+  })
+
   it('names a Goodreads library and its book count above the preview counts', async () => {
     dropImportFile('Title,Author\nDune,Frank Herbert\nFlow,Mihaly Csikszentmihalyi')
     await fileRead()

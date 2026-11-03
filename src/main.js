@@ -1301,10 +1301,10 @@ function renderImportModal() {
           <button class="modal-close" data-action="close-import">&times;</button>
         </div>
         <div class="modal-body">
-          <p class="form-hint import-hint">Goodreads: My Books &rarr; Import and export &rarr; Export library.</p>
-          <p class="form-hint import-hint">Apple Music: in the Music app, File &rarr; Library &rarr; Export Library&hellip;</p>
-          <p class="form-hint import-hint">Spotify: Account &rarr; Privacy settings &rarr; Download your data, then unzip it and use YourLibrary.json.</p>
-          <div class="drop-zone" data-action="pick-import-file">
+          <p class="form-hint import-hint" id="import-hint-goodreads">Goodreads: My Books &rarr; Import and export &rarr; Export library.</p>
+          <p class="form-hint import-hint" id="import-hint-apple-music">Apple Music: in the Music app, File &rarr; Library &rarr; Export Library&hellip;</p>
+          <p class="form-hint import-hint" id="import-hint-spotify">Spotify: Account &rarr; Privacy settings &rarr; Download your data, then unzip it and use YourLibrary.json.</p>
+          <div class="drop-zone" data-action="pick-import-file" role="button" tabindex="0" aria-describedby="import-hint-goodreads import-hint-apple-music import-hint-spotify">
             ${state.importLoading ? '<span class="loading"></span> Reading file...' : 'Drop a Goodreads CSV, an Apple Music Library.xml or Spotify\'s YourLibrary.json here, or click to choose'}
           </div>
           <input type="file" accept=".csv,.xml,.json" id="import-file" class="hidden">
@@ -1815,12 +1815,18 @@ function attachEventListeners() {
 
   // Import modal: file picking
   const importFile = document.getElementById('import-file')
-  document.querySelector('[data-action="pick-import-file"]')?.addEventListener('click', () => importFile?.click())
+  const dropZone = document.querySelector('.drop-zone')
+  dropZone?.addEventListener('click', () => importFile?.click())
+  // The drop zone acts as a button, so Enter and Space open the file chooser too
+  dropZone?.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    e.preventDefault()
+    importFile?.click()
+  })
   importFile?.addEventListener('change', () => {
     const file = importFile.files?.[0]
     if (file) chooseImportFile(file)
   })
-  const dropZone = document.querySelector('.drop-zone')
   dropZone?.addEventListener('dragover', e => e.preventDefault())
   dropZone?.addEventListener('drop', e => {
     e.preventDefault()
