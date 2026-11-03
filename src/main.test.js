@@ -1211,6 +1211,55 @@ describe('shelf view', () => {
     expect(caption()).toBe('The Design of Everyday Things')
   })
 
+  describe('while the detail covers it', () => {
+    const ALL_READING = BOOKS.map(b => ({ ...b, tags: [...b.tags, 'currently-reading'] }))
+    const spine = id => [...document.querySelectorAll('.tape')].find(t => t.dataset.id === id)
+
+    it('keeps the same shelf through steps, a rating and the remove dialog', async () => {
+      await loadApp(ALL_READING, { view: 'shelf' })
+      const shelf = document.querySelector('.shelf-view')
+      const tape = document.querySelector('.tape')
+      press('Enter')
+      for (let k = 0; k < 5; k++) press('ArrowRight')
+      document.querySelector('[data-action="set-rating"][data-rating="4"]').click()
+      await vi.waitFor(() => {
+        if (document.querySelector('.detail .rating-value')?.textContent !== '4') throw new Error('rating not shown yet')
+      })
+      document.querySelector('[data-action="delete-book"]').click()
+      document.querySelector('[data-action="confirm-cancel"]').click()
+      expect(document.querySelector('.shelf-view')).toBe(shelf)
+      expect(document.querySelector('.tape')).toBe(tape)
+      expect(document.querySelector('#results').hasAttribute('inert')).toBe(true)
+    })
+
+    it('comes up to date on close, centred on the item last shown', async () => {
+      await loadApp(ALL_READING, { view: 'shelf' })
+      expect(caption()).toBe('Dune')
+      press('Enter')
+      press('ArrowRight')
+      press('ArrowRight')
+      expect(document.querySelector('[data-field="title"]').value).toBe('The Design of Everyday Things')
+      press('Escape')
+      expect(caption()).toBe('The Design of Everyday Things')
+      expect(document.querySelector('#results').hasAttribute('inert')).toBe(false)
+    })
+
+    it('shows an edited title on the caption and spine once closed', async () => {
+      await loadApp(ALL_READING, { view: 'shelf' })
+      press('Enter')
+      await new Promise(r => setTimeout(r, 0))
+      const title = document.querySelector('[data-field="title"]')
+      title.value = 'Dune Messiah'
+      title.dispatchEvent(new Event('blur'))
+      await vi.waitFor(() => {
+        if (document.querySelector('.toast')?.textContent !== 'Saved') throw new Error('save not settled yet')
+      })
+      press('Escape')
+      expect(caption()).toBe('Dune Messiah')
+      expect(spine('s2-dune').querySelector('.tape-spine-title').textContent).toBe('Dune Messiah')
+    })
+  })
+
   it('re-centres on the next item after removing one opened from the shelf', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
     press('Enter')

@@ -441,6 +441,19 @@ async function searchCovers(book) {
 // The full-screen detail is modal: the page it covers stays out of reach while it is open
 const behindDetail = () => state.detailOpen ? 'inert' : ''
 
+// Replaces everything in `app` but `kept`, which stays attached where the new markup's copy of it
+// sits; moving it out and back would restyle every spine on the shelf
+function replaceAround(app, kept, html) {
+  const fresh = document.createElement('div')
+  fresh.innerHTML = html
+  const stand = fresh.querySelector(`#${kept.id}`)
+  for (const node of [...app.childNodes]) if (node !== kept) node.remove()
+  while (fresh.firstChild !== stand) kept.before(fresh.firstChild)
+  stand.remove()
+  kept.after(...fresh.childNodes)
+  if (!kept.hasAttribute('inert')) kept.setAttribute('inert', '')
+}
+
 // Render
 function render() {
   const filtered = getFilteredSorted()
@@ -473,8 +486,12 @@ function render() {
   // The ink reveal starts from bare paper only when it will actually play
   const settledCover = !animateEntrance || prefersReducedMotion()
 
+  // The shelf behind the detail is left as it is, controller and all: rebuilding it for every step
+  // or edit is slow on a large tab, and the render that closes the detail brings it up to date
+  const keptResults = state.detailOpen && state.view === 'shelf' && shelfControl ? document.querySelector('#results') : null
+
   document.body.classList.toggle('is-shelf', state.view === 'shelf')
-  document.querySelector('#app').innerHTML = `
+  const html = `
     ${renderUnprotectedBanner()}
     <div class="header" ${behindDetail()}>
       <div class="masthead">
@@ -518,7 +535,7 @@ function render() {
       </div>`}
     </div>
 
-    <div id="results" ${behindDetail()}>${renderResults(filtered)}</div>
+    <div id="results" ${behindDetail()}>${keptResults ? '' : renderResults(filtered)}</div>
     ${state.view === 'shelf' ? '' : renderStatusBar(filtered)}
     ${state.detailOpen ? renderDetailOverlay(settledCover) : ''}
     ${state.modalOpen ? renderModal() : ''}
@@ -530,8 +547,11 @@ function render() {
     ${state.helpOpen ? renderHelpOverlay() : ''}
   `
 
+  if (keptResults) replaceAround(document.querySelector('#app'), keptResults, html)
+  else document.querySelector('#app').innerHTML = html
+
   attachEventListeners()
-  mountShelfIfShown()
+  if (!keptResults) mountShelfIfShown()
   if (state.detailOpen) afterDetailRender(entrance, animateEntrance)
 }
 
@@ -1411,6 +1431,56 @@ function selectShelfTab(tab, e) {
   if (e.detail === 0) document.querySelector(`[data-shelf-tab="${key}"]`)?.focus()
 }
 
+const wiredResults = new WeakSet()
+
+function wireResults(results) {
+  wiredResults.add(results)
+  results.addEventListener('click', e => {
+    if (e.target.closest('[data-action="reset"]')) {
+      resetFilters()
+      return
+    }
+    const tab = e.target.closest('[data-shelf-tab]')
+    if (tab) {
+      selectShelfTab(tab, e)
+      return
+    }
+    if (e.target.closest('[data-action="add-book"]')) {
+      openAddModal()
+      return
+    }
+    const mediumLink = e.target.closest('[data-medium-link]')
+    if (mediumLink) {
+      writeHash(`#/medium/${mediumLink.dataset.mediumLink}`)
+      applyHash()
+      return
+    }
+    if (e.target.closest('[data-action="resolve-quick"]')) {
+      resolveQuickQueue()
+      return
+    }
+    const sortBtn = e.target.closest('[data-sort]')
+    if (sortBtn) {
+      setSort(sortBtn.dataset.sort)
+      return
+    }
+    const el = e.target.closest('[data-action="open-book"]')
+    if (el) openBook(el.dataset.id, { from: { rect: el.getBoundingClientRect(), rotate: 0 } })
+  })
+
+  results.addEventListener('keydown', e => {
+    if (e.target.closest('[data-action="quick-add"]')) {
+      queueQuickAdd(e)
+      return
+    }
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    const el = e.target.closest('[data-action="open-book"]')
+    if (!el) return
+    e.preventDefault()
+    openBook(el.dataset.id, { from: { rect: el.getBoundingClientRect(), rotate: 0 } })
+  })
+}
+
 function attachEventListeners() {
   // Search input
   document.querySelector('[data-action="search"]')?.addEventListener('input', e => {
@@ -1588,51 +1658,10 @@ function attachEventListeners() {
     }
   })
 
-  // Results interactions - delegated so results can re-render without re-attaching listeners
-  document.querySelector('#results')?.addEventListener('click', e => {
-    if (e.target.closest('[data-action="reset"]')) {
-      resetFilters()
-      return
-    }
-    const tab = e.target.closest('[data-shelf-tab]')
-    if (tab) {
-      selectShelfTab(tab, e)
-      return
-    }
-    if (e.target.closest('[data-action="add-book"]')) {
-      openAddModal()
-      return
-    }
-    const mediumLink = e.target.closest('[data-medium-link]')
-    if (mediumLink) {
-      writeHash(`#/medium/${mediumLink.dataset.mediumLink}`)
-      applyHash()
-      return
-    }
-    if (e.target.closest('[data-action="resolve-quick"]')) {
-      resolveQuickQueue()
-      return
-    }
-    const sortBtn = e.target.closest('[data-sort]')
-    if (sortBtn) {
-      setSort(sortBtn.dataset.sort)
-      return
-    }
-    const el = e.target.closest('[data-action="open-book"]')
-    if (el) openBook(el.dataset.id, { from: { rect: el.getBoundingClientRect(), rotate: 0 } })
-  })
-
-  document.querySelector('#results')?.addEventListener('keydown', e => {
-    if (e.target.closest('[data-action="quick-add"]')) {
-      queueQuickAdd(e)
-      return
-    }
-    if (e.key !== 'Enter' && e.key !== ' ') return
-    const el = e.target.closest('[data-action="open-book"]')
-    if (!el) return
-    e.preventDefault()
-    openBook(el.dataset.id, { from: { rect: el.getBoundingClientRect(), rotate: 0 } })
-  })
+  // Results interactions - delegated so results can re-render without re-attaching listeners.
+  // A results node kept across a render while the detail covers the shelf is wired only once.
+  const results = document.querySelector('#results')
+  if (results && !wiredResults.has(results)) wireResults(results)
 
   // Close and step the detail
   document.querySelector('[data-action="close-detail"]')?.addEventListener('click', closeDetail)
