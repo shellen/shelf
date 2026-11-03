@@ -66,6 +66,16 @@ describe('parseSpotifyLibrary', () => {
     expect(books).toEqual([])
   })
 
+  it('treats a missing or malformed section as empty', () => {
+    expect(spotify({})).toEqual({ books: [], failed: [] })
+    expect(spotify({ albums: 'x', tracks: null, shows: {} })).toEqual({ books: [], failed: [] })
+  })
+
+  it('leaves the creator blank when a record names none', () => {
+    const { books } = spotify({ albums: [{ album: 'Untitled', uri: 'spotify:album:6' }] })
+    expect(books).toEqual([{ ...BLANK, title: 'Untitled', author: null, medium: 'album', tags: ['spotify'] }])
+  })
+
   it('ignores the arrays it does not import', () => {
     const { books } = spotify({
       albums: [{ artist: 'Radiohead', album: 'In Rainbows', uri: 'spotify:album:1' }],
