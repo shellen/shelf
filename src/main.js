@@ -866,15 +866,35 @@ function clearHash() {
   writeHash('')
 }
 
-function resetFilters() {
+function clearFilters() {
   state.q = ''
   state.tag = ''
   state.sortBy = 'title'
   state.sortDir = 'asc'
   state.selectedIndex = -1
   state.route = null
+}
+
+function resetFilters() {
+  clearFilters()
   clearHash()
   render()
+}
+
+// Home: the shelf, unfiltered, on the tab last used; a medium tab comes back through its route
+function goHome() {
+  const last = railTabs().find(t => t.key === state.shelf.tab)
+  state.detailOpen = false
+  state.selected = null
+  state.view = 'shelf'
+  clearFilters()
+  if (last?.medium) {
+    writeHash(`#/medium/${last.key}`)
+    applyHash()
+  } else {
+    clearHash()
+    render()
+  }
 }
 
 const VIEWS = ['shelf', 'covers', 'list']
@@ -1428,13 +1448,8 @@ function attachEventListeners() {
   // Reset
   document.querySelector('.header [data-action="reset"]')?.addEventListener('click', resetFilters)
 
-  // Masthead goes home: clear route, filters, and any open panels
-  document.querySelector('[data-action="home"]')?.addEventListener('click', () => {
-    state.detailOpen = false
-    state.selected = null
-    state.view = 'shelf'
-    resetFilters()
-  })
+  // Masthead goes home
+  document.querySelector('[data-action="home"]')?.addEventListener('click', goHome)
 
   // Add book button
   document.querySelector('.header [data-action="add-book"]')?.addEventListener('click', openAddModal)

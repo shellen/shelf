@@ -713,6 +713,23 @@ describe('shelf view', () => {
       expect(document.querySelector('.status-bar').textContent).not.toContain('medium')
     })
 
+    it('goes Home to the tab last used, naming a medium tab in the URL', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      const home = () => document.querySelector('[data-action="home"]').click()
+      const active = () => document.querySelector('.shelf-tab.active').dataset.shelfGroup
+      choose('all')
+      home()
+      expect(active()).toBe('all')
+      expect(window.location.hash).toBe('')
+      choose('album')
+      document.querySelector('[data-view="covers"]').click()
+      home()
+      expect(active()).toBe('album')
+      expect(window.location.hash).toBe('#/medium/album')
+      await new Promise(r => setTimeout(r, 0))
+      expect(active()).toBe('album')
+    })
+
     it('remembers where each tab was', async () => {
       await loadApp(MIXED, { view: 'shelf' })
       choose('all')
@@ -859,7 +876,6 @@ describe('shelf view', () => {
       'Back to an empty hash': async () => {
         await goTo('')
       },
-      'Home': () => document.querySelector('[data-action="home"]').click(),
       'an author route, then the Shelf button': async () => {
         await goTo('#/author/some-author')
         document.querySelector('[data-view="shelf"]').click()
