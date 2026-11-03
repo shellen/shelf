@@ -2,7 +2,7 @@
 // ABOUTME: Covers group membership, ordering, caps, media filtering, fallbacks and caption text.
 
 import { describe, it, expect } from 'vitest'
-import { showcaseGroups, captionState, starText } from './showcase.js'
+import { showcaseGroups, captionState, starText, mediumOf, singular } from './showcase.js'
 
 const ALL = ['book', 'audiobook', 'movie', 'podcast', 'album']
 const item = (id, fields = {}) => ({ id, title: id, tags: [], rating: null, dateRead: null, dateAdded: null, medium: 'book', ...fields })
@@ -95,5 +95,17 @@ describe('starText', () => {
   it('is empty when unrated', () => {
     expect(starText(null)).toBe('')
     expect(starText(0)).toBe('')
+  })
+})
+
+describe('medium names', () => {
+  it('treats an item without a medium as a book', () => {
+    expect(mediumOf({ medium: 'album' })).toBe('album')
+    expect(mediumOf({})).toBe('book')
+  })
+
+  it('names one item of a medium', () => {
+    expect(singular('Books')).toBe('Book')
+    expect(singular('Podcasts')).toBe('Podcast')
   })
 })

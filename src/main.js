@@ -3,9 +3,10 @@ import embeddedBooks from 'virtual:bookshelf-data'
 import { parseGoodreadsCsv } from './goodreads.js'
 import { parseRoute, resolveRoute, slugify } from './routes.js'
 import { esc } from './html.js'
-import { showcaseGroups } from './showcase.js'
+import { showcaseGroups, mediumOf, singular } from './showcase.js'
 import { renderShelfView, mountShelf, TILT_DEG } from './shelf.js'
-import { renderDetail, playEntrance, playExit } from './overlay.js'
+import { renderDetail, playEntrance, playExit, canAnimate } from './overlay.js'
+import { wrapWords } from './spines.js'
 
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
@@ -156,7 +157,6 @@ const MEDIA = [
   { key: 'album', label: 'Albums', creator: 'Artist' },
 ]
 
-const mediumOf = b => b.medium || 'book'
 const mediaLabel = key => MEDIA.find(m => m.key === key)?.label || key
 const creatorLabel = key => MEDIA.find(m => m.key === key)?.creator || 'Author'
 
@@ -345,26 +345,9 @@ function generatePlaceholder(book) {
   const title = (book.title || 'Untitled').replace(/&/g, 'and')
   const author = (book.author || '').replace(/&/g, 'and')
 
-  const wrapText = (text, maxChars) => {
-    const words = text.split(/\s+/).filter(Boolean)
-    const lines = []
-    let line = ''
-    for (const w of words) {
-      const candidate = line ? `${line} ${w}` : w
-      if (candidate.length > maxChars) {
-        if (line) lines.push(line)
-        line = w
-      } else {
-        line = candidate
-      }
-    }
-    if (line) lines.push(line)
-    return lines.slice(0, 4)
-  }
-
   const escapeXml = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-  const titleLines = wrapText(title.toUpperCase(), 16).map((line, i) =>
+  const titleLines = wrapWords(title.toUpperCase(), 16).map((line, i) =>
     `<tspan x="300" dy="${i === 0 ? 0 : 60}">${escapeXml(line)}</tspan>`
   ).join('')
 
@@ -499,7 +482,7 @@ function render() {
 
   const entrance = state.detailOpen ? state.detailEntrance : null
   state.detailEntrance = null
-  const animateEntrance = !!entrance && canAnimate()
+  const animateEntrance = !!entrance && canAnimate(document.querySelector('#app'))
   // The ink reveal starts from bare paper only when it will actually play
   const settledCover = !animateEntrance || prefersReducedMotion()
 
@@ -831,7 +814,7 @@ function renderModal() {
           <div class="form-group">
             <label class="form-label">Medium</label>
             <select class="form-input" id="add-medium">
-              ${MEDIA.map(m => `<option value="${m.key}">${esc(m.label.slice(0, -1))}</option>`).join('')}
+              ${MEDIA.map(m => `<option value="${m.key}">${esc(singular(m.label))}</option>`).join('')}
             </select>
           </div>
           <div class="form-group isbn-group">
@@ -936,7 +919,6 @@ function openBook(id, { from = null, source = 'results', entrance = true } = {})
   render()
 }
 
-const canAnimate = () => typeof Element.prototype.animate === 'function'
 const prefersReducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches
 
 // The list the detail steps through: the shelf group it was opened from, or the current results
@@ -1038,7 +1020,7 @@ function closeDetail() {
   render()
   const opener = source === 'shelf' ? document.querySelector('.shelf-open') : resultTile(id)
   opener?.focus({ preventScroll: true })
-  if (el && canAnimate() && !prefersReducedMotion()) playExit(el, detailOrigin(source, id))
+  if (el) playExit(el, detailOrigin(source, id), { reducedMotion: prefersReducedMotion() })
 }
 
 // Apply the current location.hash to app state

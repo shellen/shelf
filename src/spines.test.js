@@ -2,7 +2,7 @@
 // ABOUTME: Colour choice must be deterministic per id and spread across the palette.
 
 import { describe, it, expect } from 'vitest'
-import { SPINE_PALETTE, spinePalette, spineTitle, spineCreator } from './spines.js'
+import { SPINE_PALETTE, spinePalette, spineTitle, spineCreator, wrapWords } from './spines.js'
 
 describe('spinePalette', () => {
   it('always gives the same id the same palette entry', () => {
@@ -65,5 +65,20 @@ describe('spineCreator', () => {
   it('keeps single-word names and handles none', () => {
     expect(spineCreator('WNYC')).toBe('WNYC')
     expect(spineCreator(null)).toBe('')
+  })
+})
+
+describe('wrapWords', () => {
+  it('breaks at word boundaries within the width', () => {
+    expect(wrapWords('THE DESIGN OF EVERYDAY THINGS', 13)).toEqual(['THE DESIGN OF', 'EVERYDAY', 'THINGS'])
+  })
+
+  it('gives a word longer than the width a line of its own', () => {
+    expect(wrapWords('A CSIKSZENTMIHALYI READER', 10)).toEqual(['A', 'CSIKSZENTMIHALYI', 'READER'])
+  })
+
+  it('keeps at most four lines and ignores extra whitespace', () => {
+    expect(wrapWords('  one two  three four five six ', 3)).toEqual(['one', 'two', 'three', 'four'])
+    expect(wrapWords('', 10)).toEqual([])
   })
 })

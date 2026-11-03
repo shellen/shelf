@@ -1,10 +1,12 @@
 // ABOUTME: Chooses which library items the shelf view showcases, grouped for its tab rail.
-// ABOUTME: Also formats an item's caption state line and its star rating as text.
+// ABOUTME: Also names an item's medium and formats its caption state line and star rating as text.
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const READING_TAG = 'currently-reading'
 
-const mediumOf = b => b.medium || 'book'
+export const mediumOf = b => b.medium || 'book'
+// A medium's label for one item: "Books" names a "Book"
+export const singular = label => label.slice(0, -1)
 const isReading = b => (b.tags || []).includes(READING_TAG)
 const byTitle = (a, b) => (a.title || '').localeCompare(b.title || '')
 

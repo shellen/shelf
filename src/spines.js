@@ -1,4 +1,4 @@
-// ABOUTME: Derives a book spine's look from an item: cloth colour, short title, subtitle, creator.
+// ABOUTME: Derives an item's printed look: spine cloth colour, short title, creator, and cover title lines.
 // ABOUTME: Colours are deterministic per item id so a spine keeps its colour across renders.
 
 export const SPINE_PALETTE = [
@@ -34,4 +34,21 @@ export function spineTitle(title) {
 export function spineCreator(name) {
   const parts = String(name || '').replace(/,?\s+(Jr\.?|Sr\.?|II|III|IV)$/i, '').trim().split(/\s+/)
   return parts[parts.length - 1] || ''
+}
+
+// Breaks text into at most four lines of about `max` characters, at word boundaries
+export function wrapWords(text, max) {
+  const lines = []
+  let line = ''
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    const candidate = line ? `${line} ${word}` : word
+    if (candidate.length > max && line) {
+      lines.push(line)
+      line = word
+    } else {
+      line = candidate
+    }
+  }
+  if (line) lines.push(line)
+  return lines.slice(0, 4)
 }

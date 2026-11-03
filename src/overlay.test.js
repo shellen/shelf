@@ -157,6 +157,13 @@ describe('playExit', () => {
     expect(ghosts[0].getAttribute('aria-hidden')).toBe('true')
     expect(ghosts[0].querySelector('[mask]')).toBeNull()
   })
+
+  it('leaves no copy under reduced motion', () => {
+    show(DUNE)
+    HTMLElement.prototype.animate = function () { return {} }
+    playExit($('.detail'), null, { reducedMotion: true })
+    expect(document.body.querySelectorAll('.detail-ghost')).toHaveLength(0)
+  })
 })
 
 describe('playEntrance', () => {
@@ -176,5 +183,17 @@ describe('playEntrance', () => {
     playEntrance($('.detail'), null, { reducedMotion: false })
     expect(lines.length).toBeGreaterThan(0)
     for (const line of lines) expect(starts.get(line).transform).toBe('translateY(calc(110% + 8px))')
+  })
+
+  it('holds its opening frames through each delay but nothing once finished', () => {
+    show(DUNE, { settled: false })
+    const fills = []
+    const record = function (frames, options) { fills.push(options?.fill); return {} }
+    Element.prototype.animate = record
+    for (const line of document.querySelectorAll('.dm > *')) line.animate = record
+    const from = { rect: { left: 100, top: 100, width: 200, height: 300, right: 300, bottom: 400 }, rotate: -4.5 }
+    playEntrance($('.detail'), from, { reducedMotion: false })
+    expect(fills.length).toBeGreaterThan(1)
+    expect(fills.every(fill => fill === 'backwards')).toBe(true)
   })
 })

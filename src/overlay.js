@@ -2,27 +2,12 @@
 // ABOUTME: Markup plus entrance/exit motion and the cover's ink reveal; editing wiring stays in main.js.
 
 import { esc } from './html.js'
-import { spinePalette, spineTitle } from './spines.js'
+import { spinePalette, spineTitle, wrapWords } from './spines.js'
+import { singular } from './showcase.js'
 
 const STARS = [1, 2, 3, 4, 5]
 const INK_BLOBS = [[190, 330, 0], [430, 600, 120], [316, 120, 220], [114, 760, 300], [506, 250, 360], [329, 860, 420], [291, 470, 180]]
-const canAnimate = el => typeof el.animate === 'function'
-
-function wrapWords(text, max) {
-  const lines = []
-  let line = ''
-  for (const word of text.split(/\s+/).filter(Boolean)) {
-    const candidate = line ? `${line} ${word}` : word
-    if (candidate.length > max && line) {
-      lines.push(line)
-      line = word
-    } else {
-      line = candidate
-    }
-  }
-  if (line) lines.push(line)
-  return lines.slice(0, 4)
-}
+export const canAnimate = el => typeof el.animate === 'function'
 
 function starsHtml(rating, readOnly) {
   const stars = STARS.map(star => {
@@ -99,12 +84,12 @@ export function renderDetail(book, { readOnly, savingCover, media, links, canPre
         <button class="btn" data-action="detail-next" aria-label="Next item" ${canNext ? '' : 'disabled'}>&rarr;</button>
       </div>
       <div class="detail-text">
-        <div class="dm"><span class="detail-kicker">${esc(info.label.slice(0, -1))}</span></div>
+        <div class="dm"><span class="detail-kicker">${esc(singular(info.label))}</span></div>
         <div class="dm"><textarea id="detail-title" class="detail-title" data-field="title" data-original="${esc(book.title)}" placeholder="Title" rows="${titleRows}" ${locked}>${esc(book.title)}</textarea></div>
         <div class="dm"><input class="detail-author" data-field="author" value="${esc(book.author)}" data-original="${esc(book.author)}" placeholder="${esc(info.creator)}" ${locked}></div>
         ${readOnly ? '' : `
         <div class="dm"><select class="detail-medium" data-field="medium" data-original="${esc(medium)}">
-          ${media.map(m => `<option value="${m.key}" ${medium === m.key ? 'selected' : ''}>${esc(m.label.slice(0, -1))}</option>`).join('')}
+          ${media.map(m => `<option value="${m.key}" ${medium === m.key ? 'selected' : ''}>${esc(singular(m.label))}</option>`).join('')}
         </select></div>`}
         ${book.author ? '<div class="dm"><button class="detail-author-link" data-action="author-route">More by this author &rarr;</button></div>' : ''}
         <div class="dm">${starsHtml(rating, readOnly)}</div>
@@ -178,21 +163,22 @@ export function playEntrance(el, from, { reducedMotion = false } = {}) {
     el.animate([
       { clipPath: clip, transform: `rotate(${from.rotate}deg)` },
       { clipPath: 'inset(0px 0px 0px 0px round 0px)', transform: 'rotate(0deg)' },
-    ], { duration: 1050, easing: 'cubic-bezier(.76,0,.18,1)', fill: 'both' })
+    ], { duration: 1050, easing: 'cubic-bezier(.76,0,.18,1)', fill: 'backwards' })
   } else {
     el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: 'ease-out' })
   }
   el.querySelectorAll('.dm > *').forEach((child, k) => {
     // The extra 8px clears the focus-ring padding at the foot of each .dm mask
     child.animate([{ transform: 'translateY(calc(110% + 8px))' }, { transform: 'translateY(0)' }],
-      { duration: 900, delay: (from ? 620 : 120) + k * 60, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' })
+      { duration: 900, delay: (from ? 620 : 120) + k * 60, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' })
   })
   revealInk(el, from ? 520 : 0)
 }
 
-// Animates a detached copy back into `to` so app state can change immediately
-export function playExit(el, to) {
-  if (!canAnimate(el)) return
+// Animates a detached copy back into `to` so app state can change immediately.
+// Reduced motion leaves no copy: the detail simply goes.
+export function playExit(el, to, { reducedMotion = false } = {}) {
+  if (reducedMotion || !canAnimate(el)) return
   const ghost = el.cloneNode(true)
   ghost.classList.add('detail-ghost')
   ghost.inert = true
