@@ -10,6 +10,11 @@ const releaseTitle = title => String(title || '').replace(/ - (Single|EP)$/, '')
 
 const titleKey = title => normKey(releaseTitle(title))
 
+// Words in a trailing bracketed note that mark a reissue of the same album
+const EDITION_NOTE = /\s*[(\[][^)\]]*\b(remaster(ed)?|deluxe|expanded|anniversary|collector's|bonus|special edition)\b[^)\]]*[)\]]$/i
+
+const editionlessTitleKey = title => normKey(releaseTitle(title).replace(EDITION_NOTE, ''))
+
 // An empty normalised title, or an album's empty creator, never matches anything
 const canMatch = item => titleKey(item.title) !== '' && (item.medium !== 'album' || normKey(item.author) !== '')
 
@@ -25,14 +30,18 @@ export const coverQuery = item => item.medium === 'album'
 
 // The first result with artwork whose title matches the item's, and for an album whose creator does too.
 // Podcasts match on title alone: Spotify's publisher and iTunes' artist often differ.
+// Only when no result matches exactly is a trailing edition note ignored in both titles.
 export function matchCover(item, results) {
   if (!canMatch(item)) return null
-  const title = titleKey(item.title)
   const creator = normKey(item.author)
   const isAlbum = item.medium === 'album'
-  return results.find(r => r.coverUrl
-    && titleKey(r.title) === title
-    && (!isAlbum || normKey(r.author) === creator)) || null
+  const find = key => {
+    const title = key(item.title)
+    return title !== '' && results.find(r => r.coverUrl
+      && key(r.title) === title
+      && (!isAlbum || normKey(r.author) === creator))
+  }
+  return find(titleKey) || find(editionlessTitleKey) || null
 }
 
 // The item as saved with a found cover, or null when it is gone or has a cover by now.

@@ -112,6 +112,63 @@ describe('matchCover', () => {
   })
 })
 
+describe('matchCover editions', () => {
+  it('finds a remastered edition of the item, and the plain release of a deluxe item', () => {
+    const abbeyRoad = album({ title: 'Abbey Road', author: 'The Beatles' })
+    expect(matchCover(abbeyRoad, [result({ title: 'Abbey Road (Remastered)', author: 'The Beatles' })])).not.toBeNull()
+    const rumours = album({ title: 'Rumours (Super Deluxe)', author: 'Fleetwood Mac' })
+    expect(matchCover(rumours, [result({ title: 'Rumours', author: 'Fleetwood Mac' })])).not.toBeNull()
+  })
+
+  it('counts bracketed notes that name an edition, in square or round brackets', () => {
+    const edition = (title, note) => matchCover(album({ title }), [result({ title: `${title} ${note}` })])
+    expect(edition('In Rainbows', '[Remastered 2009]')).not.toBeNull()
+    expect(edition('In Rainbows', '(40th Anniversary Edition)')).not.toBeNull()
+    expect(edition('In Rainbows', '(2011 Remaster)')).not.toBeNull()
+    expect(edition('In Rainbows', '(Deluxe Version)')).not.toBeNull()
+    expect(edition('In Rainbows', "(Collector's Edition)")).not.toBeNull()
+    expect(edition('In Rainbows', '(Expanded)')).not.toBeNull()
+    expect(edition('In Rainbows', '(Bonus Track Version)')).not.toBeNull()
+    expect(edition('In Rainbows', '(Special Edition)')).not.toBeNull()
+  })
+
+  it('prefers an exact title even when an edition comes first', () => {
+    const results = [
+      result({ title: 'In Rainbows (Remastered)', coverUrl: 'https://art.example/remaster.jpg' }),
+      result({ coverUrl: 'https://art.example/exact.jpg' })
+    ]
+    expect(matchCover(album(), results).coverUrl).toBe('https://art.example/exact.jpg')
+  })
+
+  it('keeps live, demo, mono, disk and version notes as part of the title', () => {
+    for (const note of ['(Live)', '(Demo)', '(Mono)', '(Disk 2)', "(Taylor's Version)"]) {
+      expect(matchCover(album({ title: 'Red', author: 'Taylor Swift' }), [result({ title: `Red ${note}`, author: 'Taylor Swift' })])).toBeNull()
+      expect(matchCover(album({ title: `Red ${note}`, author: 'Taylor Swift' }), [result({ title: 'Red', author: 'Taylor Swift' })])).toBeNull()
+    }
+  })
+
+  it('leaves a note in the middle of a title alone', () => {
+    expect(matchCover(album({ title: 'Abbey (Remastered) Road' }), [result({ title: 'Abbey Road' })])).toBeNull()
+  })
+
+  it('still needs the same creator', () => {
+    expect(matchCover(album(), [result({ title: 'In Rainbows (Remastered)', author: 'Radiohead Tribute Band' })])).toBeNull()
+  })
+
+  it('removes an edition note together with " - Single" or " - EP"', () => {
+    expect(matchCover(album({ title: 'My Iron Lung (Deluxe) - EP' }), [result({ title: 'My Iron Lung' })])).not.toBeNull()
+    expect(matchCover(album({ title: 'My Iron Lung' }), [result({ title: 'My Iron Lung (Remastered) - EP' })])).not.toBeNull()
+  })
+
+  it('never matches on a title that is only an edition note', () => {
+    expect(matchCover(album({ title: '(Deluxe)' }), [result({ title: '(Remastered)' })])).toBeNull()
+  })
+
+  it('applies to podcasts as well, on title alone', () => {
+    expect(matchCover(podcast(), [result({ title: 'Radiolab (Deluxe)', author: 'WNYC' })])).not.toBeNull()
+  })
+})
+
 describe('coverUpdate', () => {
   it('adds the cover, and the year when the item has none', () => {
     expect(coverUpdate(album(), result())).toEqual({ ...album(), coverUrl: 'https://art.example/in-rainbows.jpg', year: 2007 })
