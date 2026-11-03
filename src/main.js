@@ -847,8 +847,22 @@ function renderModal() {
   `
 }
 
+// The hashes the app wrote itself, kept until the next task. Browsers send no hashchange for
+// replaceState, but happy-dom queues one per write; onHashchange recognises and ignores those.
+let ownHashes = []
+let ownHashesTimer = 0
+
+// Every hash the app sets goes through here; an empty hash drops the fragment altogether
+function writeHash(hash) {
+  if (location.hash === hash) return
+  history.replaceState(null, '', hash || location.pathname + location.search)
+  ownHashes.push(location.hash)
+  clearTimeout(ownHashesTimer)
+  ownHashesTimer = setTimeout(() => { ownHashes = [] })
+}
+
 function clearHash() {
-  if (location.hash) history.replaceState(null, '', location.pathname + location.search)
+  writeHash('')
 }
 
 function resetFilters() {
@@ -909,7 +923,7 @@ function openBook(id, { from = null, source = 'results', entrance = true } = {})
   state.detailEntrance = entrance ? { from } : null
   const target = bookHash(book)
   if (target && location.hash !== target) {
-    history.replaceState(null, '', target)
+    writeHash(target)
   }
   render()
 }
@@ -991,7 +1005,7 @@ function afterDetailRender(entrance, animate) {
 
 function setTagRoute(tag) {
   if (tag) {
-    history.replaceState(null, '', `#/tags/${slugify(tag)}`)
+    writeHash(`#/tags/${slugify(tag)}`)
     state.tag = tag
     state.selectedIndex = -1
     if (state.view === 'shelf') state.view = 'covers'
@@ -1006,9 +1020,7 @@ function setTagRoute(tag) {
 
 // Puts back the route the detail was opened from, or no hash after a cold deep link
 function restoreDetailOrigin() {
-  if (location.hash === state.detailOrigin) return
-  if (state.detailOrigin) history.replaceState(null, '', state.detailOrigin)
-  else clearHash()
+  writeHash(state.detailOrigin)
 }
 
 function closeDetail() {
@@ -1044,7 +1056,7 @@ function applyHash() {
   // Any route but a medium filter shows results, which the shelf view doesn't
   if (route.kind !== 'medium' && state.view === 'shelf') state.view = 'covers'
   if (resolved.canonical && location.hash !== resolved.canonical) {
-    history.replaceState(null, '', resolved.canonical)
+    writeHash(resolved.canonical)
   }
 
   if (route.kind === 'tags' && resolved.tag) {
@@ -1077,19 +1089,13 @@ function applyHash() {
   render()
 }
 
-// Whether the page already shows this route, as it does after writing the hash itself.
-// Browsers send no hashchange for replaceState, but happy-dom does.
-function showsRoute(route) {
-  if (state.detailOpen) return false
-  if (route.kind === 'tags') return !state.route && state.tag === resolveRoute(route, state.books).tag
-  if (state.route?.kind !== route.kind) return false
-  const ids = resolveRoute(route, state.books).books.map(b => b.id)
-  return ids.length === state.route.ids.size && ids.every(id => state.route.ids.has(id))
-}
-
-function onHashchange() {
-  const route = parseRoute(location.hash)
-  if (route && showsRoute(route)) return
+function onHashchange(e) {
+  const hash = e.newURL ? new URL(e.newURL).hash : location.hash
+  const own = ownHashes.indexOf(hash)
+  if (own >= 0) {
+    ownHashes.splice(own, 1)
+    return
+  }
   applyHash()
 }
 
@@ -1564,7 +1570,7 @@ function attachEventListeners() {
     }
     const mediumLink = e.target.closest('[data-medium-link]')
     if (mediumLink) {
-      history.replaceState(null, '', `#/medium/${mediumLink.dataset.mediumLink}`)
+      writeHash(`#/medium/${mediumLink.dataset.mediumLink}`)
       applyHash()
       return
     }
@@ -1603,7 +1609,7 @@ function attachEventListeners() {
     el.addEventListener('click', () => {
       const key = el.dataset.medium
       if (key) {
-        history.replaceState(null, '', `#/medium/${key}`)
+        writeHash(`#/medium/${key}`)
         applyHash()
       } else {
         state.route = null
@@ -1731,7 +1737,7 @@ function attachEventListeners() {
   // Author route from the detail
   document.querySelector('[data-action="author-route"]')?.addEventListener('click', () => {
     if (!state.selected?.author) return
-    history.replaceState(null, '', `#/author/${slugify(state.selected.author)}`)
+    writeHash(`#/author/${slugify(state.selected.author)}`)
     applyHash()
   })
 

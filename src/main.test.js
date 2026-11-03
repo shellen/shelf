@@ -1416,6 +1416,19 @@ describe('hash routes', () => {
     expect(window.location.hash).toBe('')
   })
 
+  it('applies a typed route that resolves like the one showing', async () => {
+    await loadApp()
+    goTo('#/author/herbert')
+    await new Promise(r => setTimeout(r, 0))
+    expect(window.location.hash).toBe('#/author/frank-herbert')
+    const input = document.querySelector('[data-action="search"]')
+    input.value = 'du'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    goTo('#/author/herbert')
+    expect(document.querySelector('[data-action="search"]').value).toBe('')
+    expect(window.location.hash).toBe('#/author/frank-herbert')
+  })
+
   describe('closing puts back the route the item was opened from', () => {
     // happy-dom queues a hashchange for replaceState, which a browser never sends
     const flush = () => new Promise(r => setTimeout(r, 0))
