@@ -376,6 +376,15 @@ describe('parseAppleLibrary', () => {
     expect(books.map(b => [b.title, b.author])).toEqual([['Graduation', 'Kanye West']])
   })
 
+  it('rejoins several split-off groups into the same album', () => {
+    const books = apple([
+      song({ Album: 'Late Registration', Artist: 'Kanye West', 'Album Artist': 'Kanye West', Year: 2005, 'Date Added': '2012-01-01T00:00:00Z' }),
+      song({ Album: 'Late Registration', Artist: 'Kanye West feat. Twista', Year: 2005, 'Date Added': '2011-01-01T00:00:00Z' }),
+      song({ Album: 'Late Registration', Artist: 'Kanye West feat. Jay-Z', Year: 2005, 'Date Added': '2010-01-01T00:00:00Z' })
+    ])
+    expect(books.map(b => [b.title, b.author, b.dateAdded])).toEqual([['Late Registration', 'Kanye West', '2010-01-01']])
+  })
+
   it('keeps apart albums that share a title but not a year', () => {
     const books = apple([
       song({ Album: 'Greatest Hits', Artist: 'Queen', 'Album Artist': 'Queen', Year: 1981 }),

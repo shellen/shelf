@@ -67,15 +67,19 @@ const yearsOf = tracks => new Set(tracks.map(t => t.Year).filter(y => y > 0))
 // year with it, when there is exactly one; otherwise it stays apart.
 function rejoinSplitAlbums(groups) {
   const credited = groups.filter(g => g.some(isCredited)).map(g => ({ tracks: g, title: normKey(g[0].Album), years: yearsOf(g) }))
-  return groups.filter(group => {
-    if (group.some(isCredited)) return true
+  const kept = []
+  for (const group of groups) {
+    if (group.some(isCredited)) {
+      kept.push(group)
+      continue
+    }
     const title = normKey(group[0].Album)
     const years = yearsOf(group)
     const matches = credited.filter(c => c.title === title && [...c.years].some(y => years.has(y)))
-    if (matches.length !== 1) return true
-    matches[0].tracks.push(...group)
-    return false
-  })
+    if (matches.length === 1) matches[0].tracks.push(...group)
+    else kept.push(group)
+  }
+  return kept
 }
 
 function appleAlbum(tracks) {
