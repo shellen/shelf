@@ -878,6 +878,20 @@ body.is-shelf #results {
 
 .shelf-tab:first-child { margin-left: 0; }
 
+/* An inset ring, which the scrolling rail cannot clip, raised above the neighbouring tabs;
+   on the cobalt active tab it is sheet-coloured and set in from the edge */
+.shelf-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  position: relative;
+  z-index: 2;
+}
+
+.shelf-tab.active:focus-visible {
+  outline-color: var(--sheet);
+  outline-offset: -4px;
+}
+
 .shelf-tab.active {
   position: relative;
   z-index: 1;
