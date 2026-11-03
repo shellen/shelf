@@ -234,4 +234,69 @@ describe('parseAppleLibrary', () => {
     const broken = appleLibrary([song()]).replace('</dict>\n</plist>', '')
     expect(() => parseAppleLibrary(broken)).toThrow('Library.xml is not well-formed')
   })
+
+  it('makes one album entry from an album\'s tracks', () => {
+    const { books, failed } = parseAppleLibrary(appleLibrary([
+      song({ Name: '15 Step', Year: 2007, Genre: 'Alternative', 'Date Added': '2019-03-04T05:06:07Z' }),
+      song({ Name: 'Bodysnatchers', Year: 2007, Genre: 'Alternative', 'Date Added': '2019-03-04T05:06:08Z' })
+    ]))
+    expect(books).toEqual([{
+      ...BLANK,
+      title: 'In Rainbows',
+      author: 'Radiohead',
+      medium: 'album',
+      year: 2007,
+      tags: ['alternative', 'apple-music'],
+      dateAdded: '2019-03-04'
+    }])
+    expect(failed).toEqual([])
+  })
+
+  it('takes the earliest year, and none when no track has one', () => {
+    expect(apple([song({ Year: 2008 }), song({ Year: 2007 }), song()])[0].year).toBe(2007)
+    expect(apple([song()])[0].year).toBe(null)
+  })
+
+  it('takes the earliest date added, as its UTC date', () => {
+    const books = apple([
+      song({ 'Date Added': '2020-01-02T00:30:00Z' }),
+      song({ 'Date Added': '2020-01-01T23:30:00Z' })
+    ])
+    expect(books[0].dateAdded).toBe('2020-01-01')
+  })
+
+  it('tags the most common genre, lowercased, with ties going alphabetically', () => {
+    expect(apple([song({ Genre: 'Rock' }), song({ Genre: 'Alternative' }), song({ Genre: 'Rock' })])[0].tags).toEqual(['rock', 'apple-music'])
+    expect(apple([song({ Genre: 'Rock' }), song({ Genre: 'Electronic' })])[0].tags).toEqual(['electronic', 'apple-music'])
+  })
+
+  it('tags only the source when no track has a genre', () => {
+    expect(apple([song(), song({ Genre: ' ' })])[0].tags).toEqual(['apple-music'])
+  })
+
+  it('rates the album by its highest album rating set by hand, to the nearest half star', () => {
+    expect(apple([song({ 'Album Rating': 80 }), song({ 'Album Rating': 60 })])[0].rating).toBe(4)
+    expect(apple([song({ 'Album Rating': 90 })])[0].rating).toBe(4.5)
+  })
+
+  it('ignores an album rating Music computed from the song ratings', () => {
+    expect(apple([song({ 'Album Rating': 100, 'Album Rating Computed': true })])[0].rating).toBe(null)
+    expect(apple([
+      song({ 'Album Rating': 100, 'Album Rating Computed': true }),
+      song({ 'Album Rating': 40 })
+    ])[0].rating).toBe(2)
+  })
+
+  it('gives a loved album with no rating 5 stars, under either name Music uses', () => {
+    expect(apple([song({ 'Album Loved': true })])[0].rating).toBe(5)
+    expect(apple([song({ 'Album Favorited': true })])[0].rating).toBe(5)
+  })
+
+  it('prefers a rating set by hand over a love', () => {
+    expect(apple([song({ 'Album Loved': true, 'Album Rating': 60 })])[0].rating).toBe(3)
+  })
+
+  it('does not count a loved song as a loved album', () => {
+    expect(apple([song({ Loved: true })])[0].rating).toBe(null)
+  })
 })

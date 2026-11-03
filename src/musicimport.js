@@ -58,11 +58,20 @@ const albumArtist = track => clean(track['Album Artist'])
   || (track.Compilation ? 'Various Artists' : clean(track.Artist))
 
 function appleAlbum(tracks) {
+  const years = tracks.map(t => t.Year).filter(y => y > 0)
+  const genre = mostCommon(tracks.map(t => clean(t.Genre).toLowerCase()).filter(Boolean))
+  const ratings = tracks.filter(t => !t['Album Rating Computed'] && t['Album Rating'] > 0).map(t => t['Album Rating'])
+  const loved = tracks.some(t => t['Album Loved'] || t['Album Favorited'])
+  const firstAdded = tracks.map(t => t['Date Added']).filter(Boolean).sort()[0]
   return entry({
     title: clean(tracks[0].Album),
     author: mostCommon(tracks.map(albumArtist).filter(Boolean)) || null,
     medium: 'album',
-    tags: ['apple-music']
+    year: years.length ? Math.min(...years) : null,
+    tags: genre ? [genre, 'apple-music'] : ['apple-music'],
+    // Album Rating runs 0-100; stars are 0-5 in halves
+    rating: ratings.length ? Math.round(Math.max(...ratings) / 10) / 2 : loved ? 5 : null,
+    dateAdded: firstAdded ? firstAdded.slice(0, 10) : null
   })
 }
 
