@@ -313,8 +313,16 @@ export function mountShelf(root, {
     drag = null
   }
 
+  // On a narrow screen the rail scrolls sideways, with the active tab in the middle of it
+  function centreActiveTab() {
+    const rail = root.querySelector('.shelf-rail')
+    const tab = rail?.querySelector('.shelf-tab.active')
+    if (tab) rail.scrollLeft = tab.offsetLeft - (rail.clientWidth - tab.offsetWidth) / 2
+  }
+
   function onResize() {
     geom = measure()
+    centreActiveTab()
     wake()
   }
 
@@ -397,6 +405,7 @@ export function mountShelf(root, {
     })
   })
 
+  centreActiveTab()
   syncCursor()
   syncArrows()
   tick(performance.now())

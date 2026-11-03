@@ -50,6 +50,7 @@ afterEach(() => {
   control = null
   document.body.innerHTML = ''
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })
 
 describe('renderShelfView', () => {
@@ -196,6 +197,24 @@ describe('mountShelf', () => {
       expect(next().disabled).toBe(true)
       expect(document.activeElement).toBe(document.querySelector('.shelf-open'))
     })
+  })
+
+  it('scrolls a rail too wide for its screen to centre the active tab', () => {
+    const groups = ['reading', 'favorites', 'book', 'album', 'all'].map(key => group(books(3), key, key))
+    document.body.innerHTML = renderShelfView({ groups, activeKey: 'album', index: 0, total: 3, canAdd: false })
+    const rail = document.querySelector('.shelf-rail')
+    const active = document.querySelector('.shelf-tab.active')
+    Object.defineProperty(rail, 'clientWidth', { configurable: true, value: 300 })
+    Object.defineProperty(active, 'offsetLeft', { configurable: true, value: 500 })
+    Object.defineProperty(active, 'offsetWidth', { configurable: true, value: 80 })
+    // Without a ResizeObserver the shelf listens for the window resizing
+    vi.stubGlobal('ResizeObserver', undefined)
+    control = mountShelf(document.querySelector('.shelf-view'), { items: books(3), reducedMotion: true })
+    expect(rail.scrollLeft).toBe(390)
+    // Fonts settling or a turned phone change the rail's width; the window resizing re-centres it
+    Object.defineProperty(rail, 'clientWidth', { configurable: true, value: 200 })
+    window.dispatchEvent(new Event('resize'))
+    expect(rail.scrollLeft).toBe(440)
   })
 
   it('starts on the given index', () => {

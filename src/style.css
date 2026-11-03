@@ -839,16 +839,27 @@ body.is-shelf #results {
   -webkit-user-select: none;
 }
 
+/* Centred between the gutters, scrolling sideways when its tabs are wider than the screen;
+   the padding keeps focus rings inside the scroller */
 .shelf-rail {
   position: absolute;
-  left: 50%;
-  top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 86px);
-  transform: translateX(-50%);
+  left: 16px;
+  right: 16px;
+  top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 89px);
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  margin-inline: auto;
+  padding: 3px;
   display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
   z-index: 3;
 }
 
+.shelf-rail::-webkit-scrollbar { display: none; }
+
 .shelf-tab {
+  flex-shrink: 0;
   height: 23px;
   padding: 0 11px;
   margin-left: -1px;
@@ -1196,7 +1207,7 @@ body.is-shelf #results {
     --shelf-h: max(120px, min(60cqw, 50cqh, 100cqh - 194px));
     --shelf-cy: calc(50% - 17px);
   }
-  .shelf-rail { top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 70px); }
+  .shelf-rail { top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 73px); }
   .shelf-tab { padding: 0 6px; }
   .shelf-caption-title { font-size: 24px; }
   .shelf-prev { left: 6px; }
@@ -1214,7 +1225,7 @@ body.is-shelf #results {
     --shelf-h: max(96px, 100cqh - 116px);
     --shelf-cy: calc(50% - 16px);
   }
-  .shelf-rail { top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 36px); }
+  .shelf-rail { top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 39px); }
   .shelf-caption { top: calc(var(--shelf-cy) + var(--shelf-h) / 2 + 10px); gap: 3px; }
   .shelf-caption-title { font-size: 20px; }
   .shelf-arrow { top: calc(var(--shelf-cy) + var(--shelf-h) / 2 + 10px); }
