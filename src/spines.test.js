@@ -174,3 +174,66 @@ describe('coverSize', () => {
     expect(coverSize({ medium: 'album' })).toEqual({ width: 600, height: 600 })
   })
 })
+
+describe('the record cover', () => {
+  const draw = book => new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg">${coverTypeSvg(book)}</svg>`, 'image/svg+xml')
+  const ALBUM = { id: 'ok-computer', title: 'OK Computer: OKNOTOK 1997 2017', author: 'Radiohead', year: 1997, medium: 'album' }
+  const circles = doc => [...doc.querySelectorAll('circle')].map(c => [c.getAttribute('cx'), c.getAttribute('cy'), c.getAttribute('r'), c.getAttribute('fill')])
+
+  it('fills a square sleeve with the album\'s cloth colour', () => {
+    const rect = draw(ALBUM).querySelector('rect')
+    expect([rect.getAttribute('width'), rect.getAttribute('height'), rect.getAttribute('fill')]).toEqual(['600', '600', spinePalette('ok-computer').bg])
+  })
+
+  it('draws a near-black disc 14% in from each edge, a paper label, and a spindle hole showing the sleeve', () => {
+    expect(circles(draw(ALBUM))).toEqual([
+      ['300', '300', '216', '#141414'],
+      ['300', '300', '100', '#EDE3CC'],
+      ['300', '300', '7', spinePalette('ok-computer').bg],
+    ])
+  })
+
+  it('carries the artist and the short title on the label, in ink', () => {
+    const texts = [...draw(ALBUM).querySelectorAll('text')]
+    expect(texts.map(t => [t.textContent, t.getAttribute('fill')])).toEqual([['RADIOHEAD', '#141414'], ['OK COMPUTER', '#141414']])
+    expect(texts.map(t => t.getAttribute('font-family'))).toEqual(['Inter Tight, sans-serif', 'Newsreader, Georgia, serif'])
+  })
+
+  it('sets the artist above the spindle hole and the title below it', () => {
+    const doc = draw(ALBUM)
+    const [artist, title] = doc.querySelectorAll('text')
+    // The hole spans 293 to 307; a line reaches at most its font size above its baseline
+    expect(Number(artist.getAttribute('y'))).toBeLessThan(293)
+    const size = Number(title.getAttribute('font-size'))
+    expect([...title.querySelectorAll('tspan')].every(t => Number(t.getAttribute('y')) - size > 307)).toBe(true)
+  })
+
+  it('keeps a long title to two lines on the label, ending the second with an ellipsis', () => {
+    const lines = [...draw({ ...ALBUM, title: 'The Freewheelin\' Bob Dylan Remastered Mono Edition' }).querySelectorAll('tspan')].map(t => t.textContent)
+    expect(lines).toHaveLength(2)
+    expect(lines[1].endsWith('…')).toBe(true)
+  })
+
+  it('cuts a long artist short to fit the label', () => {
+    const artist = draw({ ...ALBUM, author: 'The London Symphony Orchestra and Chorus' }).querySelector('text').textContent
+    expect(artist.length).toBeLessThanOrEqual(18)
+    expect(artist.endsWith('…')).toBe(true)
+  })
+
+  it('names an untitled album', () => {
+    expect([...draw({ id: 'x', medium: 'album' }).querySelectorAll('tspan')].map(t => t.textContent)).toEqual(['UNTITLED'])
+  })
+
+  it('sets album data as text', () => {
+    const doc = draw({ id: 'h', title: '<b>Bold</b> & Co', author: '"Q" <i>', medium: 'album' })
+    expect(doc.querySelector('b')).toBeNull()
+    expect(doc.querySelector('i')).toBeNull()
+    expect(doc.querySelector('text').textContent).toBe('"Q" <I>')
+    expect([...doc.querySelectorAll('tspan')].map(t => t.textContent).join(' ')).toBe('<B>BOLD</B> & CO')
+  })
+
+  it('is drawn only for albums', () => {
+    expect(draw({ ...ALBUM, medium: 'podcast' }).querySelector('circle')).toBeNull()
+    expect(draw({ ...ALBUM, medium: 'book' }).querySelector('circle')).toBeNull()
+  })
+})
