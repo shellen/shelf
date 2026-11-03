@@ -21,6 +21,8 @@ function approach(value, goal, amount, epsilon) {
   return Math.abs(goal - next) < epsilon ? goal : next
 }
 
+const openLabel = book => `Open ${book.title || 'Untitled'}`
+
 function captionHtml(book) {
   const line = [book.author, captionState(book)].filter(Boolean).map(esc).join(' &middot; ')
   return `<span class="shelf-caption-title">${esc(spineTitle(book.title))}</span>`
@@ -64,7 +66,7 @@ export function renderShelfView({ groups, activeKey, index, total, canAdd }) {
         ${groups.map(g => `<button class="shelf-tab ${g.key === group.key ? 'active' : ''}" aria-pressed="${g.key === group.key}" data-shelf-group="${esc(g.key)}">${esc(g.label)} <span class="shelf-tab-count">${g.items.length}</span></button>`).join('')}
       </nav>
       <div class="shelf-stage-wrap"><div class="shelf-stage" aria-hidden="true"></div></div>
-      <button class="shelf-open" data-shelf-open aria-label="Open">${PLAY}</button>
+      <button class="shelf-open" data-shelf-open aria-label="${esc(openLabel(book))}">${PLAY}</button>
       <div class="shelf-caption" aria-live="polite">${captionHtml(book)}</div>
       <button class="shelf-arrow shelf-prev" data-shelf-step="-1" aria-label="Previous">${ARROW_PREV}</button>
       <button class="shelf-arrow shelf-next" data-shelf-step="1" aria-label="Next">${ARROW_NEXT}</button>
@@ -86,6 +88,8 @@ export function mountShelf(root, {
   const stage = root.querySelector('.shelf-stage')
   const caption = root.querySelector('.shelf-caption')
   const openButton = root.querySelector('.shelf-open')
+  const prevButton = root.querySelector('.shelf-prev')
+  const nextButton = root.querySelector('.shelf-next')
   const cursor = root.querySelector('.shelf-cursor')
 
   stage.innerHTML = Array.from({ length: slotCount(count) }, (_, v) => tapeHtml(items[v % count])).join('')
@@ -137,11 +141,21 @@ export function mountShelf(root, {
 
   function swapCaption(dir) {
     caption.innerHTML = captionHtml(items[shown])
+    openButton.setAttribute('aria-label', openLabel(items[shown]))
     if (reducedMotion || typeof caption.animate !== 'function') return
     caption.animate(
       [{ transform: `translateY(${dir * 40}%)`, opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }],
       { duration: 500, easing: 'cubic-bezier(.2,.8,.2,1)' }
     )
+  }
+
+  // A short list's arrows are disabled at its ends; one that held focus hands it to the open button
+  function syncArrows() {
+    if (wraps(count)) return
+    const focused = document.activeElement
+    prevButton.disabled = shown === 0
+    nextButton.disabled = shown === count - 1
+    if (focused?.disabled && (focused === prevButton || focused === nextButton)) openButton.focus({ preventScroll: true })
   }
 
   // The frame loop stops once nothing is moving; anything that can move it again restarts it
@@ -159,6 +173,7 @@ export function mountShelf(root, {
     if (i === shown) return
     shown = i
     swapCaption(dir)
+    syncArrows()
     onIndexChange(i)
   }
 
@@ -326,7 +341,7 @@ export function mountShelf(root, {
     wake()
   })
   root.addEventListener('pointerover', e => {
-    overButton = !!e.target.closest?.('button, a')
+    overButton = !!e.target.closest?.('button:not(:disabled), a')
     const tape = e.target.closest?.('.tape')
     hover = tape ? tapes.findIndex(t => t.el === tape) : -1
     wake()
@@ -370,6 +385,7 @@ export function mountShelf(root, {
   })
 
   syncCursor()
+  syncArrows()
   tick(performance.now())
   // The mount can run ahead of layout, so the loop goes on to draw at least one real frame
   wake()

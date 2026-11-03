@@ -131,6 +131,60 @@ describe('mountShelf', () => {
     expect(onIndexChange).not.toHaveBeenCalled()
   })
 
+  describe('controls', () => {
+    const openName = () => document.querySelector('.shelf-open').getAttribute('aria-label')
+    const prev = () => document.querySelector('.shelf-prev')
+    const next = () => document.querySelector('.shelf-next')
+
+    it('names the open button after the centred item', () => {
+      mountWith(books(10), 2)
+      expect(openName()).toBe('Open Book 2')
+      control.step(1)
+      expect(openName()).toBe('Open Book 3')
+    })
+
+    it('names the open button in its markup', () => {
+      document.body.innerHTML = renderShelfView({ groups: [group(books(3))], activeKey: 'reading', index: 1, total: 3, canAdd: false })
+      expect(openName()).toBe('Open Book 1')
+    })
+
+    it('disables the arrow that cannot move a short list', () => {
+      mountWith(books(3))
+      expect([prev().disabled, next().disabled]).toEqual([true, false])
+      control.step(1)
+      expect([prev().disabled, next().disabled]).toEqual([false, false])
+      control.step(1)
+      expect([prev().disabled, next().disabled]).toEqual([false, true])
+      control.step(-2)
+      expect([prev().disabled, next().disabled]).toEqual([true, false])
+    })
+
+    it('disables neither arrow on a list that wraps', () => {
+      mountWith(books(10))
+      expect([prev().disabled, next().disabled]).toEqual([false, false])
+    })
+
+    it('shows the button cursor over an arrow only while it can move', () => {
+      const frames = holdFrames()
+      mountWith(books(3))
+      const state = () => document.querySelector('.shelf-cursor').dataset.state
+      next().dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
+      frames.settle()
+      expect(state()).toBe('button')
+      prev().dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
+      frames.settle()
+      expect(state()).toBe('')
+    })
+
+    it('hands focus to the open button when the focused arrow runs out of list', () => {
+      mountWith(books(3), 1)
+      next().focus()
+      next().dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }))
+      expect(next().disabled).toBe(true)
+      expect(document.activeElement).toBe(document.querySelector('.shelf-open'))
+    })
+  })
+
   it('starts on the given index', () => {
     mountWith(books(10), 4)
     expect(caption()).toBe('Book 4')

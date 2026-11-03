@@ -1100,6 +1100,8 @@ body.is-shelf #results {
   z-index: 3;
 }
 
+.shelf-arrow:disabled { opacity: .3; cursor: default; }
+
 .shelf-prev { left: 20px; }
 .shelf-next { right: 20px; }
 
