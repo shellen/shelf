@@ -283,6 +283,18 @@ describe('findCovers', () => {
     expect(lookup).toHaveBeenCalledTimes(3)
   })
 
+  it.each([
+    ['its one lookup fails', 1],
+    ['both its lookups fail', 2]
+  ])('stops when %s, short of 3 in a row', async (_name, n) => {
+    const lookup = vi.fn(async () => { throw new Error('Lookup failed (500)') })
+    const items = Array.from({ length: n }, (_, k) => album({ id: `a${k}` }))
+    const run = findCovers(items, { lookup, save: async () => true, progress: () => {} })
+    await vi.runAllTimersAsync()
+    expect(await run).toEqual({ found: 0, stopped: true })
+    expect(lookup).toHaveBeenCalledTimes(n)
+  })
+
   it('starts counting failures again after a lookup succeeds', async () => {
     const answers = ['fail', 'fail', 'ok', 'fail', 'fail']
     const lookup = vi.fn(async () => {

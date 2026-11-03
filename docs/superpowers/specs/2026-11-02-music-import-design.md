@@ -208,6 +208,7 @@ Covers are found after the import, in the background, and on demand later.
 - **Pace:** one lookup at a time, about 3 seconds apart. After 3 lookups in a
   row fail, stop with "Stopped finding covers: iTunes isn't answering. Try Find
   missing covers later."
+  A run of fewer than 3 items in which every lookup fails ends with the same message.
 - **Progress:** a persistent toast that updates in place: "Finding covers 12 /
   140 · about 6 min left". It ends with "Found 131 covers", which then clears
   like a normal toast. `showToast` gains this persistent, updatable mode; a
