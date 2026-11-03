@@ -3,7 +3,7 @@
 
 export const normKey = s => String(s || '')
   .normalize('NFKD')
-  .replace(/(\p{Script=Latin})[̀-ͯ]+/gu, '$1')
+  .replace(/(\p{Script=Latin})[\u0300-\u036f]+/gu, '$1')
   .normalize('NFC')
   .toLowerCase()
   .replace(/[^\p{L}\p{M}\p{N} ]+/gu, '')
