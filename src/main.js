@@ -544,7 +544,9 @@ function isLanding() {
   return state.view === 'covers' && !state.q.trim() && !state.tag && !state.route
 }
 
+// The masthead's media links; on the shelf its rail carries the media instead
 function renderMediaTabs() {
+  if (state.view === 'shelf') return ''
   const present = MEDIA.filter(m => state.books.some(b => mediumOf(b) === m.key))
   if (present.length < 2) return ''
   const active = state.route?.kind === 'medium' ? state.route.slug : ''

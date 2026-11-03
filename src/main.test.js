@@ -106,6 +106,9 @@ function typeInSearch(chars) {
 
 const press = (key) => document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
 
+// Chooses a shelf rail tab with the mouse
+const chooseTab = key => document.querySelector(`[data-shelf-group="${key}"]`).dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
+
 // Navigates as a browser does: the hash changes and one hashchange follows as a task
 async function goTo(hash) {
   window.location.hash = hash
@@ -629,7 +632,7 @@ describe('shelf view', () => {
 
   describe('rail', () => {
     const tabs = () => [...document.querySelectorAll('[data-shelf-group]')]
-    const choose = key => document.querySelector(`[data-shelf-group="${key}"]`).dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
+    const choose = chooseTab
 
     it('lists the showcase groups, then each medium present in media order, then All', async () => {
       await loadApp(MIXED, { view: 'shelf' })
@@ -656,6 +659,48 @@ describe('shelf view', () => {
         titles.push(document.querySelector('[data-field="title"]').value)
       }
       expect(titles).toEqual(['Abbey Road', 'Dune', 'Flow', 'Radiolab', 'The Design of Everyday Things'])
+    })
+
+    it('takes the place of the masthead\'s media links, which covers and list keep', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      expect(document.querySelector('.media-tabs')).toBeNull()
+      document.querySelector('[data-view="covers"]').click()
+      expect(document.querySelector('.media-tabs')).not.toBeNull()
+      document.querySelector('[data-view="list"]').click()
+      expect(document.querySelector('.media-tabs')).not.toBeNull()
+    })
+
+    it('names a medium tab in the URL, and clears it for a group or All', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      choose('album')
+      expect(window.location.hash).toBe('#/medium/album')
+      expect(caption()).toBe('Abbey Road')
+      choose('all')
+      expect(window.location.hash).toBe('')
+      choose('podcast')
+      expect(window.location.hash).toBe('#/medium/podcast')
+      choose('favorites')
+      expect(window.location.hash).toBe('')
+      expect(caption()).toBe('Dune')
+    })
+
+    it('keeps a medium tab\'s filter in covers, and its tab on coming back', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      choose('album')
+      document.querySelector('[data-view="covers"]').click()
+      expect(window.location.hash).toBe('#/medium/album')
+      expect([...document.querySelectorAll('.cover-tile')].map(t => t.dataset.id)).toEqual(['abbey-road'])
+      document.querySelector('[data-view="shelf"]').click()
+      expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('album')
+    })
+
+    it('opens on a medium route\'s tab when entering the shelf', async () => {
+      await loadApp(MIXED)
+      await goTo('#/medium/podcast')
+      document.querySelector('[data-view="shelf"]').click()
+      expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('podcast')
+      expect(caption()).toBe('Radiolab')
+      expect(document.querySelector('.shelf-foot').textContent).toBe('1 in Podcasts · 5 in the library')
     })
 
     it('remembers where each tab was', async () => {
@@ -687,10 +732,11 @@ describe('shelf view', () => {
     expect(document.querySelector('.shelf-empty').textContent).toContain('Nothing on this shelf yet.')
   })
 
-  it('keeps the shelf for a medium route, bypassing the landing config', async () => {
+  it('shows a medium route as its rail tab, whatever the landing settings', async () => {
     await loadApp(MIXED, { view: 'shelf', settings: { landing: ['book'] } })
-    document.querySelector('.media-tab[data-medium="album"]').click()
+    await goTo('#/medium/album')
     expect(document.querySelector('.shelf-view')).not.toBeNull()
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('album')
     expect(caption()).toBe('Abbey Road')
   })
 
@@ -763,12 +809,14 @@ describe('shelf view', () => {
     expect(activeView()).toBe('covers')
   })
 
-  it('Escape on the shelf clears a medium route and stays on the shelf', async () => {
+  it('Escape on a medium tab clears its route and returns to the first tab', async () => {
     await loadApp(MIXED, { view: 'shelf' })
-    document.querySelector('.media-tab[data-medium="album"]').click()
+    chooseTab('all')
+    chooseTab('album')
     press('Escape')
     expect(window.location.hash).toBe('')
     expect(activeView()).toBe('shelf')
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
   })
 
   it('a medium change by hash starts the new medium at its first item', async () => {
@@ -883,7 +931,7 @@ describe('shelf view', () => {
 
   it('ignores keys pressed while an IME is composing', async () => {
     await loadApp(MIXED, { view: 'shelf' })
-    document.querySelector('.media-tab[data-medium="album"]').click()
+    chooseTab('album')
     const escape = Object.assign(new Event('keydown', { bubbles: true }), { key: 'Escape', isComposing: true })
     document.dispatchEvent(escape)
     expect(window.location.hash).toBe('#/medium/album')
@@ -1480,7 +1528,7 @@ describe('hash routes', () => {
 
     async function openOnAlbumShelf(library = MIXED) {
       await loadApp(library, { view: 'shelf' })
-      document.querySelector('.media-tab[data-medium="album"]').click()
+      chooseTab('album')
       await flush()
       enter()
       expect(document.querySelector('[data-field="title"]').value).toBe('Abbey Road')
@@ -1522,7 +1570,7 @@ describe('hash routes', () => {
       await flush()
       expect(document.querySelector('.view-btn.active').dataset.view).toBe('shelf')
       expect(document.querySelector('.shelf-empty')).toBeNull()
-      expect(document.querySelector('.media-tab.active').dataset.medium).toBe('')
+      expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
     })
 
     it('from an author route in covers, after stepping', async () => {
