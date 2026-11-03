@@ -737,6 +737,17 @@ describe('shelf view', () => {
       expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
     })
 
+    it('closes the detail for a medium route with nothing in it, as other routes do', async () => {
+      await loadApp(MIXED, { view: 'shelf' })
+      press('Enter')
+      expect(document.querySelector('.detail')).not.toBeNull()
+      await goTo('#/medium/movie')
+      expect(document.querySelector('.detail')).toBeNull()
+      expect(window.location.hash).toBe('')
+      expect(document.querySelector('#results').hasAttribute('inert')).toBe(false)
+      expect(document.querySelector('.shelf-tab.active').dataset.shelfTab).toBe('favorites')
+    })
+
     it('remembers where each tab was', async () => {
       await loadApp(MIXED, { view: 'shelf' })
       choose('all')

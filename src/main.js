@@ -1099,6 +1099,8 @@ function applyHash() {
   // A medium with nothing in it has no tab, so its route goes rather than name a tab not shown
   if (route.kind === 'medium' && !resolved.books.length) {
     state.route = null
+    state.detailOpen = false
+    state.selected = null
     clearHash()
     render()
     return
