@@ -1817,6 +1817,10 @@ body.is-shelf #results {
   display: block;
 }
 
+/* A square item's options are square, and their art is never cropped */
+.cover-picker-grid.shape-square .cover-option-img-wrap { aspect-ratio: 1 / 1; }
+.cover-picker-grid.shape-square .cover-option-img-wrap img { object-fit: contain; }
+
 .cover-option-error { background: repeating-linear-gradient(45deg, var(--paper), var(--paper) 6px, var(--sheet) 6px, var(--sheet) 12px); }
 
 .cover-option-info { padding: 0.4rem 0.5rem; }

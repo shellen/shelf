@@ -1586,6 +1586,39 @@ describe('cover picker manual URL', () => {
   })
 })
 
+describe('cover picker shape', () => {
+  // Open Library answers with one cover, so the picker has an option to frame
+  function answerOneCover() {
+    const respond = fetch.getMockImplementation()
+    fetch.mockImplementation(async (url, opts = {}) => String(url).startsWith('https://openlibrary.org/search.json')
+      ? { ok: true, json: async () => ({ docs: [{ title: 'A Cover', author_name: ['Someone'], cover_i: 42 }] }) }
+      : respond(url, opts))
+  }
+
+  async function pickerOptionFor(id) {
+    useStylesheet()
+    await loadApp(MIXED)
+    answerOneCover()
+    document.querySelector(`.cover-tile[data-id="${id}"]`).click()
+    document.querySelector('[data-action="open-cover-picker"]').click()
+    await vi.waitFor(() => {
+      if (!document.querySelector('.cover-option-img-wrap')) throw new Error('no options yet')
+    })
+    const wrap = document.querySelector('.cover-option-img-wrap')
+    return { wrap: getComputedStyle(wrap), img: getComputedStyle(wrap.querySelector('img')) }
+  }
+
+  it('frames an album\'s options square, showing any art whole', async () => {
+    const { wrap, img } = await pickerOptionFor('abbey-road')
+    expect([wrap.aspectRatio, img.objectFit]).toEqual(['1 / 1', 'contain'])
+  })
+
+  it('frames a book\'s options 2:3', async () => {
+    const { wrap, img } = await pickerOptionFor('s2-dune')
+    expect([wrap.aspectRatio, img.objectFit]).toEqual(['2 / 3', 'cover'])
+  })
+})
+
 describe('shelf identity', () => {
   it('shows a configured shelf name in the masthead and document title', async () => {
     await loadApp(BOOKS, { settings: { landing: ['book'], shelfName: "Mary Steiner's Shelf" } })

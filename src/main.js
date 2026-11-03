@@ -786,7 +786,7 @@ function renderCoverPicker() {
               No cover options found. Try adding an ISBN to the book.
             </div>
           ` : `
-            <div class="cover-picker-grid">
+            <div class="cover-picker-grid shape-${coverShape(b)}">
               ${state.coverOptions.map((opt, i) => `
                 <div class="cover-option" data-action="select-cover" data-index="${i}">
                   <div class="cover-option-img-wrap">
