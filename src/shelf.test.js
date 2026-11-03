@@ -329,6 +329,24 @@ describe('mountShelf', () => {
       expect(caption()).toBe('Book 7')
     })
 
+    it('leaves a drag to the pointer that started it', () => {
+      const frames = holdFrames()
+      mountWith(books(10))
+      const pointer = (type, pointerId, x, buttons) => new PointerEvent(type, { bubbles: true, pointerId, clientX: x, clientY: 10, buttons })
+      wrap().dispatchEvent(pointer('pointerdown', 1, 100, 1))
+      window.dispatchEvent(pointer('pointermove', 1, 93, 1))
+      expect(caption()).toBe('Book 7')
+      // A second pointer, with no button held, neither ends the drag nor moves it
+      window.dispatchEvent(pointer('pointermove', 2, 40, 0))
+      window.dispatchEvent(pointer('pointerup', 2, 40, 0))
+      expect(caption()).toBe('Book 7')
+      window.dispatchEvent(pointer('pointermove', 1, 92, 1))
+      expect(caption()).toBe('Book 8')
+      window.dispatchEvent(pointer('pointerup', 1, 92, 0))
+      frames.settle()
+      expect(frames.scheduled()).toBe(false)
+    })
+
     it('wakes when a cover arrives', async () => {
       const frames = holdFrames()
       let arrive
@@ -417,7 +435,25 @@ describe('mountShelf', () => {
       control.step(1)
       frames.settle()
       expect(frames.scheduled()).toBe(false)
-      expect(frames.requests() - before).toBeLessThan(80)
+      // Half a pixel at the centre takes about 82 frames; 1e-4 slots would take about 111
+      expect(frames.requests() - before).toBeLessThan(95)
+    })
+
+    it('lands the centred face within half a pixel of where it was gliding', () => {
+      const frames = holdFrames()
+      mountWith(books(10), 0, { reducedMotion: false })
+      frames.settle()
+      control.step(1)
+      const face = document.querySelectorAll('.tape[data-id="b1"]')[1]
+      const x = () => Math.abs(Number(face.style.transform.match(/translate3d\(([-\d.e]+)px/)[1]))
+      let before = x()
+      for (let k = 1; k <= 500 && frames.scheduled(); k++) {
+        const last = x()
+        frames.run(performance.now() + k * 16)
+        if (x() === 0) { before = last; break }
+      }
+      expect(x()).toBe(0)
+      expect(before).toBeLessThan(0.6)
     })
 
     it('disconnects the observer when destroyed', () => {

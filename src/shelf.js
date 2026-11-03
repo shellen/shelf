@@ -138,7 +138,9 @@ export function mountShelf(root, {
   }
 
   const stride = () => (geom.spineWidth + geom.gap) || 1
-  const settleDistance = () => geom.spineWidth + geom.gap > 0 ? 0.5 / stride() : 1e-3
+  // Near the centre a face travels its stride plus the room it opens, per slot
+  const centreTravel = () => stride() + geom.faceWidth - geom.spineWidth + 1.6 * geom.gap
+  const settleDistance = () => geom.faceWidth > 0 ? 0.5 / centreTravel() : 1e-3
 
   function swapCaption(dir) {
     caption.innerHTML = captionHtml(items[shown])
@@ -289,10 +291,10 @@ export function mountShelf(root, {
     lastPointer = { x: pointer.x, y: pointer.y, inside: pointerInside }
     syncCursor()
     wake()
-    if (!drag) return
+    if (!drag || e.pointerId !== drag.pointerId) return
     // A button released outside the window sent no pointerup
     if (e.buttons === 0) {
-      onPointerUp()
+      onPointerUp(e)
       return
     }
     const dx = e.clientX - drag.x0
@@ -300,8 +302,9 @@ export function mountShelf(root, {
     if (drag.moved) setTarget(drag.t0 - dx / stride())
   }
 
-  function onPointerUp() {
-    if (!drag) return
+  // Ends the drag for its own pointer's release or cancel, or for anything without a pointer (a blur)
+  function onPointerUp(e) {
+    if (!drag || (e && 'pointerId' in e && e.pointerId !== drag.pointerId)) return
     if (drag.moved) {
       setTarget(Math.round(target))
       suppressClick = true
@@ -326,7 +329,7 @@ export function mountShelf(root, {
 
   wrap.addEventListener('pointerdown', e => {
     if (e.button > 0) return
-    drag = { x0: e.clientX, t0: target, moved: false }
+    drag = { pointerId: e.pointerId, x0: e.clientX, t0: target, moved: false }
     wake()
   })
   wrap.addEventListener('click', e => {
