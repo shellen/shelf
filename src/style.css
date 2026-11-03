@@ -1216,10 +1216,12 @@ body.is-shelf #results {
 .shelf-cursor[data-state="open"] .shelf-cursor-dot { transform: scale(0); }
 .shelf-cursor[data-state="open"] .shelf-cursor-label { transform: scale(1); }
 
-/* On a phone the rail and cover sit just under the header rather than centred, the rail 16px down */
+/* On a phone the rail and cover sit just under the header rather than centred, the rail 16px down.
+   The cover takes the height left after the rail above it, the caption (room for a two-line title)
+   and the footer below it, up to 80% of the width so a spine or two still shows each side */
 @media (max-width: 767px) {
   .shelf-view {
-    --shelf-h: max(120px, min(60cqw, 50cqh, 100cqh - 194px));
+    --shelf-h: max(120px, min(80cqw, 100cqh - 270px));
     --shelf-cy: calc(var(--shelf-h) / 2 + 89px);
   }
   .shelf-rail { top: calc(var(--shelf-cy) - var(--shelf-h) / 2 - 73px); }
