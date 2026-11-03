@@ -662,6 +662,55 @@ describe('mountShelf', () => {
       expect(Math.max(...steps)).toBeLessThan(5)
     })
 
+    // Steps to the second item and runs frames 16ms apart from a fixed start until that item's tape
+    // sits exactly at the centre, which is when the glide has settled
+    function framesToSettle(items) {
+      vi.spyOn(performance, 'now').mockReturnValue(1000)
+      const frames = holdFrames()
+      mountWith(items, 0, { reducedMotion: false })
+      control.step(1)
+      const arrived = document.querySelectorAll('.tape')[1]
+      let n = 0
+      while (frames.scheduled() && n < 500 && across(arrived) !== 0) frames.run(1000 + ++n * 16)
+      control.destroy()
+      return n
+    }
+
+    it('settles on the item it is gliding to, with that item\'s settle distance and not the first item\'s', () => {
+      const book = framesToSettle([...books(1), ...books(1)])
+      const album = framesToSettle([...albums(1), ...albums(1)])
+      // An album face is wider, so its half-pixel settle distance is shorter and the glide runs longer
+      expect(album).toBeGreaterThan(book)
+      expect(framesToSettle([...books(1), ...albums(1)])).toBe(album)
+      expect(framesToSettle([...albums(1), ...books(1)])).toBe(book)
+    })
+
+    it('opens its hover zone to the centred item\'s face, not the widest face on the shelf', () => {
+      const frames = holdFrames()
+      // Book 0 (face 400) centred among albums (face 600)
+      mountWith([...albums(2), ...books(1), ...albums(2)], 2)
+      const state = () => document.querySelector('.shelf-cursor').dataset.state
+      const pointerAt = x => {
+        document.querySelector('.shelf-view').dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: x, clientY: 10 }))
+        frames.settle()
+      }
+      pointerAt(200)
+      expect(state()).toBe('open')
+      // 0.55 of the book's face is 220; 270 is inside 0.55 of an album's
+      pointerAt(270)
+      expect(state()).toBe('')
+    })
+
+    it('gives every copy of an album on a wrapping shelf the album\'s face', () => {
+      mountWith([...books(7), ...albums(1)])
+      expect(document.querySelectorAll('.tape')).toHaveLength(24)
+      for (const copy of [0, 1, 2]) {
+        expect(px(tapeOf('a0', copy), '--d')).toBe(600)
+        expect(px(tapeOf('a0', copy), '--ws')).toBeCloseTo(48, 9)
+        expect(px(tapeOf('b0', copy), '--d')).toBe(400)
+      }
+    })
+
     it('disconnects the observer when destroyed', () => {
       mountWith(books(10))
       control.destroy()
