@@ -1382,6 +1382,7 @@ function readImportText(text) {
   try {
     parsed = source.read(text)
   } catch (e) {
+    console.error('Import file could not be read:', e)
     throw new Error(IMPORT_ERRORS.damaged)
   }
   const { books, failed } = parsed
@@ -1389,15 +1390,23 @@ function readImportText(text) {
   return { books, failed, summary: importSummary(type, books) }
 }
 
+// Counts file choices and box closings, so a slow read can tell it has been replaced
+let importChoice = 0
+
 async function loadImportText(text) {
+  const choice = importChoice
   clearImportFile()
   try {
     const { books, failed, summary } = readImportText(text)
     state.importBooks = books
     state.importFailed = failed
     state.importSummary = summary
-    state.importPreview = await postImportChunks(books, true)
+    const preview = await postImportChunks(books, true)
+    if (choice !== importChoice) return
+    state.importPreview = preview
   } catch (e) {
+    if (choice !== importChoice) return
+    console.error('Import file not imported:', e)
     state.importError = e.message
   }
   state.importLoading = false
@@ -1415,10 +1424,13 @@ function clearImportFile() {
 }
 
 function chooseImportFile(file) {
+  const choice = ++importChoice
   clearImportFile()
   state.importLoading = true
   render()
-  file.text().then(loadImportText, () => {
+  file.text().then(text => { if (choice === importChoice) return loadImportText(text) }, (e) => {
+    if (choice !== importChoice) return
+    console.error('Import file could not be read:', e)
     state.importError = IMPORT_ERRORS.damaged
     state.importLoading = false
     render()
@@ -1426,6 +1438,7 @@ function chooseImportFile(file) {
 }
 
 function closeImport() {
+  importChoice++
   state.importOpen = false
   clearImportFile()
   state.importLoading = false

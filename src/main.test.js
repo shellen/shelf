@@ -1941,10 +1941,23 @@ describe('goodreads import', () => {
 })
 
 describe('import box', () => {
+  let errorLog
+
   beforeEach(async () => {
     await loadApp()
     document.querySelector('[data-action="import"]').click()
   })
+
+  afterEach(() => errorLog?.mockRestore())
+
+  // Keeps the expected console.error output out of the test run and lets a test read it
+  const silenceErrors = () => {
+    errorLog = vi.spyOn(console, 'error').mockImplementation(() => {})
+    return () => errorLog.mock.calls.map(([message]) => message)
+  }
+
+  const NOT_IMPORTED = 'Import file not imported:'
+  const UNREADABLE = 'Import file could not be read:'
 
   // Drops a file on the Import box as a browser does; text() is all the app reads from it
   function dropImportFile(text) {
@@ -2018,28 +2031,35 @@ describe('import box', () => {
   })
 
   it('says so when it does not recognise the file, and keeps Confirm disabled', async () => {
+    const logged = silenceErrors()
     dropImportFile('<?xml version="1.0"?><rss><channel><title>Feed</title></channel></rss>')
     await fileRead()
     expect(importError()).toBe(UNRECOGNISED)
     expect(confirmButton().disabled).toBe(true)
     expect(fetch.mock.calls.some(([u]) => String(u).endsWith('/api/import'))).toBe(false)
+    expect(logged()).toEqual([NOT_IMPORTED])
   })
 
   it('says a Spotify library that is cut short looks damaged', async () => {
+    const logged = silenceErrors()
     dropImportFile('{"albums": [{"artist": "Radiohead", "album": "In Rai')
     await fileRead()
     expect(importError()).toBe('This file looks damaged. Export it again and retry.')
     expect(confirmButton().disabled).toBe(true)
+    expect(logged()).toEqual([UNREADABLE, NOT_IMPORTED])
   })
 
   it('says so when a recognised file has nothing to import', async () => {
+    const logged = silenceErrors()
     dropImportFile('{"albums": [], "tracks": [], "shows": []}')
     await fileRead()
     expect(importError()).toBe('Nothing to import in this file.')
     expect(confirmButton().disabled).toBe(true)
+    expect(logged()).toEqual([NOT_IMPORTED])
   })
 
   it('shows the server\'s message when the preview fails, and keeps Confirm disabled', async () => {
+    const logged = silenceErrors()
     const respond = fetch.getMockImplementation()
     fetch.mockImplementation(async (url, opts = {}) => String(url).endsWith('/api/import')
       ? { ok: false, status: 500, json: async () => ({ error: 'Failed to import books: database is locked' }) }
@@ -2048,33 +2068,41 @@ describe('import box', () => {
     await fileRead()
     expect(importError()).toBe('Failed to import books: database is locked')
     expect(confirmButton().disabled).toBe(true)
+    expect(logged()).toEqual([NOT_IMPORTED])
   })
 
   it('stops reading and says the file looks damaged when the browser cannot read it', async () => {
+    const logged = silenceErrors()
     dropImportFile(async () => { throw new Error('NotReadableError') })
     await fileRead()
     expect(importError()).toBe('This file looks damaged. Export it again and retry.')
+    expect(logged()).toEqual([UNREADABLE])
   })
 
   it('clears the message when another file is chosen', async () => {
+    const logged = silenceErrors()
     dropImportFile('Name,Artist\nIn Rainbows,Radiohead')
     await fileRead()
     dropImportFile(SPOTIFY)
     await fileRead()
     expect(importError()).toBeUndefined()
     expect(confirmButton().disabled).toBe(false)
+    expect(logged()).toEqual([NOT_IMPORTED])
   })
 
   it('clears the message when the box closes', async () => {
+    const logged = silenceErrors()
     dropImportFile('Name,Artist\nIn Rainbows,Radiohead')
     await fileRead()
     expect(importError()).toBe(UNRECOGNISED)
     document.querySelector('.modal-close[data-action="close-import"]').click()
     document.querySelector('[data-action="import"]').click()
     expect(importError()).toBeUndefined()
+    expect(logged()).toEqual([NOT_IMPORTED])
   })
 
   it('forgets the previous file when the next one cannot be read', async () => {
+    const logged = silenceErrors()
     dropImportFile(SPOTIFY)
     await fileRead()
     expect(document.querySelector('.import-source').textContent).toBe('Spotify library: 2 albums, 1 podcast')
@@ -2083,6 +2111,73 @@ describe('import box', () => {
     expect(document.querySelector('.import-source')).toBeNull()
     expect(document.querySelector('.import-preview')).toBeNull()
     expect(importError()).toBe(UNRECOGNISED)
+    expect(confirmButton().disabled).toBe(true)
+    expect(logged()).toEqual([NOT_IMPORTED])
+  })
+
+  // Holds the first dry-run until released, then answers it with counts no other response has
+  function holdFirstPreview() {
+    const respond = fetch.getMockImplementation()
+    let release
+    const gate = new Promise(r => { release = r })
+    let held = false
+    fetch.mockImplementation(async (url, opts = {}) => {
+      if (String(url).endsWith('/api/import') && !held) {
+        held = true
+        await gate
+        return { ok: true, status: 200, json: async () => ({ added: 99, filled: 0, skipped: 0 }) }
+      }
+      return respond(url, opts)
+    })
+    return () => release()
+  }
+
+  const settle = () => new Promise(r => setTimeout(r, 20))
+
+  it('shows the latest file when an earlier file finishes reading last', async () => {
+    const release = holdFirstPreview()
+    dropImportFile('Title,Author\nDune,Frank Herbert\nFlow,Mihaly Csikszentmihalyi')
+    await settle()
+    dropImportFile(SPOTIFY)
+    await fileRead()
+    release()
+    await settle()
+    expect(document.querySelector('.import-source').textContent).toBe('Spotify library: 2 albums, 1 podcast')
+    expect(document.querySelector('.import-preview').textContent).toContain('1 new')
+    expect(document.querySelector('.import-preview').textContent).not.toContain('99 new')
+    expect(confirmButton().disabled).toBe(false)
+    confirmButton().click()
+    await vi.waitFor(() => {
+      if (document.querySelector('.modal-panel')) throw new Error('modal open')
+    })
+    const posted = fetch.mock.calls
+      .filter(([u, o]) => String(u).endsWith('/api/import') && !JSON.parse(o.body).dryRun)
+      .flatMap(([, o]) => JSON.parse(o.body).books)
+    expect(posted.map(b => b.title)).toEqual(['In Rainbows', 'Body Talk', 'Radiolab'])
+  })
+
+  it('shows the latest file when an earlier file is still being read by the browser', async () => {
+    let release
+    const gate = new Promise(r => { release = r })
+    dropImportFile(async () => { await gate; return 'Title,Author\nDune,Frank Herbert' })
+    dropImportFile(SPOTIFY)
+    await fileRead()
+    release()
+    await settle()
+    expect(document.querySelector('.import-source').textContent).toBe('Spotify library: 2 albums, 1 podcast')
+    expect(confirmButton().disabled).toBe(false)
+  })
+
+  it('shows nothing from a file that finishes reading after the box was closed', async () => {
+    const release = holdFirstPreview()
+    dropImportFile(SPOTIFY)
+    await settle()
+    document.querySelector('.modal-close[data-action="close-import"]').click()
+    release()
+    await settle()
+    document.querySelector('[data-action="import"]').click()
+    expect(document.querySelector('.import-source')).toBeNull()
+    expect(document.querySelector('.import-preview')).toBeNull()
     expect(confirmButton().disabled).toBe(true)
   })
 })
