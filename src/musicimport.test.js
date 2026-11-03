@@ -196,6 +196,25 @@ describe('parseAppleLibrary', () => {
     expect(books.map(b => [b.title, b.author])).toEqual([['Pulp Fiction', 'Various Artists']])
   })
 
+  it('credits a compilation with an album artist to its album artist', () => {
+    const books = apple([
+      song({ Album: 'Now 1', Artist: 'Dick Dale', 'Album Artist': 'EMI', Compilation: true }),
+      song({ Album: 'Now 1', Artist: 'Al Green', 'Album Artist': 'EMI', Compilation: true })
+    ])
+    expect(books.map(b => [b.title, b.author])).toEqual([['Now 1', 'EMI']])
+  })
+
+  it('does not credit Various Artists when Compilation is written as false', () => {
+    const text = appleLibrary([song({ Album: 'Call Me', Artist: 'Al Green' })])
+      .replace('<key>Album</key>', '<key>Compilation</key><false/><key>Album</key>')
+    expect(text).toContain('<key>Compilation</key><false/>')
+    expect(parseAppleLibrary(text).books.map(b => b.author)).toEqual(['Al Green'])
+  })
+
+  it('decodes escaped characters in values', () => {
+    expect(apple([song({ Album: 'Bookends', Artist: 'Simon &amp; Garfunkel' })])[0].author).toBe('Simon & Garfunkel')
+  })
+
   it('credits the most common spelling of the album artist', () => {
     const books = apple([
       song({ Album: 'Homogenic', Artist: 'Bjork' }),
@@ -217,6 +236,7 @@ describe('parseAppleLibrary', () => {
       song({ Album: 'Purchased Video', Kind: 'Purchased MPEG-4 video file' }),
       song({ Album: 'Movie File', Kind: 'QuickTime movie file' }),
       song({ Album: 'Stream', Kind: 'HLS media' }),
+      song({ Album: 'Protected Video', Kind: 'Protected MPEG-4 Video File' }),
       song({ Album: 'Kept' }),
       song({ Album: 'Kept Audio', Kind: 'AAC audio file' })
     ])
@@ -230,9 +250,38 @@ describe('parseAppleLibrary', () => {
     expect(parseAppleLibrary(text).books.map(b => b.title)).toEqual(['Kept'])
   })
 
+  it('reads a library with no Playlists section', () => {
+    const text = appleLibrary([song({ Album: 'Kept' })])
+    expect(text).not.toContain('<key>Playlists</key>')
+    expect(parseAppleLibrary(text).books.map(b => b.title)).toEqual(['Kept'])
+  })
+
+  it('reads every field of a track written with whitespace between its keys and values', () => {
+    const text = appleLibrary([song({
+      'Album Artist': 'Radiohead Collective', Year: 2007, Genre: 'Alternative',
+      'Date Added': '2019-03-04T05:06:07Z', 'Album Rating': 80
+    })]).replace(/(<\/key>|<\/string>|<\/integer>|<\/date>)(?=<)/g, '$1\n\t\t\t')
+    expect(text).toContain('<key>Album</key>\n\t\t\t<string>In Rainbows</string>\n\t\t\t<key>')
+    expect(parseAppleLibrary(text).books).toEqual([{
+      ...BLANK,
+      title: 'In Rainbows',
+      author: 'Radiohead Collective',
+      medium: 'album',
+      year: 2007,
+      tags: ['alternative', 'apple-music'],
+      rating: 4,
+      dateAdded: '2019-03-04'
+    }])
+  })
+
   it('throws on a file that is not well-formed', () => {
     const broken = appleLibrary([song()]).replace('</dict>\n</plist>', '')
     expect(() => parseAppleLibrary(broken)).toThrow('Library.xml is not well-formed')
+  })
+
+  it('throws on a library with no Tracks', () => {
+    const text = '<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0">\n<dict>\n\t<key>Major Version</key><integer>1</integer>\n</dict>\n</plist>\n'
+    expect(() => parseAppleLibrary(text)).toThrow('Library.xml has no Tracks')
   })
 
   it('makes one album entry from an album\'s tracks', () => {
