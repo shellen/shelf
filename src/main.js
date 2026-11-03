@@ -11,6 +11,7 @@ import { shelfTabs, mediumOf, singular } from './showcase.js'
 import { renderShelfView, mountShelf, TILT_DEG } from './shelf.js'
 import { renderDetail, playEntrance, playExit, canAnimate } from './overlay.js'
 import { coverTypeSvg } from './spines.js'
+import { showToast } from './toast.js'
 
 // Get local cover path - files in public/covers are served at /covers/
 function getLocalCoverPath(bookId) {
@@ -64,20 +65,6 @@ const api = {
     if (!res.ok) throw new Error('Failed to delete book')
     return true
   }
-}
-
-// Toast helper - renders into its own root so it never disturbs focus or form state
-let toastTimer = null
-function showToast(message, type = 'success') {
-  let root = document.getElementById('toast-root')
-  if (!root) {
-    root = document.createElement('div')
-    root.id = 'toast-root'
-    document.body.appendChild(root)
-  }
-  root.innerHTML = `<div class="toast toast-${type}">${esc(message)}</div>`
-  clearTimeout(toastTimer)
-  toastTimer = setTimeout(() => { root.innerHTML = '' }, 3000)
 }
 
 // Confirm dialog helper
