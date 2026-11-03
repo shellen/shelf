@@ -32,3 +32,6 @@ data/*.db-shm
 .superpowers/
 .vercel
 .env*
+
+# Library exports and other local data
+data/*
