@@ -200,8 +200,11 @@ Covers are found after the import, in the background, and on demand later.
   covers differ. The creator must still match. At worst this gives a sibling
   edition's cover for the same album by the same artist.
 - **Saving:** re-read the item from `state.books`. If its cover is still blank,
-  `PUT /api/books/:id` with `{ ...item, coverUrl: result.coverUrl, year:
-  item.year ?? result.year }`. Never overwrite a field that has a value.
+  `PUT /api/books/:id` with only `{ coverUrl: result.coverUrl }`, plus
+  `year: result.year` when the item has no year and the result has one. The
+  server merges the body over the stored item, so nothing else is sent and an
+  edit Jason makes to the same item while the save is in flight can't be
+  undone by it. Never overwrite a field that has a value.
 - **Pace:** one lookup at a time, about 3 seconds apart. After 3 lookups in a
   row fail, stop with "Stopped finding covers: iTunes isn't answering. Try Find
   missing covers later."
