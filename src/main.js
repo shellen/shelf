@@ -637,11 +637,16 @@ function updateResults() {
   if (clearBtn) clearBtn.classList.toggle('hidden', !state.q)
 }
 
+// The mounted shelf's controller, also kept on window so that test module
+// reloads and Vite HMR destroy the last module's shelf and its window listeners.
+window.__bookshelfShelf?.destroy()
+window.__bookshelfShelf = null
 let shelfControl = null
 
 function mountShelfIfShown() {
   shelfControl?.destroy()
   shelfControl = null
+  window.__bookshelfShelf = null
   const root = document.querySelector('.shelf-view:not(.shelf-empty)')
   if (!root) return
   const group = activeShelfGroup()
@@ -656,6 +661,7 @@ function mountShelfIfShown() {
     onIndexChange: i => { state.shelf = { group: group.key, index: i, medium } },
     onOpen: (i, rect) => openBook(group.items[i].id, { source: 'shelf', from: rect ? { rect, rotate: TILT_DEG } : null }),
   })
+  window.__bookshelfShelf = shelfControl
 }
 
 function renderConfirmDialog() {

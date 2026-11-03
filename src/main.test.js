@@ -855,6 +855,27 @@ describe('shelf view', () => {
     expect(caption()).toBe(placed)
   })
 
+  it('leaves one shelf listening to the window across module reloads', async () => {
+    const listening = new Set()
+    const add = window.addEventListener
+    const remove = window.removeEventListener
+    vi.spyOn(window, 'addEventListener').mockImplementation(function (type, fn, opts) {
+      if (type === 'pointermove') listening.add(fn)
+      return add.call(this, type, fn, opts)
+    })
+    vi.spyOn(window, 'removeEventListener').mockImplementation(function (type, fn, opts) {
+      if (type === 'pointermove') listening.delete(fn)
+      return remove.call(this, type, fn, opts)
+    })
+    try {
+      await loadApp(BOOKS, { view: 'shelf' })
+      await loadApp(BOOKS, { view: 'shelf' })
+      expect(listening.size).toBe(1)
+    } finally {
+      vi.restoreAllMocks()
+    }
+  })
+
   it('keeps focus on a rail tab chosen from the keyboard', async () => {
     await loadApp(READING_BOOKS, { view: 'shelf' })
     document.querySelector('[data-shelf-group="favorites"]').dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }))
