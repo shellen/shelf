@@ -2280,6 +2280,21 @@ describe('finding covers', () => {
     expect(tileCover('album-8')).toBe('https://art.example/8.jpg')
   })
 
+  it('keeps focus on the same tile when found covers are redrawn', async () => {
+    const albums = [1, 2, 3, 4, 5, 6].map(n => ({ ...ALBUMS[0], id: `album-${n}`, title: `Album ${n}` }))
+    await start([...BOOKS, ...albums])
+    answerLookups(q => found([{ title: q.replace(' Radiohead', ''), author: 'Radiohead', year: 2007, coverUrl: `https://art.example/${q.split(' ')[1]}.jpg` }]))
+    // Choosing Find missing covers re-renders, so the tile is focused after it
+    findMissingCovers()
+    const tile = document.querySelector('.cover-tile[data-id="album-6"]')
+    tile.focus()
+    await vi.advanceTimersByTimeAsync(15_000)
+    expect(tileCover('album-1')).toBe('https://art.example/1.jpg')
+    expect(document.activeElement).not.toBe(tile) // the tile was redrawn
+    expect(document.activeElement.dataset.id).toBe('album-6')
+    await toastSays('Found 6 covers')
+  })
+
   it('leaves the library alone under an open detail, which shows the covers once it closes', async () => {
     await start()
     document.querySelector('.cover-tile[data-id="s2-dune"]').click()
@@ -2423,6 +2438,29 @@ describe('finding covers', () => {
     expect(coverPuts()).toEqual([])
     expect(error).not.toHaveBeenCalled()
     error.mockRestore()
+  })
+
+  it('leaves the library alone once the shelf is logged out partway', async () => {
+    await start(library(), { session: { authRequired: true, writable: true } })
+    // In Rainbows is found at once; the run then waits on Radiolab while the shelf logs out
+    let answerRadiolab
+    answerLookups(q => q === 'Radiolab'
+      ? new Promise(r => { answerRadiolab = r })
+      : found(ITUNES[q] || []))
+    findMissingCovers()
+    await toastSays('Finding covers 1 / 2 · about 1 min left')
+    expect(answerRadiolab).toBeDefined()
+
+    document.querySelector('[data-action="avatar-menu"]').click()
+    document.querySelector('[data-action="logout"]').click()
+    await toastSays('Logged out')
+    const wall = document.querySelector('.wall')
+
+    await vi.advanceTimersByTimeAsync(15_000)
+    expect(document.querySelector('.wall')).toBe(wall)
+    answerRadiolab(found([]))
+    await toastSays('Stopped finding covers: you\'re logged out.')
+    expect(document.querySelector('.wall')).toBe(wall)
   })
 
   it('stops when a save finds the session has ended', async () => {

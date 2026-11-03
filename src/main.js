@@ -1452,13 +1452,17 @@ function showFoundCoversSoon() {
 function showFoundCovers() {
   clearTimeout(coverRedrawTimer)
   coverRedrawTimer = null
-  if (!coversToShow || state.detailOpen) return
+  // Logging out re-renders everything, so nothing is left to show
+  if (!coversToShow || state.detailOpen || state.readOnly) return
   if (shelfControl?.dragging()) {
     coverRedrawTimer = setTimeout(showFoundCovers, 1000)
     return
   }
   coversToShow = false
+  // A focused tile or row is redrawn too, so focus returns to the one for the same item
+  const focusedId = document.querySelector('#results')?.contains(document.activeElement) ? document.activeElement.dataset.id : null
   updateResults()
+  if (focusedId) resultTile(focusedId)?.focus({ preventScroll: true })
 }
 
 // Re-reads the item, since it may have gained a cover while the lookup was out
