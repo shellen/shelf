@@ -45,3 +45,55 @@ describe('showToast', () => {
     expect(document.querySelectorAll('.toast')).toHaveLength(1)
   })
 })
+
+describe('showProgressToast', () => {
+  it('stays until it is ended, updating in place', () => {
+    toast.showProgressToast('Finding covers 0 / 2 · about 1 min left')
+    vi.advanceTimersByTime(10_000)
+    expect(shown().textContent).toBe('Finding covers 0 / 2 · about 1 min left')
+    toast.showProgressToast('Finding covers 1 / 2 · about 1 min left')
+    expect(shown().textContent).toBe('Finding covers 1 / 2 · about 1 min left')
+    expect(document.querySelectorAll('.toast')).toHaveLength(1)
+  })
+
+  it('comes back after a brief toast shown over it', () => {
+    toast.showProgressToast('Finding covers 3 / 9 · about 1 min left')
+    toast.showToast('Saved')
+    expect(shown().textContent).toBe('Saved')
+    vi.advanceTimersByTime(3000)
+    expect(shown().textContent).toBe('Finding covers 3 / 9 · about 1 min left')
+  })
+
+  it('waits for a brief toast to finish before showing an update', () => {
+    toast.showProgressToast('Finding covers 3 / 9 · about 1 min left')
+    toast.showToast('Saved')
+    toast.showProgressToast('Finding covers 4 / 9 · about 1 min left')
+    expect(shown().textContent).toBe('Saved')
+    vi.advanceTimersByTime(3000)
+    expect(shown().textContent).toBe('Finding covers 4 / 9 · about 1 min left')
+  })
+
+  it('first appears once a brief toast already showing has finished', () => {
+    toast.showToast('Imported: 2 added, 0 filled, 0 skipped')
+    toast.showProgressToast('Finding covers 0 / 2 · about 1 min left')
+    expect(shown().textContent).toBe('Imported: 2 added, 0 filled, 0 skipped')
+    vi.advanceTimersByTime(3000)
+    expect(shown().textContent).toBe('Finding covers 0 / 2 · about 1 min left')
+  })
+})
+
+describe('endProgressToast', () => {
+  it('replaces the progress toast with a brief one that clears like any other', () => {
+    toast.showProgressToast('Finding covers 1 / 2 · about 1 min left')
+    toast.endProgressToast('Found 2 covers')
+    expect(shown().textContent).toBe('Found 2 covers')
+    vi.advanceTimersByTime(3000)
+    expect(shown()).toBeNull()
+  })
+
+  it('can end on an error', () => {
+    toast.showProgressToast('Finding covers 1 / 9 · about 1 min left')
+    toast.endProgressToast('Stopped finding covers', 'error')
+    expect(shown().classList.contains('toast-error')).toBe(true)
+  })
+})
