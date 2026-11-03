@@ -2037,7 +2037,7 @@ describe('import box', () => {
     expect(importError()).toBe(UNRECOGNISED)
     expect(confirmButton().disabled).toBe(true)
     expect(fetch.mock.calls.some(([u]) => String(u).endsWith('/api/import'))).toBe(false)
-    expect(logged()).toEqual([NOT_IMPORTED])
+    expect(logged()).toEqual([])
   })
 
   it('says a Spotify library that is cut short looks damaged', async () => {
@@ -2046,7 +2046,7 @@ describe('import box', () => {
     await fileRead()
     expect(importError()).toBe('This file looks damaged. Export it again and retry.')
     expect(confirmButton().disabled).toBe(true)
-    expect(logged()).toEqual([UNREADABLE, NOT_IMPORTED])
+    expect(logged()).toEqual([UNREADABLE])
   })
 
   it('says so when a recognised file has nothing to import', async () => {
@@ -2055,7 +2055,7 @@ describe('import box', () => {
     await fileRead()
     expect(importError()).toBe('Nothing to import in this file.')
     expect(confirmButton().disabled).toBe(true)
-    expect(logged()).toEqual([NOT_IMPORTED])
+    expect(logged()).toEqual([])
   })
 
   it('shows the server\'s message when the preview fails, and keeps Confirm disabled', async () => {
@@ -2087,7 +2087,7 @@ describe('import box', () => {
     await fileRead()
     expect(importError()).toBeUndefined()
     expect(confirmButton().disabled).toBe(false)
-    expect(logged()).toEqual([NOT_IMPORTED])
+    expect(logged()).toEqual([])
   })
 
   it('clears the message when the box closes', async () => {
@@ -2098,7 +2098,7 @@ describe('import box', () => {
     document.querySelector('.modal-close[data-action="close-import"]').click()
     document.querySelector('[data-action="import"]').click()
     expect(importError()).toBeUndefined()
-    expect(logged()).toEqual([NOT_IMPORTED])
+    expect(logged()).toEqual([])
   })
 
   it('forgets the previous file when the next one cannot be read', async () => {
@@ -2112,7 +2112,7 @@ describe('import box', () => {
     expect(document.querySelector('.import-preview')).toBeNull()
     expect(importError()).toBe(UNRECOGNISED)
     expect(confirmButton().disabled).toBe(true)
-    expect(logged()).toEqual([NOT_IMPORTED])
+    expect(logged()).toEqual([])
   })
 
   // Holds the first dry-run until released, then answers it with counts no other response has

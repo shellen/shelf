@@ -1406,7 +1406,7 @@ async function loadImportText(text) {
     state.importPreview = preview
   } catch (e) {
     if (choice !== importChoice) return
-    console.error('Import file not imported:', e)
+    if (!Object.values(IMPORT_ERRORS).includes(e.message)) console.error('Import file not imported:', e)
     state.importError = e.message
   }
   state.importLoading = false
