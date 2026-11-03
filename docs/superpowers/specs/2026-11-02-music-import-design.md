@@ -47,9 +47,9 @@ a title and creator written entirely in a non-Latin script reduce to an empty
 key, so every such album would collide with the others. Music libraries hit
 this far more often than book libraries.
 
-`normKey` becomes Unicode-aware: decompose (`NFKD`), drop only the Latin
-combining diacritics (U+0300–U+036F, so "Björk" → "bjork" while Japanese voiced
-kana keep their marks), recompose (`NFC`), lowercase, and keep letters, numbers and the remaining
+`normKey` becomes Unicode-aware: decompose (`NFKD`), drop combining diacritics
+(U+0300–U+036F) only where they follow a Latin letter (so "Björk" → "bjork",
+while Cyrillic й and Japanese voiced kana keep their marks), recompose (`NFC`), lowercase, and keep letters, numbers and the remaining
 combining marks in any script (`[^\p{L}\p{M}\p{N} ]` removed, so vowel signs in
 scripts such as Devanagari and Thai survive), then collapse spaces. The function moves to a shared
 module (`src/match.js`) so the server merge, the browser's album grouping and
