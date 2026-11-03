@@ -2243,6 +2243,14 @@ describe('finding covers', () => {
     vi.useFakeTimers()
   }
 
+  // Shows the shelf's albums tab with real timers, so the hash it writes settles before a run
+  async function showAlbumsTab() {
+    vi.useRealTimers()
+    chooseTab('album')
+    await new Promise(r => setTimeout(r, 0))
+    vi.useFakeTimers()
+  }
+
   afterEach(() => vi.useRealTimers())
 
   it('finds covers for albums and podcasts without one after an import', async () => {
@@ -2333,6 +2341,43 @@ describe('finding covers', () => {
     window.dispatchEvent(new MouseEvent('pointerup', { bubbles: true, clientX: 100, clientY: 10, buttons: 0 }))
     await vi.advanceTimersByTimeAsync(1000)
     expect(document.querySelector('.shelf-view')).not.toBe(shelf)
+  })
+
+  it('waits for the shelf to finish gliding before redrawing it', async () => {
+    const albums = [1, 2, 3, 4, 5, 6, 7, 8].map(n => ({ ...ALBUMS[0], id: `album-${n}`, title: `Album ${n}` }))
+    await start([...BOOKS, ...albums], { view: 'shelf' })
+    answerLookups(q => found([{ title: q.replace(' Radiohead', ''), author: 'Radiohead', year: 2007, coverUrl: `https://art.example/${q.split(' ')[1]}.jpg` }]))
+    await showAlbumsTab()
+    findMissingCovers()
+    await vi.advanceTimersByTimeAsync(14_990)
+    const shelf = document.querySelector('.shelf-view')
+    document.querySelector('[data-shelf-step="1"]').click()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(document.querySelector('.shelf-view')).toBe(shelf)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(document.querySelector('.shelf-view')).not.toBe(shelf)
+    await toastSays('Found 8 covers')
+  })
+
+  it.each([
+    ['an arrow', '[data-shelf-step="1"]'],
+    ['the open button', '[data-shelf-open]'],
+    ['a rail tab', '.shelf-tab.active']
+  ])('keeps focus on %s of the shelf when found covers are redrawn', async (_name, selector) => {
+    const albums = [1, 2, 3, 4, 5, 6].map(n => ({ ...ALBUMS[0], id: `album-${n}`, title: `Album ${n}` }))
+    await start([...BOOKS, ...albums], { view: 'shelf' })
+    answerLookups(q => found([{ title: q.replace(' Radiohead', ''), author: 'Radiohead', year: 2007, coverUrl: `https://art.example/${q.split(' ')[1]}.jpg` }]))
+    await showAlbumsTab()
+    // Choosing Find missing covers re-renders, so the control is focused after it
+    findMissingCovers()
+    const shelf = document.querySelector('.shelf-view')
+    const control = document.querySelector(selector)
+    control.focus()
+    expect(document.activeElement).toBe(control)
+    await vi.advanceTimersByTimeAsync(15_000)
+    expect(document.querySelector('.shelf-view')).not.toBe(shelf) // the shelf was redrawn
+    expect(document.activeElement).toBe(document.querySelector(selector))
+    await toastSays('Found 6 covers')
   })
 
   it('shows its progress, then the count found', async () => {

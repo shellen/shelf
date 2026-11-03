@@ -425,6 +425,8 @@ export function mountShelf(root, {
     centreRect,
     // Whether a press or drag on the stage is under way
     dragging: () => drag !== null,
+    // Whether the carousel is still travelling to its slot, as after a step or a released drag
+    gliding: () => pos !== target,
     destroy() {
       destroyed = true
       cancelAnimationFrame(raf)

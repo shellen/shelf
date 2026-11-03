@@ -1005,8 +1005,11 @@ function stepDetail(delta) {
   target?.focus({ preventScroll: true })
 }
 
+// The element in the results whose attribute `name` is `value`
+const resultControl = (name, value) => [...document.querySelectorAll(`#results [${name}]`)].find(el => el.getAttribute(name) === value)
+
 // The cover tile or list row in the results that opens this item
-const resultTile = id => [...document.querySelectorAll('#results [data-id]')].find(el => el.dataset.id === id)
+const resultTile = id => resultControl('data-id', id)
 
 function onScreen(rect) {
   const { clientWidth, clientHeight } = document.documentElement
@@ -1437,7 +1440,8 @@ function chooseImportFile(file) {
 let findingCovers = false
 
 // Found covers reach the results at most every 15 seconds, and once when the run ends. A redraw
-// waits while the detail is open (closing it re-renders everything) or the shelf is being pressed.
+// waits while the detail is open (closing it re-renders everything) or the shelf is being pressed
+// or is still gliding to its slot.
 const COVER_REDRAW_MS = 15_000
 let coverRedrawTimer = null
 let coversToShow = false
@@ -1454,15 +1458,26 @@ function showFoundCovers() {
   coverRedrawTimer = null
   // Logging out re-renders everything, so nothing is left to show
   if (!coversToShow || state.detailOpen || state.readOnly) return
-  if (shelfControl?.dragging()) {
+  if (shelfControl?.dragging() || shelfControl?.gliding()) {
     coverRedrawTimer = setTimeout(showFoundCovers, 1000)
     return
   }
   coversToShow = false
-  // A focused tile or row is redrawn too, so focus returns to the one for the same item
-  const focusedId = document.querySelector('#results')?.contains(document.activeElement) ? document.activeElement.dataset.id : null
+  // A focused tile, row or shelf control is redrawn too, so focus returns to its redrawn copy
+  const focused = focusedResult()
   updateResults()
-  if (focusedId) resultTile(focusedId)?.focus({ preventScroll: true })
+  if (focused) resultControl(...focused)?.focus({ preventScroll: true })
+}
+
+// The attributes that name a tile, row or shelf control in the results
+const RESULT_CONTROL_ATTRIBUTES = ['data-id', 'data-shelf-step', 'data-shelf-open', 'data-shelf-tab']
+
+// The focused control in the results as [attribute, value], or null when focus is elsewhere
+function focusedResult() {
+  const el = document.activeElement
+  if (!document.querySelector('#results')?.contains(el)) return null
+  const name = RESULT_CONTROL_ATTRIBUTES.find(n => el.hasAttribute(n))
+  return name ? [name, el.getAttribute(name)] : null
 }
 
 // Re-reads the item, since it may have gained a cover while the lookup was out

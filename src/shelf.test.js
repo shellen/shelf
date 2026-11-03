@@ -339,6 +339,31 @@ describe('mountShelf', () => {
       expect(control.dragging()).toBe(false)
     })
 
+    it('says whether it is still gliding to its slot after a step', () => {
+      const frames = holdFrames()
+      mountWith(books(10), 0, { reducedMotion: false })
+      frames.settle()
+      expect(control.gliding()).toBe(false)
+      control.step(1)
+      frames.run(performance.now() + 16)
+      expect(control.gliding()).toBe(true)
+      frames.settle()
+      expect(control.gliding()).toBe(false)
+    })
+
+    it('says it is gliding once a drag is let go short of its slot', () => {
+      const frames = holdFrames()
+      mountWith(books(10), 0, { reducedMotion: false })
+      frames.settle()
+      wrap().dispatchEvent(press('pointerdown', 100, 1))
+      window.dispatchEvent(press('pointermove', 60, 1))
+      window.dispatchEvent(press('pointerup', 60, 0))
+      expect(control.dragging()).toBe(false)
+      expect(control.gliding()).toBe(true)
+      frames.settle()
+      expect(control.gliding()).toBe(false)
+    })
+
     it.each([
       ['the window loses focus', () => window.dispatchEvent(new Event('blur'))],
       ['the pointer is cancelled', () => window.dispatchEvent(press('pointercancel', 93, 0))],
