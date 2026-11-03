@@ -1293,6 +1293,25 @@ function closeImport() {
   render()
 }
 
+function openAddModal() {
+  state.modalOpen = true
+  state.modalStatus = null
+  state.lookupPick = null
+  render()
+}
+
+// Shelf rail: switch showcase group. A mouse click releases focus so Enter opens the centred item.
+function selectShelfGroup(tab, e) {
+  const key = tab.dataset.shelfGroup
+  if (key === activeShelfGroup()?.key) {
+    if (e.detail > 0) tab.blur()
+    return
+  }
+  state.shelf = { group: key, index: 0, medium: shelfMedium() }
+  render()
+  if (e.detail === 0) document.querySelector(`[data-shelf-group="${key}"]`)?.focus()
+}
+
 function attachEventListeners() {
   // Search input
   document.querySelector('[data-action="search"]')?.addEventListener('input', e => {
@@ -1334,20 +1353,6 @@ function attachEventListeners() {
     btn.addEventListener('click', () => switchView(btn.dataset.view))
   })
 
-  // Shelf rail: switch showcase group. A mouse click releases focus so Enter opens the centred item.
-  document.querySelectorAll('[data-shelf-group]').forEach(el => {
-    el.addEventListener('click', e => {
-      const key = el.dataset.shelfGroup
-      if (key === activeShelfGroup()?.key) {
-        if (e.detail > 0) el.blur()
-        return
-      }
-      state.shelf = { group: key, index: 0, medium: shelfMedium() }
-      render()
-      if (e.detail === 0) document.querySelector(`[data-shelf-group="${key}"]`)?.focus()
-    })
-  })
-
   // Reset
   document.querySelector('.header [data-action="reset"]')?.addEventListener('click', resetFilters)
 
@@ -1360,12 +1365,7 @@ function attachEventListeners() {
   })
 
   // Add book button
-  document.querySelectorAll('[data-action="add-book"]').forEach(el => el.addEventListener('click', () => {
-    state.modalOpen = true
-    state.modalStatus = null
-    state.lookupPick = null
-    render()
-  }))
+  document.querySelector('.header [data-action="add-book"]')?.addEventListener('click', openAddModal)
 
   // Import button
   document.querySelector('.header [data-action="import"]')?.addEventListener('click', () => {
@@ -1498,6 +1498,15 @@ function attachEventListeners() {
   document.querySelector('#results')?.addEventListener('click', e => {
     if (e.target.closest('[data-action="reset"]')) {
       resetFilters()
+      return
+    }
+    const tab = e.target.closest('[data-shelf-group]')
+    if (tab) {
+      selectShelfGroup(tab, e)
+      return
+    }
+    if (e.target.closest('[data-action="add-book"]')) {
+      openAddModal()
       return
     }
     const sortBtn = e.target.closest('[data-sort]')

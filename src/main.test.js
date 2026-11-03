@@ -855,6 +855,62 @@ describe('shelf view', () => {
     expect(caption()).toBe(placed)
   })
 
+  it('keeps focus on a rail tab chosen from the keyboard', async () => {
+    await loadApp(READING_BOOKS, { view: 'shelf' })
+    document.querySelector('[data-shelf-group="favorites"]').dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }))
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+    expect(document.activeElement?.dataset.shelfGroup).toBe('favorites')
+  })
+
+  // Holds every PUT until the returned release() is called
+  function holdSaves() {
+    const respond = fetch.getMockImplementation()
+    let release
+    const gate = new Promise(r => { release = r })
+    fetch.mockImplementation(async (url, opts = {}) => {
+      if (opts.method === 'PUT') await gate
+      return respond(url, opts)
+    })
+    return () => release()
+  }
+
+  const saved = () => vi.waitFor(() => {
+    if (document.querySelector('.toast')?.textContent !== 'Saved') throw new Error('save not settled yet')
+  })
+
+  it('keeps the rail working when a save finishes after the detail closes', async () => {
+    await loadApp(READING_BOOKS, { view: 'shelf' })
+    const release = holdSaves()
+    press('Enter')
+    const author = document.querySelector('[data-field="author"]')
+    author.value = 'M. Csikszentmihalyi'
+    author.dispatchEvent(new Event('blur'))
+    document.querySelector('[data-action="close-detail"]').click()
+    release()
+    await saved()
+    document.querySelector('[data-shelf-group="favorites"]').click()
+    expect(document.querySelector('.shelf-tab.active').dataset.shelfGroup).toBe('favorites')
+    expect(caption()).toBe('Dune')
+  })
+
+  it('keeps the empty shelf\'s Add Media working when a save finishes after the detail closes', async () => {
+    // Nothing on the landing shelf, while the list still shows every item
+    await loadApp(BOOKS, { view: 'list', settings: { landing: ['album'] } })
+    const release = holdSaves()
+    document.querySelector('.list-title [data-id="s2-dune"]').click()
+    const author = document.querySelector('[data-field="author"]')
+    author.value = 'F. Herbert'
+    author.dispatchEvent(new Event('blur'))
+    document.querySelector('[data-action="close-detail"]').click()
+    document.querySelector('[data-view="shelf"]').click()
+    release()
+    await saved()
+    const add = document.querySelector('.shelf-empty [data-action="add-book"]')
+    expect(add).not.toBeNull()
+    add.click()
+    expect(document.querySelector('.modal-panel h2')?.textContent).toBe('Add Media')
+  })
+
   it('a mouse click on the active rail tab still lets Enter open the centred item', async () => {
     await loadApp(TWO_READING, { view: 'shelf' })
     const active = document.querySelector('.shelf-tab.active')
