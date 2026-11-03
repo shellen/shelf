@@ -64,6 +64,13 @@ const api = {
     const res = await fetch(`/api/books/${id}`, { method: 'DELETE' })
     if (!res.ok) throw new Error('Failed to delete book')
     return true
+  },
+
+  // Metadata search: Open Library for books, iTunes for everything else
+  async lookup(medium, q) {
+    const res = await fetch(`/api/lookup?medium=${encodeURIComponent(medium)}&q=${encodeURIComponent(q)}`)
+    if (!res.ok) throw new Error(`Lookup failed (${res.status})`)
+    return (await res.json()).results
   }
 }
 
@@ -1457,8 +1464,7 @@ async function resolveQuickQueue() {
   for (const q of queue) {
     let payload = { title: q.title, medium: q.medium, tags: [] }
     try {
-      const res = await fetch(`/api/lookup?medium=${encodeURIComponent(q.medium)}&q=${encodeURIComponent(q.title)}`)
-      const best = res.ok ? (await res.json()).results[0] : null
+      const best = (await api.lookup(q.medium, q.title))[0]
       if (best) {
         payload = {
           title: best.title, author: best.author || undefined, isbn: best.isbn || undefined,
@@ -1831,9 +1837,7 @@ function attachEventListeners() {
     if (!q || !box) return
     box.innerHTML = '<span class="loading"></span>'
     try {
-      const res = await fetch(`/api/lookup?medium=${encodeURIComponent(medium)}&q=${encodeURIComponent(q)}`)
-      if (!res.ok) throw new Error('Lookup failed')
-      const { results } = await res.json()
+      const results = await api.lookup(medium, q)
       if (!results.length) {
         box.innerHTML = '<span class="form-hint">No matches found.</span>'
         return
