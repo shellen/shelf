@@ -6,7 +6,7 @@
 import express from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
-import { getAllBooks, getBook, saveBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks, getSettings, saveSettings, probeDatabase } from './db.js'
+import { getAllBooks, getBook, saveBook, updateBook, deleteBook, updateBookCover, getAllTags, generateBookId, importBooks, getSettings, saveSettings, probeDatabase } from './db.js'
 import { authRequired, isWritable, verifyCredentials, sessionCookie, clearedCookie, isUnprotected } from './auth.js'
 import { searchMedia } from './lookup.js'
 
@@ -105,12 +105,10 @@ app.post('/api/books', async (req, res) => {
 // PUT /api/books/:id - Update book
 app.put('/api/books/:id', async (req, res) => {
   try {
-    const existing = await getBook(req.params.id)
-    if (!existing) {
+    const book = await updateBook(req.params.id, req.body)
+    if (!book) {
       return res.status(404).json({ error: 'Book not found' })
     }
-
-    const book = await saveBook({ ...existing, ...req.body, id: req.params.id })
     res.json(book)
   } catch (e) {
     console.error('Error updating book:', e)

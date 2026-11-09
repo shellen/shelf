@@ -130,34 +130,66 @@ export async function getBook(id) {
   return { ...rowToBook(rs.rows[0]), tags }
 }
 
+// An item's editable fields and the columns that hold them
+const BOOK_FIELDS = {
+  title: 'title',
+  author: 'author',
+  isbn: 'isbn',
+  coverUrl: 'cover_url',
+  rating: 'rating',
+  notes: 'notes',
+  dateRead: 'date_read',
+  dateAdded: 'date_added',
+  pages: 'pages',
+  year: 'year',
+  medium: 'medium'
+}
+
+// How a field's value is stored: blanks become NULL and an unknown medium becomes a book
+function columnValue(field, value) {
+  if (field === 'title') return value
+  if (field === 'medium') return MEDIA_KEYS.includes(value) ? value : 'book'
+  return value || null
+}
+
 // Statements that write one book (row + tags). Returned rather than executed so
 // callers can hand them to db.batch, which is atomic on every libSQL protocol --
 // interactive transactions need a stateful connection and fail over plain HTTP.
 function bookStatements(b) {
-  const stmts = []
-  stmts.push({
-    sql: `INSERT OR REPLACE INTO books (id, title, author, isbn, cover_url, rating, notes, date_read, date_added, pages, year, medium, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-    args: [
-      b.id,
-      b.title,
-      b.author || null,
-      b.isbn || null,
-      b.coverUrl || null,
-      b.rating || null,
-      b.notes || null,
-      b.dateRead || null,
-      b.dateAdded || null,
-      b.pages || null,
-      b.year || null,
-      MEDIA_KEYS.includes(b.medium) ? b.medium : 'book'
-    ]
-  })
-  stmts.push({ sql: 'DELETE FROM book_tags WHERE book_id = ?', args: [b.id] })
-  for (const tag of (b.tags || [])) {
-    stmts.push({ sql: 'INSERT OR IGNORE INTO book_tags (book_id, tag) VALUES (?, ?)', args: [b.id, tag] })
-  }
-  return stmts
+  const fields = Object.keys(BOOK_FIELDS)
+  return [
+    {
+      sql: `INSERT OR REPLACE INTO books (id, ${fields.map(f => BOOK_FIELDS[f]).join(', ')}, updated_at)
+            VALUES (?, ${fields.map(() => '?').join(', ')}, CURRENT_TIMESTAMP)`,
+      args: [b.id, ...fields.map(f => columnValue(f, b[f]))]
+    },
+    ...tagStatements(b.id, b.tags || [])
+  ]
+}
+
+// Replaces an item's tags, adding none when the item itself is missing
+function tagStatements(id, tags) {
+  return [
+    { sql: 'DELETE FROM book_tags WHERE book_id = ?', args: [id] },
+    ...tags.map(tag => ({
+      sql: 'INSERT OR IGNORE INTO book_tags (book_id, tag) SELECT ?, ? WHERE EXISTS (SELECT 1 FROM books WHERE id = ?)',
+      args: [id, tag, id]
+    }))
+  ]
+}
+
+// Changes only the fields given, without reading the row first, so a cover saved by another
+// request at the same moment is never written back over. Returns null for an unknown item.
+export async function updateBook(id, changes) {
+  await ensureSchema()
+  const fields = Object.keys(BOOK_FIELDS).filter(f => f in changes)
+  const stmts = [{
+    sql: `UPDATE books SET ${fields.map(f => `${BOOK_FIELDS[f]} = ?, `).join('')}updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+    args: [...fields.map(f => columnValue(f, changes[f])), id]
+  }]
+  if (Array.isArray(changes.tags)) stmts.push(...tagStatements(id, changes.tags))
+  const [result] = await db.batch(stmts, 'write')
+  return result.rowsAffected ? getBook(id) : null
 }
 
 // Helper: create or update book

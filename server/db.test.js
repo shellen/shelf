@@ -197,6 +197,58 @@ describe('settings', () => {
   })
 })
 
+describe('updateBook', () => {
+  async function seeded() {
+    const mod = await loadDb()
+    await mod.saveBook({ id: 'blue', title: 'Blue', author: 'Joni Mitchell', medium: 'album', coverUrl: 'https://art/blue.jpg', rating: 4, tags: ['folk'] })
+    await mod.default.execute(`UPDATE books SET created_at = '2020-01-01 00:00:00' WHERE id = 'blue'`)
+    return mod
+  }
+
+  it('writes only the fields it is given, so a cover saved meanwhile is never put back', async () => {
+    const mod = await seeded()
+    await mod.default.execute('CREATE TABLE cover_writes (n INTEGER)')
+    await mod.default.execute(`CREATE TRIGGER cover_insert AFTER INSERT ON books BEGIN INSERT INTO cover_writes VALUES (1); END`)
+    await mod.default.execute(`CREATE TRIGGER cover_update AFTER UPDATE OF cover_url ON books BEGIN INSERT INTO cover_writes VALUES (1); END`)
+
+    const book = await mod.updateBook('blue', { notes: 'A perfect record' })
+
+    expect(book).toMatchObject({ notes: 'A perfect record', coverUrl: 'https://art/blue.jpg', rating: 4, tags: ['folk'] })
+    expect((await mod.default.execute('SELECT COUNT(*) AS n FROM cover_writes')).rows[0].n).toBe(0)
+    expect((await mod.default.execute(`SELECT created_at FROM books WHERE id = 'blue'`)).rows[0].created_at).toBe('2020-01-01 00:00:00')
+  })
+
+  it('replaces the tags only when tags are given', async () => {
+    const mod = await seeded()
+    expect((await mod.updateBook('blue', { rating: 5 })).tags).toEqual(['folk'])
+    expect((await mod.updateBook('blue', { tags: ['jazz', 'canadian'] })).tags.sort()).toEqual(['canadian', 'jazz'])
+  })
+
+  it('stores fields the way saveBook does', async () => {
+    const mod = await seeded()
+    const book = await mod.updateBook('blue', { notes: '', medium: 'vinyl', coverUrl: 'https://art/new.jpg', year: 1971 })
+    expect(book).toMatchObject({ notes: null, medium: 'book', coverUrl: 'https://art/new.jpg', year: 1971 })
+  })
+
+  it('ignores fields that are not part of an item', async () => {
+    const mod = await seeded()
+    const book = await mod.updateBook('blue', { id: 'other', createdAt: 'x', title: 'Blue (Remastered)' })
+    expect(book).toMatchObject({ id: 'blue', title: 'Blue (Remastered)' })
+    expect(await mod.getBook('other')).toBeNull()
+  })
+
+  it('returns null for an item that does not exist', async () => {
+    const mod = await seeded()
+    expect(await mod.updateBook('nope', { notes: 'x' })).toBeNull()
+  })
+
+  it('leaves no tags behind for an item that does not exist', async () => {
+    const mod = await seeded()
+    expect(await mod.updateBook('nope', { tags: ['ghost'] })).toBeNull()
+    expect((await mod.default.execute(`SELECT COUNT(*) AS n FROM book_tags WHERE book_id = 'nope'`)).rows[0].n).toBe(0)
+  })
+})
+
 describe('updateBookIsbn', () => {
   it('sets the isbn on a book that has none', async () => {
     const { saveBook, getBook, updateBookIsbn } = await loadDb()

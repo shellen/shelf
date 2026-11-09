@@ -56,3 +56,37 @@ describe('POST /api/import', () => {
     expect(res.status).toBe(400)
   })
 })
+
+describe('PUT /api/books/:id', () => {
+  const json = { 'Content-Type': 'application/json' }
+
+  it('changes only the fields sent, leaving the rest of the row as it was', async () => {
+    const { default: db } = await import('./db.js')
+    const created = await (await fetch(`${base}/api/books`, {
+      method: 'POST', headers: json,
+      body: JSON.stringify({ title: 'Blue', author: 'Joni Mitchell', medium: 'album', coverUrl: 'https://art/blue.jpg' })
+    })).json()
+    await db.execute({ sql: `UPDATE books SET created_at = '2020-01-01 00:00:00' WHERE id = ?`, args: [created.id] })
+
+    const res = await fetch(`${base}/api/books/${created.id}`, { method: 'PUT', headers: json, body: JSON.stringify({ notes: 'A perfect record' }) })
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ notes: 'A perfect record', coverUrl: 'https://art/blue.jpg' })
+    const row = (await db.execute({ sql: 'SELECT created_at FROM books WHERE id = ?', args: [created.id] })).rows[0]
+    expect(row.created_at).toBe('2020-01-01 00:00:00')
+  })
+
+  it('accepts a request with no body, changing nothing', async () => {
+    const created = await (await fetch(`${base}/api/books`, {
+      method: 'POST', headers: json, body: JSON.stringify({ title: 'Court and Spark', medium: 'album' })
+    })).json()
+    const res = await fetch(`${base}/api/books/${created.id}`, { method: 'PUT' })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ title: 'Court and Spark', medium: 'album' })
+  })
+
+  it('answers 404 for an item that does not exist', async () => {
+    const res = await fetch(`${base}/api/books/nope`, { method: 'PUT', headers: json, body: JSON.stringify({ notes: 'x' }) })
+    expect(res.status).toBe(404)
+  })
+})
