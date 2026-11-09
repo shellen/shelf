@@ -432,14 +432,14 @@ export function mountShelf(root, {
   if (sizeObserver) sizeObserver.observe(root)
   else window.addEventListener('resize', onResize)
 
-  items.forEach(book => {
+  // Tape v holds item v % count, so an item's copies sit every count tapes from its index
+  items.forEach((book, i) => {
     resolveCover(book).then(url => {
       if (!url || destroyed) return
-      tapes.forEach(t => {
-        if (t.el.dataset.id !== String(book.id)) return
-        t.cover.style.backgroundImage = `url("${url.replace(/"/g, '%22')}")`
-        t.cover.classList.add('has-image')
-      })
+      for (let v = i; v < tapes.length; v += count) {
+        tapes[v].cover.style.backgroundImage = `url("${url.replace(/"/g, '%22')}")`
+        tapes[v].cover.classList.add('has-image')
+      }
       wake()
     })
   })
